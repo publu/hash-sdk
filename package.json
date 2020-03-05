@@ -1,0 +1,14 @@
+{
+  "name": "hash-sdk",
+  "version": "1.0.0",
+  "description": "A javascript based library that makes life easy, integrating and using Hedera services.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Hash.js"
+  ],
+  "author": "Paul Lobo",
+  "license": "ISC"
+}
