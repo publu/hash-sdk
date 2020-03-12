@@ -1,1 +1,1 @@
-export declare const selectMiddleware: () => void;
+export declare const selectMiddleware: (cb?: Function | undefined) => Promise<unknown>;

@@ -29,14 +29,12 @@
   "author": "Paul Lobo",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/plugin-url": "^4.0.2",
     "@types/jest": "^25.1.3",
     "babel-plugin-transform-custom-element-classes": "^0.1.0",
     "babel-plugin-transform-es2015-classes": "^6.24.1",
     "jest": "^25.1.0",
     "rollup": "^1.32.0",
     "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-img": "^1.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.2",
     "rollup-plugin-typescript2": "^0.26.0",
@@ -44,5 +42,6 @@
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.3"
   },
-  "dependencies": {}
+  "dependencies": {
+  }
 }
