@@ -3,6 +3,7 @@ export declare const theme: {
         white: string;
         black: string;
         primaryColor: string;
+        secondaryColor: string;
         buttonUnImportantColor: string;
         buttonPrimary: string;
         buttonRadius: string;

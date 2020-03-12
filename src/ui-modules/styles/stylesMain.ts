@@ -39,6 +39,11 @@ export const stylesMain = `
         color: ${t.white};
     }
 
+    middleware-selector .cancel-btn{
+        cursor:pointer;
+        font-size:20px;
+    }
+
     middleware-selector .modal-body{
         display:flex;
         flex-wrap:wrap;

@@ -52,37 +52,12 @@ function __generator(thisArg, body) {
     }
 }
 
-var theme = {
-    default: {
-        white: 'rgba(255,255,255,1)',
-        black: 'rgba(0,0,0,1)',
-        // Common
-        primaryColor: 'rgb(24, 189, 208)',
-        // Button
-        buttonUnImportantColor: 'rgba(0,0,0,0.1)',
-        buttonPrimary: 'rgba(81, 197, 255,1)',
-        buttonRadius: '7px',
-        // Modal 
-        modalOverlayColor: 'rgba(0,0,0,0.6)',
-        modalRadius: '15px',
-        modalZindex: '999'
-    }
-};
-
-var t = theme['default'];
-var stylesMain = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t.modalZindex + ";\n        background:" + t.modalOverlayColor + ";\n    }\n\n    middleware-selector .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t.white + ";\n        border-radius:" + t.modalRadius + ";\n    }\n\n    middleware-selector .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t.modalRadius + ";\n        border-top-right-radius: " + t.modalRadius + ";\n        color: " + t.white + ";\n    }\n\n    middleware-selector .modal-body{\n        display:flex;\n        flex-wrap:wrap;\n    }\n\n    middleware-selector .modal-title{\n        font-size:20px;\n    }\n\n    middleware-selector .cancel-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n";
-
+// import {stylesMain} from '../ui-modules/styles/stylesMain';
 var customElementInjector = function (element, targetTag) {
     if (targetTag === void 0) { targetTag = 'body'; }
     return __awaiter(void 0, void 0, void 0, function () {
-        var styleTag, customElement, parentTag;
+        var customElement, parentTag;
         return __generator(this, function (_a) {
-            if (!document.querySelector('#hash-sdk-style')) {
-                styleTag = document.createElement("style");
-                styleTag.id = 'hash-sdk-style';
-                styleTag.innerHTML = stylesMain;
-                document.getElementsByTagName("head")[0].appendChild(styleTag);
-            }
             customElement = typeof element === 'string' ? document.createElement(element) : element;
             parentTag = document.querySelector(targetTag);
             parentTag && parentTag.appendChild(customElement);
@@ -102,8 +77,29 @@ var Images = {
     composerLogo: require('../assets/composer-logo.svg')
 };
 
+var theme = {
+    default: {
+        white: 'rgba(255,255,255,1)',
+        black: 'rgba(0,0,0,1)',
+        // Common
+        primaryColor: 'rgb(24, 189, 208)',
+        secondaryColor: 'rgb(7,228,183)',
+        // Button
+        buttonUnImportantColor: 'rgba(0,0,0,0.1)',
+        buttonPrimary: 'rgba(81, 197, 255,1)',
+        buttonRadius: '7px',
+        // Modal 
+        modalOverlayColor: 'rgba(0,0,0,0.6)',
+        modalRadius: '15px',
+        modalZindex: '999'
+    }
+};
+
+var t = theme['default'];
+var cardStyle = "\n    .card-container{\n        padding:18px 12px;\n        font-family:inherit;\n        margin:25px 18px;\n        border-radius:6px;\n        flex:1;\n        display:flex;\n        flex-direction:column;\n        align-items:center;\n        box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        text-align:center;min-width: 100px;\n        transition: all 0.2s ease;\n    }\n\n    .card-container:hover{\n        background:rgb(35, 234, 181);\n        color:" + t.white + ";\n        transform: scale(1.05);\n    }\n\n    middleware-card .card-img{\n        width:60px;\n        height:auto;\n    }\n\n    middleware-card .card-title{\n        margin-top: 8px;\n        font-size: 18px;\n    }\n\n    middleware-card .card-desc{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgba(0,0,0,0.6);\n        font-style:italic;\n    }\n\n    middleware-card .card-recommended{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgb(234, 92, 110,0.7);\n    }\n";
+
 var t$1 = theme['default'];
-var cardStyle = "\n    .card-container{\n        padding:18px 12px;\n        font-family:inherit;\n        margin:25px 18px;\n        border-radius:6px;\n        flex:1;\n        display:flex;\n        flex-direction:column;\n        align-items:center;\n        box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        text-align:center;min-width: 100px;\n        transition: all 0.2s ease;\n    }\n\n    .card-container:hover{\n        background:rgb(35, 234, 181);\n        color:" + t$1.white + ";\n        transform: scale(1.05);\n    }\n\n    middleware-card .card-img{\n        width:60px;\n        height:auto;\n    }\n\n    middleware-card .card-title{\n        margin-top: 8px;\n        font-size: 18px;\n    }\n\n    middleware-card .card-desc{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgba(0,0,0,0.6);\n        font-style:italic;\n    }\n\n    middleware-card .card-recommended{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgb(234, 92, 110,0.7);\n    }\n";
+var stylesMain = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$1.modalZindex + ";\n        background:" + t$1.modalOverlayColor + ";\n    }\n\n    middleware-selector .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$1.white + ";\n        border-radius:" + t$1.modalRadius + ";\n    }\n\n    middleware-selector .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$1.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$1.modalRadius + ";\n        border-top-right-radius: " + t$1.modalRadius + ";\n        color: " + t$1.white + ";\n    }\n\n    middleware-selector .cancel-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    middleware-selector .modal-body{\n        display:flex;\n        flex-wrap:wrap;\n    }\n\n    middleware-selector .modal-title{\n        font-size:20px;\n    }\n\n    middleware-selector .cancel-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n";
 
 var myCustomElement = 'middleware-selector';
 var customElementModalTitle = 'Select a middleware';
@@ -148,6 +144,13 @@ var renderMiddlewareSelectorUI = function (cb) {
         var modalFooter = document.createElement('div');
         var cancelButton = document.createElement('span');
         var modalTitle = document.createElement('span');
+        // Element Styles
+        if (!document.querySelector("#" + myCustomElement + "-style")) {
+            var styleTag = document.createElement("style");
+            styleTag.id = 'hash-sdk-style';
+            styleTag.innerHTML = stylesMain;
+            document.getElementsByTagName("head")[0].appendChild(styleTag);
+        }
         // Element Identification
         parentDiv.setAttribute('class', 'modal-parent');
         modalContainer.setAttribute('class', 'modal-container');
@@ -238,7 +241,6 @@ var removeMiddlewareUI = function () {
     elementDestructor(myCustomElement);
 };
 
-// import { supportCallbackAndPromiseResponse } from '../utils';
 var selectMiddleware = function (cb) {
     return new Promise(function (resolve, reject) {
         renderMiddlewareSelectorUI(function (err, res) {
@@ -249,20 +251,232 @@ var selectMiddleware = function (cb) {
     });
 };
 var setMiddleware = function (provider) {
-    switch (provider) {
-        case 'hardware':
-            //@TODO include when hardware comes in
-            break;
-        case 'composer':
-            (global).middleware = provider;
-            break;
+    (window).middleware = provider;
+};
+
+var t$2 = theme['default'];
+var accountStyle = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$2.modalZindex + ";\n        background:" + t$2.modalOverlayColor + ";\n    }\n\n    account-setter .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$2.white + ";\n        border-radius:" + t$2.modalRadius + ";\n    }\n\n    account-setter .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$2.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$2.modalRadius + ";\n        border-top-right-radius: " + t$2.modalRadius + ";\n        color: " + t$2.white + ";\n    }\n\n    account-setter .close-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    account-setter .modal-body{\n        display: flex;\n        justify-content: center;\n    }\n\n    account-setter .modal-body-wrapper{\n        display: flex;\n        flex-direction: column;\n        align-items: center;\n        flex-wrap:wrap;\n        flex: 1;\n        margin: 15px 20px;\n    }\n\n    account-setter .input-wrapper{\n        width: 100%;\n        margin:10px 0px;\n    }\n\n    select.input-ele{\n        padding: 0px 10px;\n    }\n\n    account-setter .input-ele{\n        width: 100%;\n        height: 36px;\n        border-radius: 4px;\n        font-size: 14px;\n        background: rgba(255,255,255,1);\n        border: 1px solid rgba(0,0,0,0.2);\n\n    }\n\n    account-setter .label-input{\n        font-size: 14px;\n        opacity:0.8;\n    }\n\n    account-setter .modal-title{\n        font-size:20px;\n    }\n\n    account-setter .close-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n\n    account-setter button{\n        border-radius: 5px;\n        border: none;\n        font-size: 15px;\n        padding: 10px 20px;\n        margin:10px;\n    }\n\n    account-setter .modal-footer{\n        display:flex;\n        justify-content:center;\n    }\n\n    .cancel-btn{\n        background: rgba(0,0,0,0.05);\n    }\n\n    .confirm-btn{\n        background: " + t$2.secondaryColor + ";\n    }\n";
+
+var myCustomElement$1 = 'account-setter';
+var customElementModalTitle$1 = 'Set account';
+var networks = [
+    {
+        id: "n1",
+        title: 'Test Network',
+        value: 'testnet'
+    },
+    {
+        id: "n2",
+        title: 'Main Network',
+        value: 'mainnet'
     }
-    console.log('GLOBAL ::::', global);
+];
+// interface ITabData{
+//     id:string,
+//     title:string,
+//     provider:string,
+//     description:string,
+//     active:Boolean,
+//     disabled:Boolean
+// }
+// const tabData :Array<ITabData>= [
+//     {
+//         id:'option-1',
+//         title:'Private Key',
+//         provider:'privatekey',
+//         description:'',
+//         active:true,
+//         disabled:false
+//     },
+//     {
+//         id:'option-2',
+//         title:'Mnemonics',
+//         provider:'mnemonics',
+//         description:'',
+//         active:false,
+//         disabled:false
+//     },
+//     {
+//         id:'option-3',
+//         title:'Keystore',
+//         provider:'keystore',
+//         description:'',
+//         active:false,
+//         disabled:false
+//     },
+// ]
+var renderAccountSetterUI = function (cb) {
+    //@TODO expose theme options
+    // const t = theme['default'];
+    try {
+        // Element creation.
+        var parentDiv = document.createElement(myCustomElement$1);
+        var modalContainer = document.createElement('div');
+        var modalHeader = document.createElement('div');
+        var modalBody = document.createElement('div');
+        var modalBodyWrapper = document.createElement('div');
+        var modalFooter = document.createElement('div');
+        var closeButton = document.createElement('span');
+        var modalTitle = document.createElement('span');
+        var networkInput_1 = document.createElement('select');
+        var accountIdInput = document.createElement('input');
+        var confirmButton = document.createElement('button');
+        var cancelButton = document.createElement('button');
+        // Element Styles
+        if (!document.querySelector("#" + myCustomElement$1 + "-style")) {
+            var styleTag = document.createElement("style");
+            styleTag.id = 'hash-sdk-style';
+            styleTag.innerHTML = accountStyle;
+            document.getElementsByTagName("head")[0].appendChild(styleTag);
+        }
+        // Element Identification
+        parentDiv.setAttribute('class', 'modal-parent');
+        modalContainer.setAttribute('class', 'modal-container');
+        modalHeader.setAttribute('class', 'modal-header');
+        modalFooter.setAttribute('class', 'modal-footer');
+        modalBody.setAttribute('class', 'modal-body');
+        modalBodyWrapper.setAttribute('class', 'modal-body-wrapper');
+        modalTitle.setAttribute('class', 'modal-title');
+        cancelButton.setAttribute('class', 'cancel-btn');
+        confirmButton.setAttribute('class', 'confirm-btn');
+        networkInput_1.setAttribute('class', 'network-input');
+        accountIdInput.setAttribute('class', 'account-input');
+        // Fetching dynamic variables
+        closeButton.innerHTML = "&#x2715";
+        accountIdInput.placeholder = ' 0.0.1234(Account Id)';
+        modalTitle.innerHTML = "" + customElementModalTitle$1;
+        cancelButton.innerHTML = 'CANCEL';
+        confirmButton.innerHTML = 'VALIDATE & SET';
+        networks.forEach(function (n, i) {
+            if (i === 0) {
+                var option_1 = document.createElement('option');
+                option_1.setAttribute('key', i.toString());
+                option_1.innerHTML = 'Choose Network';
+                option_1.selected = true;
+                option_1.disabled = true;
+                networkInput_1.appendChild(option_1);
+            }
+            var option = document.createElement('option');
+            option.setAttribute('key', (i + 1).toString());
+            option.innerHTML = n.title;
+            option.value = n.value;
+            networkInput_1.appendChild(option);
+        });
+        renderLabeledWrappedUI('Network', networkInput_1, modalBodyWrapper);
+        renderLabeledWrappedUI('Account Id', accountIdInput, modalBodyWrapper);
+        parentDiv.onclick = function (event) {
+            if (event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement$1) {
+                removeMiddlewareUI$1();
+            }
+        };
+        closeButton.onclick = function () {
+            removeMiddlewareUI$1();
+        };
+        cancelButton.onclick = function () {
+            removeMiddlewareUI$1();
+        };
+        // Element Merging and Finalization
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(cancelButton);
+        modalContainer.appendChild(modalHeader);
+        modalBody.appendChild(modalBodyWrapper);
+        modalContainer.appendChild(modalBody);
+        modalFooter.appendChild(cancelButton);
+        modalFooter.appendChild(confirmButton);
+        modalContainer.appendChild(modalFooter);
+        parentDiv.appendChild(modalContainer);
+        customElementInjector(parentDiv);
+    }
+    catch (e) {
+        console.error('Error in renderMiddlewareSelectorUI:::', e);
+        cb && cb(e);
+    }
+};
+var renderLabeledWrappedUI = function (labelText, inputElement, targetElement) {
+    var inputWrapper = document.createElement('div');
+    var label = document.createElement('div');
+    inputWrapper.setAttribute('class', 'input-wrapper');
+    label.setAttribute('class', 'label-input');
+    label.innerHTML = labelText;
+    inputElement.setAttribute('class', 'input-ele');
+    inputWrapper.appendChild(label);
+    inputWrapper.appendChild(inputElement);
+    targetElement.appendChild(inputWrapper);
+};
+// const renderUICard = (data:Array<IcardData>,targetElement:HTMLElement,cb?:Function):void =>{
+//     if(!document.querySelector('#hash-card-style')){
+//         const styleTag :HTMLStyleElement= document.createElement("style");
+//         styleTag.id = 'hash-card-style';
+//         styleTag.innerHTML = cardStyle;
+//         document.getElementsByTagName("head")[0].appendChild(styleTag);
+//     }
+//     if(Array.isArray(data) && data.length>0){
+//         for(let d of data){
+//             const cardData :IcardData= d;
+//             const newUICard = document.createElement('middleware-card');
+//             newUICard.id = cardData.id;
+//             newUICard.setAttribute('class','card-container');
+//             newUICard.style.cssText = `${cardData.active ? 'cursor:pointer;':'pointer-events:none;filter: grayscale(1);background: rgba(0,0,0,0.1);'}`
+//             //Image
+//             const cardImg = document.createElement('img');
+//             cardImg.setAttribute('class','card-img');
+//             cardImg.src = cardData.imagePath;
+//             // Title Text
+//             const titleTextEle = document.createElement('div');
+//             titleTextEle.setAttribute('class','card-title');
+//             titleTextEle.innerHTML = cardData.title;
+//             // Description Text
+//             const desc = document.createElement('div');
+//             desc.setAttribute('class','card-desc');
+//             desc.innerHTML = cardData.description;
+//             // Recommendation
+//             const notRecommended = document.createElement('div');
+//             notRecommended.setAttribute('class','card-recommended');
+//             notRecommended.innerHTML = cardData.recommended ? '' : 'Not Recommended';
+//             newUICard.appendChild(cardImg);
+//             newUICard.appendChild(titleTextEle);
+//             newUICard.appendChild(desc);
+//             newUICard.appendChild(notRecommended);
+//             newUICard.onclick = function(){
+//                 cb && cb(d);
+//             }
+//             targetElement.appendChild(newUICard);
+//         }
+//     }
+// }
+var removeMiddlewareUI$1 = function () {
+    if (!document.querySelector('#hash-sdk-style')) {
+        var styleTag = document.createElement("style");
+        styleTag.id = 'hash-sdk-style';
+        styleTag.innerHTML = accountStyle;
+        document.getElementsByTagName("head")[0].appendChild(styleTag);
+    }
+    var cardStyleTag = document.querySelector('#hash-card-style');
+    if (cardStyleTag) {
+        elementDestructor(cardStyleTag);
+    }
+    elementDestructor(myCustomElement$1);
+};
+
+// interface IKeys{
+//     privateKey:string,
+//     publicKey?:string,
+//     mnemonics?:string
+// }
+var setAccount = function (cb) {
+    return new Promise(function (resolve, reject) {
+        renderAccountSetterUI(function (err, res) {
+            // setMiddleware(res.provider);
+            cb && cb(err, res);
+            err ? reject(err) : resolve(res);
+        });
+    });
 };
 
 var index = {
     sum: sum,
-    selectMiddleware: selectMiddleware
+    selectMiddleware: selectMiddleware,
+    setAccount: setAccount
 };
 
 export default index;

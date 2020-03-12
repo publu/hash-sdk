@@ -6,6 +6,7 @@ export const theme ={
 
         // Common
         primaryColor:'rgb(24, 189, 208)',
+        secondaryColor:'rgb(7,228,183)',
         
         // Button
         buttonUnImportantColor:'rgba(0,0,0,0.1)',

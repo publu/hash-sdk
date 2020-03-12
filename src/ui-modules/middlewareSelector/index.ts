@@ -4,6 +4,7 @@ import {
 } from '../../ui-utils/index';
 import {Images} from '../../images';
 import {cardStyle} from '../../ui-modules/styles/cardStyle';
+import {stylesMain} from '../../ui-modules/styles/stylesMain';
 
 const myCustomElement = 'middleware-selector';
 const customElementModalTitle = 'Select a middleware';
@@ -64,6 +65,14 @@ export const renderMiddlewareSelectorUI =(cb?:Function)=> {
         const modalFooter = document.createElement('div');
         const cancelButton = document.createElement('span');
         const modalTitle = document.createElement('span');
+
+        // Element Styles
+        if(!document.querySelector(`#${myCustomElement}-style`)){
+            const styleTag :HTMLStyleElement= document.createElement("style");
+            styleTag.id = 'hash-sdk-style'
+            styleTag.innerHTML = stylesMain;
+            document.getElementsByTagName("head")[0].appendChild(styleTag);
+        }
         
         // Element Identification
         parentDiv.setAttribute('class','modal-parent');
@@ -77,6 +86,8 @@ export const renderMiddlewareSelectorUI =(cb?:Function)=> {
         // Fetching dynamic variables
         cancelButton.innerHTML="&#x2715";
         modalTitle.innerHTML=`${customElementModalTitle}`;
+
+        
         
         renderUICard(cardData,modalBody,(opt:IcardData)=>{
             cb && cb(null,opt);
