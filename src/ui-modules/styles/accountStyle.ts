@@ -63,18 +63,18 @@ export const accountStyle = `
         margin:10px 0px;
     }
 
-    select.input-ele{
-        padding: 0px 10px;
-    }
-
     account-setter .input-ele{
-        width: 100%;
+        width: calc(100% - 20px);
+        padding:0px 10px;
         height: 36px;
         border-radius: 4px;
         font-size: 14px;
         background: rgba(255,255,255,1);
         border: 1px solid rgba(0,0,0,0.2);
+    }
 
+    select.input-ele{
+        width: 100%;
     }
 
     account-setter .label-input{
@@ -97,6 +97,14 @@ export const accountStyle = `
         font-size: 15px;
         padding: 10px 20px;
         margin:10px;
+        cursor:pointer;
+        opacity:0.8;
+        transition:all 0.2s ease;
+    }
+
+    account-setter button:hover{
+        opacity:1;
+        transform:scale(1.02);
     }
 
     account-setter .modal-footer{

@@ -51,9 +51,6 @@ const cardData :Array<IcardData>= [
 ]
 
 export const renderMiddlewareSelectorUI =(cb?:Function)=> {
-    
-    //@TODO expose theme options
-   // const t = theme['default'];
 
     try{
 

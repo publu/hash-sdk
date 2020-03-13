@@ -25,47 +25,7 @@ const networks:Array<INetwork> = [
     }
 ]
 
-// interface ITabData{
-//     id:string,
-//     title:string,
-//     provider:string,
-//     description:string,
-//     active:Boolean,
-//     disabled:Boolean
-// }
-
-// const tabData :Array<ITabData>= [
-//     {
-//         id:'option-1',
-//         title:'Private Key',
-//         provider:'privatekey',
-//         description:'',
-//         active:true,
-//         disabled:false
-//     },
-//     {
-//         id:'option-2',
-//         title:'Mnemonics',
-//         provider:'mnemonics',
-//         description:'',
-//         active:false,
-//         disabled:false
-//     },
-//     {
-//         id:'option-3',
-//         title:'Keystore',
-//         provider:'keystore',
-//         description:'',
-//         active:false,
-//         disabled:false
-//     },
-
-// ]
-
 export const renderAccountSetterUI =(cb?:Function)=> {
-    
-    //@TODO expose theme options
-   // const t = theme['default'];
 
     try{
 
@@ -81,6 +41,8 @@ export const renderAccountSetterUI =(cb?:Function)=> {
 
         const networkInput = document.createElement('select');
         const accountIdInput = document.createElement('input');
+        const privateInput = document.createElement('input');
+
         const confirmButton = document.createElement('button');
         const cancelButton = document.createElement('button');
 
@@ -107,10 +69,14 @@ export const renderAccountSetterUI =(cb?:Function)=> {
 
         networkInput.setAttribute('class','network-input');
         accountIdInput.setAttribute('class','account-input');
+        privateInput.setAttribute('class','account-input');
+
 
         // Fetching dynamic variables
         closeButton.innerHTML="&#x2715";
         accountIdInput.placeholder = ' 0.0.1234(Account Id)';
+        privateInput.placeholder = ' Private Key';
+
         modalTitle.innerHTML=`${customElementModalTitle}`;
         cancelButton.innerHTML = 'CANCEL';
         confirmButton.innerHTML = 'VALIDATE & SET';
@@ -133,22 +99,35 @@ export const renderAccountSetterUI =(cb?:Function)=> {
 
         renderLabeledWrappedUI('Network',networkInput,modalBodyWrapper);
         renderLabeledWrappedUI('Account Id',accountIdInput,modalBodyWrapper);
+        renderLabeledWrappedUI('Private Key',privateInput,modalBodyWrapper);
 
 
         parentDiv.onclick = function(event:any){
             if(event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement){
-                removeMiddlewareUI();
+                removeAccountSetterUI();
             }
         }
 
         closeButton.onclick = function(){
-            removeMiddlewareUI();
+            removeAccountSetterUI();
         }
 
         cancelButton.onclick = function(){
-            removeMiddlewareUI();
+            removeAccountSetterUI();
         }
         
+        confirmButton.onclick = function(){
+            let accountData = {
+                accountId : accountIdInput.value,
+                network : networkInput.value,
+                keys : {
+                    privateKey:privateInput.value
+                },
+                mnemonics:''
+            }
+            handleSetAccount(accountData);
+        }
+
         // Element Merging and Finalization
         modalHeader.appendChild(modalTitle);
         modalHeader.appendChild(cancelButton);
@@ -182,61 +161,7 @@ const renderLabeledWrappedUI = (labelText:string,inputElement:HTMLElement,target
     targetElement.appendChild(inputWrapper); 
 }
 
-// const renderUICard = (data:Array<IcardData>,targetElement:HTMLElement,cb?:Function):void =>{
-    
-//     if(!document.querySelector('#hash-card-style')){
-//         const styleTag :HTMLStyleElement= document.createElement("style");
-//         styleTag.id = 'hash-card-style';
-//         styleTag.innerHTML = cardStyle;
-//         document.getElementsByTagName("head")[0].appendChild(styleTag);
-//     }
-
-//     if(Array.isArray(data) && data.length>0){
-
-//         for(let d of data){
-//             const cardData :IcardData= d;
-//             const newUICard = document.createElement('middleware-card');
-//             newUICard.id = cardData.id;
-//             newUICard.setAttribute('class','card-container');
-
-//             newUICard.style.cssText = `${cardData.active ? 'cursor:pointer;':'pointer-events:none;filter: grayscale(1);background: rgba(0,0,0,0.1);'}`
-
-//             //Image
-//             const cardImg = document.createElement('img');
-//             cardImg.setAttribute('class','card-img');
-//             cardImg.src = cardData.imagePath;
-
-//             // Title Text
-//             const titleTextEle = document.createElement('div');
-//             titleTextEle.setAttribute('class','card-title');
-//             titleTextEle.innerHTML = cardData.title;
-
-//             // Description Text
-//             const desc = document.createElement('div');
-//             desc.setAttribute('class','card-desc');
-//             desc.innerHTML = cardData.description;
-            
-//             // Recommendation
-//             const notRecommended = document.createElement('div');
-//             notRecommended.setAttribute('class','card-recommended');
-//             notRecommended.innerHTML = cardData.recommended ? '' : 'Not Recommended';
-
-//             newUICard.appendChild(cardImg);
-//             newUICard.appendChild(titleTextEle);
-//             newUICard.appendChild(desc);
-//             newUICard.appendChild(notRecommended);
-
-//             newUICard.onclick = function(){
-//                 cb && cb(d);
-//             }
-
-//             targetElement.appendChild(newUICard);
-//         }
-//     }
-// }
-
-
-export const removeMiddlewareUI =()=> {
+const removeAccountSetterUI =()=> {
     if(!document.querySelector('#hash-sdk-style')){
         const styleTag :HTMLStyleElement= document.createElement("style");
         styleTag.id = 'hash-sdk-style'
@@ -248,4 +173,9 @@ export const removeMiddlewareUI =()=> {
         elementDestructor(cardStyleTag);
     }
     elementDestructor(myCustomElement);
+}
+
+const handleSetAccount = (accountData:Object) =>{
+    (window as any).HashAccount = accountData;
+    removeAccountSetterUI();
 }

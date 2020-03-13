@@ -3,6 +3,8 @@ import commonjs from 'rollup-plugin-commonjs'
 import external from 'rollup-plugin-peer-deps-external'
 import resolve from 'rollup-plugin-node-resolve'
 import pkg from './package.json';
+import json from '@rollup/plugin-json';
+
 
 
 
@@ -33,6 +35,15 @@ export default {
     commonjs({
       include: ['node_modules/**']
     }),
+    json()
   
+  ],
+  globals: {
+    "@hashgraph/sdk": "_hashgraph_sdk",
+    "web3-eth-abi": "_web3-eth-abi"
+  },
+  external: [
+    "@hashgraph/sdk",
+    "web3-eth-abi"
   ]
 }
