@@ -1,3 +1,4 @@
-export declare const validate: {
-    validateCrytoTransferData: (data: any, callback: Function) => void;
+export declare const validateService: (data: any, type: string) => {
+    memo: string;
+    recipientList: any;
 };

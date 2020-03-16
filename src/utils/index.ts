@@ -161,6 +161,14 @@ const sumFromRecipientList = (recipientList:any) => {
     return requestedPayment
 }
 
+/**
+ * Checks if provider is set globally
+ * @returns {any} returns boolean
+ */
+const isProviderSet = () =>{
+    return ((window)as any).provider ? ((window)as any).provider :false;
+}
+
 
 export const util = {
     stringToBytes,
@@ -171,7 +179,8 @@ export const util = {
     getFriendlyErrorObject,
     createHederaClient,
     createClientOperator,
-    sumFromRecipientList
+    sumFromRecipientList,
+    isProviderSet
 }
 
 // export const supportCallbackAndPromiseResponse =(err:any,res:any,cb?:Function):any=>{

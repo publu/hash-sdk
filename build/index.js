@@ -21,17 +21,6 @@ See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
 
-var __assign = function() {
-    __assign = Object.assign || function __assign(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-
 function __awaiter(thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
@@ -85,7 +74,12 @@ var customElementInjector = function (element, targetTag) {
 var elementDestructor = function (element) {
     var customElementName = typeof element === 'string' ? element : element.tagName.toLowerCase();
     var targetTag = document.querySelector(customElementName);
-    targetTag && targetTag.parentNode && targetTag.parentNode.removeChild(targetTag);
+    targetTag && targetTag.parentNode ? targetTag.parentNode.removeChild(targetTag) : null;
+};
+var internalStyleDestructor = function (id) {
+    var headTag = document.querySelector('head');
+    var targetStyleElement = document.querySelector("#" + id);
+    targetStyleElement ? headTag === null || headTag === void 0 ? void 0 : headTag.removeChild(targetStyleElement) : null;
 };
 
 var Images = {
@@ -249,24 +243,9 @@ var renderUICard = function (data, targetElement, cb) {
     }
 };
 var removeMiddlewareUI = function () {
-    var cardStyleTag = document.querySelector('#hash-card-style');
-    if (cardStyleTag) {
-        elementDestructor(cardStyleTag);
-    }
+    internalStyleDestructor('hash-sdk-style');
+    internalStyleDestructor('hash-card-style');
     elementDestructor(myCustomElement);
-};
-
-var selectMiddleware = function (cb) {
-    return new Promise(function (resolve, reject) {
-        renderMiddlewareSelectorUI(function (err, res) {
-            setMiddleware(res.provider);
-            cb && cb(err, res);
-            err ? reject(err) : resolve(res);
-        });
-    });
-};
-var setMiddleware = function (provider) {
-    (window).middleware = provider;
 };
 
 var t$2 = theme['default'];
@@ -317,6 +296,7 @@ var renderAccountSetterUI = function (cb) {
         modalBody.setAttribute('class', 'modal-body');
         modalBodyWrapper.setAttribute('class', 'modal-body-wrapper');
         modalTitle.setAttribute('class', 'modal-title');
+        closeButton.setAttribute('class', 'close-btn');
         cancelButton.setAttribute('class', 'cancel-btn');
         confirmButton.setAttribute('class', 'confirm-btn');
         networkInput_1.setAttribute('class', 'network-input');
@@ -371,7 +351,7 @@ var renderAccountSetterUI = function (cb) {
         };
         // Element Merging and Finalization
         modalHeader.appendChild(modalTitle);
-        modalHeader.appendChild(cancelButton);
+        modalHeader.appendChild(closeButton);
         modalContainer.appendChild(modalHeader);
         modalBody.appendChild(modalBodyWrapper);
         modalContainer.appendChild(modalBody);
@@ -398,16 +378,7 @@ var renderLabeledWrappedUI = function (labelText, inputElement, targetElement) {
     targetElement.appendChild(inputWrapper);
 };
 var removeAccountSetterUI = function () {
-    if (!document.querySelector('#hash-sdk-style')) {
-        var styleTag = document.createElement("style");
-        styleTag.id = 'hash-sdk-style';
-        styleTag.innerHTML = accountStyle;
-        document.getElementsByTagName("head")[0].appendChild(styleTag);
-    }
-    var cardStyleTag = document.querySelector('#hash-card-style');
-    if (cardStyleTag) {
-        elementDestructor(cardStyleTag);
-    }
+    internalStyleDestructor('hash-sdk-style');
     elementDestructor(myCustomElement$1);
 };
 var handleSetAccount = function (accountData) {
@@ -428,6 +399,24 @@ var setAccount = function (cb) {
             err ? reject(err) : resolve(res);
         });
     });
+};
+
+var selectProvider = function (cb) {
+    return new Promise(function (resolve, reject) {
+        renderMiddlewareSelectorUI(function (err, res) {
+            setProvider(res.provider);
+            if ((window).provider === 'software' && !(window).HashAccount) {
+                setAccount();
+            }
+            else {
+                cb && cb(err, res);
+                err ? reject(err) : resolve(res);
+            }
+        });
+    });
+};
+var setProvider = function (provider) {
+    (window).provider = provider;
 };
 
 /**
@@ -671,6 +660,13 @@ var sumFromRecipientList = function (recipientList) {
     }
     return requestedPayment;
 };
+/**
+ * Checks if provider is set globally
+ * @returns {any} returns boolean
+ */
+var isProviderSet = function () {
+    return (window).provider ? (window).provider : false;
+};
 var util = {
     stringToBytes: stringToBytes,
     stringToBytesSize: stringToBytesSize,
@@ -680,7 +676,8 @@ var util = {
     getFriendlyErrorObject: getFriendlyErrorObject,
     createHederaClient: createHederaClient,
     createClientOperator: createClientOperator,
-    sumFromRecipientList: sumFromRecipientList
+    sumFromRecipientList: sumFromRecipientList,
+    isProviderSet: isProviderSet
 };
 // export const supportCallbackAndPromiseResponse =(err:any,res:any,cb?:Function):any=>{
 //     if(cb){
@@ -696,18 +693,33 @@ var util = {
 //     }
 // }
 
-var cryptoTransfer = function (data) {
-    new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var accountData, recipientList, memo, account, fromAccount, amount, operator, client, formattedData, res, e_1, err;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
+/**
+ * A function to handle crypto transfer based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var cryptoTransferController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, accountData, recipientList, memo, account, _a, fromAccount, amount, operator, client, formattedData, response, e_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
                     accountData = (window.HashAccount);
-                    console.log('ACCOUNT DATA', accountData);
-                    recipientList = data.recipientList;
-                    memo = data.memo;
+                    recipientList = data.recipientList, memo = data.memo;
                     account = util.getAccountIdObjectFull(accountData.accountId);
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for crypto comming soon!";
+                case 2:
                     fromAccount = {};
                     fromAccount.acc = accountData.accountId.split('.')[2];
                     fromAccount.privateKey = accountData.privateKey;
@@ -724,30 +736,26 @@ var cryptoTransfer = function (data) {
                         toAccount: util.getAccountIdLikeToObj(recipientList[0].to),
                         network: accountData.network
                     };
-                    return [4 /*yield*/, doCryptoTransfer(formattedData)];
-                case 1:
-                    res = _a.sent();
-                    formattedData.receipt = true;
-                    formattedData.transactionId = res.transactionId;
-                    console.log('CRYPTO RECIEPT', formattedData);
-                    resolve({
-                        nodePrecheckcode: res.receipt.status.code,
-                        receiptStatus: res.receipt.status.code,
-                        transactionId: res.transactionId
-                    });
-                    return [3 /*break*/, 3];
-                case 2:
-                    e_1 = _a.sent();
-                    err = util.getFriendlyErrorObject(e_1);
-                    console.log('Error in cryptoTransfer:::', e_1);
-                    reject(err);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [4 /*yield*/, cryptoTransfer(formattedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('RESPONSE CRYPTO INTERNAL::', response);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     }); });
 };
-var doCryptoTransfer = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+var cryptoTransfer = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var transactionId, receipt;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -762,10 +770,11 @@ var doCryptoTransfer = function (data) { return __awaiter(void 0, void 0, void 0
                 return [4 /*yield*/, transactionId.getReceipt(data.client)];
             case 2:
                 receipt = _a.sent();
-                return [2 /*return*/, {
-                        transactionId: transactionId.toString(),
-                        receipt: __assign({}, receipt)
-                    }];
+                return [2 /*return*/, ({
+                        nodePrecheckcode: receipt.status.code,
+                        receiptStatus: receipt.status.code,
+                        transactionId: transactionId
+                    })];
         }
     });
 }); };
@@ -775,65 +784,87 @@ var doCryptoTransfer = function (data) { return __awaiter(void 0, void 0, void 0
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate = function (data, callback) {
-    // Something is wrong with the data object, return false
-    if (!data) {
-        throw new Error('Data is undefined');
+var validate = function (data) {
+    try {
+        // Something is wrong with the data object, return false
+        if (!data) {
+            throw new Error('Data is undefined');
+        }
+        // Checks validity of memo
+        var memo = common.isString(data.memo) || '';
+        if (util.stringToBytesSize(memo) > 100) {
+            throw new Error('Memo size cannot exceed 100 bytes');
+        }
+        // Checks validity of recipient list
+        var recipientList = common.validateRecipientList(data.recipientlist);
+        if (recipientList === false) {
+            throw new Error('Not a valid recipient list');
+        }
+        // Returning whatever seems to be necessary
+        return ({
+            memo: memo,
+            recipientList: recipientList
+        });
     }
-    // Checks validity of memo
-    var memo = common.isString(data.memo) || '';
-    if (util.stringToBytesSize(memo) > 100) {
-        throw new Error('Memo size cannot exceed 100 bytes');
+    catch (e) {
+        throw e;
     }
-    // Checks validity of recipient list
-    var recipientList = common.validateRecipientList(data.recipientlist);
-    if (recipientList === false) {
-        throw new Error('Not a valid recipient list');
-    }
-    // Returning whatever seems to be necessary
-    callback(null, {
-        memo: memo,
-        recipientList: recipientList
-    });
 };
 
 // Exports validation as one module for the ease to use it
-var validate$1 = {
-    validateCrytoTransferData: validate
+var validateService = function (data, type) {
+    try {
+        switch (type) {
+            case 'crypto-transfer':
+                return validate(data);
+            case 'contract-call':
+                return validate(data);
+            default:
+                throw "No service found!";
+        }
+    }
+    catch (e) {
+        console.log('Error in Service Validation:::', e);
+        throw e;
+    }
 };
 
-var triggerCryptoTransfer = function (data) {
-    return new Promise(function (resolve, reject) {
-        validate$1.validateCrytoTransferData(data, function (err, res) { return __awaiter(void 0, void 0, void 0, function () {
-            var response, e_1, err_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 4, , 5]);
-                        if (!(!err && res)) return [3 /*break*/, 2];
-                        return [4 /*yield*/, cryptoTransfer(res)];
-                    case 1:
-                        response = _a.sent();
-                        resolve(response);
-                        return [3 /*break*/, 3];
-                    case 2: throw err;
-                    case 3: return [3 /*break*/, 5];
-                    case 4:
-                        e_1 = _a.sent();
-                        err_1 = util.getFriendlyErrorObject(e_1);
-                        console.log('Error in cryptoTransfer:::', e_1);
-                        reject(err_1);
-                        return [3 /*break*/, 5];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        }); });
-    });
+/**
+ * triggers exposed crypto service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerCryptoTransfer = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, response, error_1, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    util.isProviderSet();
+                    updatedData = validateService(data, 'crypto-transfer');
+                    return [4 /*yield*/, cryptoTransferController(updatedData)];
+                case 1:
+                    response = _a.sent();
+                    callback && callback(null, response);
+                    resolve(response);
+                    return [3 /*break*/, 3];
+                case 2:
+                    error_1 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_1);
+                    console.log('Error in cryptoTransfer:::', error_1);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    }); });
 };
 
 var index = {
     sum: sum,
-    selectMiddleware: selectMiddleware,
+    selectProvider: selectProvider,
     setAccount: setAccount,
     triggerCryptoTransfer: triggerCryptoTransfer
 };

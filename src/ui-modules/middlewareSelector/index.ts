@@ -1,5 +1,6 @@
 import {
     customElementInjector,
+    internalStyleDestructor,
     elementDestructor
 } from '../../ui-utils/index';
 import {Images} from '../../images';
@@ -173,9 +174,7 @@ const renderUICard = (data:Array<IcardData>,targetElement:HTMLElement,cb?:Functi
 
 
 export const removeMiddlewareUI =()=> {
-    const cardStyleTag :any= document.querySelector('#hash-card-style');
-    if(cardStyleTag){
-        elementDestructor(cardStyleTag);
-    }
+    internalStyleDestructor('hash-sdk-style');
+    internalStyleDestructor('hash-card-style');
     elementDestructor(myCustomElement);
 }

@@ -1,6 +1,7 @@
 import {
     customElementInjector,
-    elementDestructor
+    elementDestructor,
+    internalStyleDestructor
 } from '../../ui-utils/index';
 import { accountStyle } from '../styles/accountStyle';
 
@@ -64,6 +65,8 @@ export const renderAccountSetterUI =(cb?:Function)=> {
         modalBody.setAttribute('class','modal-body');
         modalBodyWrapper.setAttribute('class','modal-body-wrapper');
         modalTitle.setAttribute('class','modal-title');
+        closeButton.setAttribute('class','close-btn');
+
         cancelButton.setAttribute('class','cancel-btn');
         confirmButton.setAttribute('class','confirm-btn');
 
@@ -130,7 +133,7 @@ export const renderAccountSetterUI =(cb?:Function)=> {
 
         // Element Merging and Finalization
         modalHeader.appendChild(modalTitle);
-        modalHeader.appendChild(cancelButton);
+        modalHeader.appendChild(closeButton);
         modalContainer.appendChild(modalHeader);
         modalBody.appendChild(modalBodyWrapper);
         modalContainer.appendChild(modalBody);
@@ -162,16 +165,7 @@ const renderLabeledWrappedUI = (labelText:string,inputElement:HTMLElement,target
 }
 
 const removeAccountSetterUI =()=> {
-    if(!document.querySelector('#hash-sdk-style')){
-        const styleTag :HTMLStyleElement= document.createElement("style");
-        styleTag.id = 'hash-sdk-style'
-        styleTag.innerHTML = accountStyle;
-        document.getElementsByTagName("head")[0].appendChild(styleTag);
-    }
-    const cardStyleTag :any= document.querySelector('#hash-card-style');
-    if(cardStyleTag){
-        elementDestructor(cardStyleTag);
-    }
+    internalStyleDestructor('hash-sdk-style');
     elementDestructor(myCustomElement);
 }
 

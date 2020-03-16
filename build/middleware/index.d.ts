@@ -1,1 +1,1 @@
-export declare const selectMiddleware: (cb?: Function | undefined) => Promise<unknown>;
+export declare const selectProvider: (cb?: Function | undefined) => Promise<unknown>;

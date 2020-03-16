@@ -3,5 +3,8 @@
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-declare const validate: (data: any, callback: Function) => void;
+declare const validate: (data: any) => {
+    memo: string;
+    recipientList: any;
+};
 export default validate;

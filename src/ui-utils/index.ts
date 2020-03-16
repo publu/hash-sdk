@@ -9,5 +9,12 @@ export const customElementInjector = async(element:string|HTMLElement,targetTag=
 export const elementDestructor = (element:string|HTMLElement):void =>{
     const customElementName :string= typeof element === 'string' ? element : element.tagName.toLowerCase();
     const targetTag = document.querySelector(customElementName);
-    targetTag && targetTag.parentNode && targetTag.parentNode.removeChild(targetTag);
+    targetTag && targetTag.parentNode ? targetTag.parentNode.removeChild(targetTag):null;
 }
+
+export const internalStyleDestructor = (id:string):void =>{
+    const headTag = document.querySelector('head');
+    const targetStyleElement = document.querySelector(`#${id}`);
+    targetStyleElement ? headTag?.removeChild(targetStyleElement):null;
+}
+

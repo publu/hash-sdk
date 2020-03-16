@@ -14,4 +14,5 @@ export declare const util: {
         privateKey: Ed25519PrivateKey;
     };
     sumFromRecipientList: (recipientList: any) => number;
+    isProviderSet: () => any;
 };

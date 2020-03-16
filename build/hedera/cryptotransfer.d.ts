@@ -1,7 +1,6 @@
-export declare const cryptoTransfer: (data: any) => void;
-export declare const doCryptoTransfer: (data: any) => Promise<{
-    transactionId: string;
-    receipt: {
-        status: import("@hashgraph/sdk").Status;
-    };
-}>;
+/**
+ * A function to handle crypto transfer based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+export declare const cryptoTransferController: (data: any) => Promise<unknown>;

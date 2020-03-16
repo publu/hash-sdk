@@ -1,55 +1,67 @@
 import { CryptoTransferTransaction } from '@hashgraph/sdk'
 import {util} from '../utils';
 
-export const cryptoTransfer =(data:any)=> {
-    new Promise(async(resolve,reject)=>{
+/**
+ * A function to handle crypto transfer based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+export const cryptoTransferController =(data:any)=> {
+    return new Promise(async(resolve,reject)=>{
         try{
+            const provider = ((window)as any).provider;
             const accountData :any= ((window as any).HashAccount);
-            console.log('ACCOUNT DATA',accountData)
-            const recipientList = data.recipientList;
-            const memo = data.memo;
+            const {recipientList,memo} = data;
             const account:any = util.getAccountIdObjectFull(accountData.accountId);
 
-            // sender details
-            let fromAccount :any= {};
-            fromAccount.acc = accountData.accountId.split('.')[2];
-            fromAccount.privateKey= accountData.privateKey;
+            switch(provider){
+                case 'hardware':
+                    //@TODO flow comming soon
+                    throw "Hardware option for crypto comming soon!";
+                    break;
 
-            let amount = util.sumFromRecipientList(recipientList);
-            let operator :any= util.createClientOperator(account.accountIdObject,accountData.keys.privateKey)
-            let client = util.createHederaClient(operator,accountData.network);
-            let formattedData :any= {
-                amount,
-                memo,
-                operator,
-                recipientList,
-                account,
-                client,
-                toAccount:util.getAccountIdLikeToObj(recipientList[0].to),
-                network:accountData.network
+                case 'software':
+
+                    // sender details
+                    let fromAccount :any= {};
+                    fromAccount.acc = accountData.accountId.split('.')[2];
+                    fromAccount.privateKey= accountData.privateKey;
+
+                    // send amount 
+                    let amount = util.sumFromRecipientList(recipientList);
+                    
+                    let operator :any= util.createClientOperator(account.accountIdObject,accountData.keys.privateKey)
+                    let client = util.createHederaClient(operator,accountData.network);
+                    
+                    let formattedData :any= {
+                        amount,
+                        memo,
+                        operator,
+                        recipientList,
+                        account,
+                        client,
+                        toAccount:util.getAccountIdLikeToObj(recipientList[0].to),
+                        network:accountData.network
+                    }
+
+                    const response = await cryptoTransfer(formattedData);
+                    console.log('RESPONSE CRYPTO INTERNAL::',response);
+                    resolve(response);
+                    break;
+                
+                case 'composer':
+                    resolve(data);
+                    break;
             }
 
-            const res = await doCryptoTransfer(formattedData);
-            formattedData.receipt = true
-            formattedData.transactionId = res.transactionId
-            console.log('CRYPTO RECIEPT', formattedData)
-     
-            resolve({
-                nodePrecheckcode: res.receipt.status.code,
-                receiptStatus: res.receipt.status.code,
-                transactionId: res.transactionId
-            })
-
         }catch(e){
-            let err = util.getFriendlyErrorObject(e)
-            console.log('Error in cryptoTransfer:::',e);
-            reject(err);
+            reject(e);
         }
     })
 }
 
 
-export const doCryptoTransfer = async(data:any) =>{
+const cryptoTransfer = async(data:any) =>{
    const transactionId = await new CryptoTransferTransaction()
        .addSender(data.account.accountIdObject, data.amount)
        .addRecipient(data.toAccount, data.amount)
@@ -58,9 +70,11 @@ export const doCryptoTransfer = async(data:any) =>{
        .execute(data.client);
    const receipt = await transactionId.getReceipt(data.client);
 
-   return {
-       transactionId: transactionId.toString(),
-       receipt: { ...receipt }
-   }
+    return({
+        nodePrecheckcode: receipt.status.code,
+        receiptStatus: receipt.status.code,
+        transactionId: transactionId
+    })
+
 }
 
