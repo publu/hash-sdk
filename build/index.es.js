@@ -696,15 +696,22 @@ var util = {
  */
 var cryptoTransferController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, accountData, recipientList, memo, account, _a, fromAccount, amount, operator, client, formattedData, response, e_1;
+        var provider, recipientList, memo, _a, accountData, account, fromAccount, amount, operator, client, formattedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
+                    (window).HashAccount = {
+                        accountId: '0.0.17210',
+                        keys: {
+                            privateKey: "302e020100300506032b657004220420dc3460f46df4673acfbce2f2218990fff07e38e24b99c4bb2b8213f6e275f9b9"
+                        },
+                        mnemonics: '',
+                        network: ''
+                    };
+                    (window).provider = 'software';
                     provider = (window).provider;
-                    accountData = (window.HashAccount);
                     recipientList = data.recipientList, memo = data.memo;
-                    account = util.getAccountIdObjectFull(accountData.accountId);
                     _a = provider;
                     switch (_a) {
                         case 'hardware': return [3 /*break*/, 1];
@@ -716,6 +723,8 @@ var cryptoTransferController = function (data) {
                 //@TODO flow comming soon
                 throw "Hardware option for crypto comming soon!";
                 case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
                     fromAccount = {};
                     fromAccount.acc = accountData.accountId.split('.')[2];
                     fromAccount.privateKey = accountData.privateKey;
@@ -736,14 +745,29 @@ var cryptoTransferController = function (data) {
                 case 3:
                     response = _b.sent();
                     console.log('RESPONSE CRYPTO INTERNAL::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-micropayment");
+                    hederaTag.setAttribute("data-time", '');
+                    hederaTag.setAttribute("data-memo", memo || ' ');
+                    hederaTag.setAttribute("data-contentid", '');
+                    hederaTag.setAttribute("data-type", '');
+                    hederaTag.setAttribute("data-redirect", '');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-recipientlist", JSON.stringify(recipientList) || '');
+                    domBody.appendChild(hederaTag);
                     resolve(data);
                     return [3 /*break*/, 5];
                 case 5: return [3 /*break*/, 7];
                 case 6:
                     e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
                     reject(e_1);
                     return [3 /*break*/, 7];
                 case 7: return [2 /*return*/];
@@ -825,6 +849,9 @@ var validateService = function (data, type) {
     }
 };
 
+var _callback = null;
+var _resolve = null;
+var _reject = null;
 /**
  * triggers exposed crypto service call
  * @param {Object} data
@@ -832,7 +859,7 @@ var validateService = function (data, type) {
  */
 var triggerCryptoTransfer = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, response, error_1, err;
+        var updatedData, error_1, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -841,9 +868,10 @@ var triggerCryptoTransfer = function (data, callback) {
                     updatedData = validateService(data, 'crypto-transfer');
                     return [4 /*yield*/, cryptoTransferController(updatedData)];
                 case 1:
-                    response = _a.sent();
-                    callback && callback(null, response);
-                    resolve(response);
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
                     return [3 /*break*/, 3];
                 case 2:
                     error_1 = _a.sent();
@@ -857,6 +885,22 @@ var triggerCryptoTransfer = function (data, callback) {
         });
     }); });
 };
+var receiveMessage = function (event) {
+    console.log('MESSAGE RECVD', event);
+    if (event.data.type && event.origin === window.location.origin) {
+        if (event.data.type.includes('deny')) {
+            console.log('REDIRECT TO DENY', event);
+            _callback && _callback(event.data.res, null);
+            _reject && _reject(event.data.res);
+        }
+        else {
+            console.log('REDIRECT TO SUCCESS', event);
+            _callback && _callback(null, event.data.res);
+            _resolve && _resolve(event.data.res);
+        }
+    }
+};
+window.addEventListener("message", receiveMessage, false);
 
 var index = {
     sum: sum,

@@ -1,8 +1,6 @@
 import { common } from '../validators/common';
-import { Client } from '@hashgraph/sdk'
-import { Ed25519PrivateKey } from '@hashgraph/sdk'
+import BigNumber from "bignumber.js"
 
-import {IAccountIdLike,IOperator} from '../interface';
 
 /**
  * Converts any string to bytes[]
@@ -104,45 +102,6 @@ const getFriendlyErrorObject = (e:any):Object => {
 }
 
 /**
- * Create a valid hedera client
- * @param {Object} operator
- * @param {Object} network
- * @returns {any} returns hedera client
- */
-
-const createHederaClient = (operator:IOperator,network:string) => {
-    const currentNetwork = network;
-    let client
-    if (currentNetwork == 'testnet') {
-        client = new Client({
-            operator: operator
-        })
-    } else {
-        client = new Client({
-            network: {
-                "https://proxy.hashingsystems.com": { shard: 0, realm: 0,  account: 3 }
-            },
-            operator: operator
-        });
-    }
-    return client;
-}
-
-/**
- * Create a valid hedera client
- * @param {Object} account
- * @param {Object} network
- * @returns {any} returns hedera client
- */
-const createClientOperator = (account:IAccountIdLike,privatekey:string) => {
-    const privateKey = Ed25519PrivateKey.fromString(privatekey)
-    return {
-        account,
-        privateKey
-    }
-}
-
-/**
  * Add up the amount in recipient list
  * @param {Array} recipientList
  * @returns {any} returns hedera client
@@ -169,6 +128,154 @@ const isProviderSet = () =>{
     return ((window)as any).provider ? ((window)as any).provider :false;
 }
 
+/**
+ * Checks string is Array
+ * @returns {any} returns string[] or string
+ */
+const convertIfArray=(value:any)=>{
+    try {
+        if (value && typeof value === "string" && (/^[\],:{}\s]*$/.test(value.replace(/\\["\\\/bfnrtu]/g, '@').
+            replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+            replace(/(?:^|:|,)(?:\s*\[)+/g, '')))) {
+            if (common.validateArrayList(value)) {
+                return JSON.parse(value);
+            } else {
+                return value;
+            }
+        } else {
+            return value;
+        }
+    } catch (e) {
+        throw Error('Invalid Array[]');
+    }
+}
+
+/**
+ * Normalizes values of array
+ * @param {string[] | Array<string>} arr refers to value passed by function caller
+ * @returns {Array | Boolean} returns recipient list or false if invalid
+*/
+const normalizeArrayValues = (arr:string[]|Array<string>)=> {
+    if (arr && Array.isArray(arr) && arr.length > 0) {
+        return arr.map((a) => convertIfArray(a))
+    }
+    return arr;
+}
+
+/**
+ * Boolean creator
+ * @param {any} val refers to value passed by function caller
+ * @returns {Boolean} returns Boolean
+*/
+const getBool =(val:any)=> {
+    return Boolean(!!JSON.parse(String(val).toLowerCase()));
+}
+
+/**
+ * BigNumber convertor
+ * @param {number} n refers to value passed by function caller
+ * @returns {Boolean} returns BigNumber
+*/
+const toBigNumber=(n:any)=> {
+    n = typeof n !== 'number' ? Number(n) : n;
+    return new BigNumber(n);
+}
+
+/**
+ * AccountId to Hexadecimal address convertor
+ * @param {st} accountId refers to value passed by function caller
+ * @returns {Boolean} returns hexAddress
+*/
+const accountIdToHexAddress =(accountId:string)=> {
+    let defaultAddress = '0000000000000000000000000000000000000000';
+    let accountNo = accountId.split('.')[2];
+    let hexAddressRaw = parseInt(accountNo).toString(16);
+    let remainingCount = 40 - hexAddressRaw.length;
+    let hexAddress = defaultAddress.substr(0, remainingCount) + hexAddressRaw + defaultAddress.substr(remainingCount + hexAddressRaw.length)
+    return hexAddress;
+}
+
+/**
+ * Creates a String Array
+ * @param {st} arr refers to value passed by function caller
+ * @returns {Array<string>} returns String array
+*/
+const createStringArray =(arr:any)=> {
+    arr = Array.isArray(arr) ? arr : JSON.parse(arr);
+    arr = arr.map((s:string|number) => {
+        return s.toString();
+    })
+    return arr;
+}
+
+/**
+ * Creates a Number Array
+ * @param {st} arr refers to value passed by function caller
+ * @returns {Array<string>} returns Array of Numbers
+*/
+const createNumberArray=(arr:any)=> {
+    let newArr :Array<number>= [];
+    arr.forEach((n) => {
+        n = Number(n);
+        if (!isNaN(n)) {
+            newArr.push(n);
+        } else {
+            return false;
+        }
+    })
+    return newArr;
+}
+
+/**
+ * Creates a BigNumber Array
+ * @param {st} arr refers to value passed by function caller
+ * @returns {Array<string>} returns Array of BigNumbers
+*/
+const createBigNumberArray=(arr:any)=> {
+    let newArr :Array<BigNumber>= [];
+    arr.forEach((n) => {
+        n = toBigNumber(n);
+        if (!isNaN(n)) {
+            newArr.push(n);
+        } else {
+            return false;
+        }
+    })
+    return newArr;
+}
+
+/**
+ * Creates hexadecimal to Decimal
+ * @param {st} arr refers to value passed by function caller
+ * @returns {Array<string>} returns decimal value
+*/
+const hexToDecimal = (hexString:string) => {
+    return parseInt(hexString, 16);
+}
+
+/**
+ * Creates hexadecimal to AccountId
+ * @param {st} arr refers to value passed by function caller
+ * @returns {Array<string>} returns account Id format (0.0.12345)
+*/
+const hexToAccountID = (hexString:string) => {
+    const value = hexToDecimal(hexString);
+    return `0.0.${value}`;
+}
+
+/**
+ * Converts hexadecimal to String
+ * @param {st} arr refers to value passed by function caller
+ * @returns {Array<string>} returns string
+*/
+const hexToString = (hex:string) => {
+    var str = '';
+    for (var n = 2; n < hex.length; n += 2) {
+        str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+    }
+    return str;
+}
+
 
 export const util = {
     stringToBytes,
@@ -177,10 +284,19 @@ export const util = {
     getAccountIdLikeToObj,
     getAccountObjToIdLike,
     getFriendlyErrorObject,
-    createHederaClient,
-    createClientOperator,
     sumFromRecipientList,
-    isProviderSet
+    isProviderSet,
+    normalizeArrayValues,
+    convertIfArray,
+    getBool,
+    toBigNumber,
+    accountIdToHexAddress,
+    createStringArray,
+    createNumberArray,
+    createBigNumberArray,
+    hexToAccountID,
+    hexToDecimal,
+    hexToString
 }
 
 // export const supportCallbackAndPromiseResponse =(err:any,res:any,cb?:Function):any=>{

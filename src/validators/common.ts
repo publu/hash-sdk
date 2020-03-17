@@ -1,4 +1,7 @@
 
+import {util} from '../utils'
+import { SHA3Hash,SHA3 } from 'sha3';
+
 /**
  * Validates if given value is of type string
  * @param {any} s refers to value passed by function caller
@@ -12,6 +15,43 @@ const isString = (s:any) => typeof s === 'string' ? s : false;
  * @returns {number | Boolean} returns number if true and false respectively
  */
 const isNumber = (n:any) => !isNaN(Number(n)) ? Number(n) : false;
+
+/**
+ * Validates if given value is accountId address(0x.. or 0000.. [hex])
+ * @param {any} id refers to value passed by function caller
+ * @returns {Boolean} returns account id  of type string if true and false respectively
+ */
+const isAccountIdAddress = (id:string) => {
+    // check if it has the basic requirements of an address
+    if (!/^(0x)?[0-9a-f]{40}$/i.test(id)) {
+        return false;
+    // If it's ALL lowercase or ALL upppercase
+    } else if(/^(0x|0X)?[0-9a-f]{40}$/.test(id) || /^(0x|0X)?[0-9A-F]{40}$/.test(id)) {
+        return true;
+    // Otherwise check each case
+    } else {
+        return checkAddressChecksum(id);
+    }
+}
+
+/**
+ * Validates if given value is accountId address(0x.. or 0000.. [hex])
+ * @param {any} id refers to value passed by function caller
+ * @returns {Boolean} returns validation
+ */
+const checkAddressChecksum =(address:string)=> {
+    // Check each case
+    // address = address.replace(/^0x/i, '');
+    var addressHash = new SHA3().update(address.toLowerCase().replace(/^0x/i, '')).digest("hex")//SHA3Hash(address.toLowerCase()).replace(/^0x/i, '');
+
+    for (var i = 0; i < 40; i++) {
+        // the nth letter should be uppercase if the nth digit of casemap is 1
+        if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
+            return false;
+        }
+    }
+    return true;
+};
 
 /**
  * Validates if given value is accountIdlike(0.0.12345)
@@ -54,8 +94,29 @@ const validateArrayList = (arr:any) => {
 }
 
 /**
+ * Validates if array has list of account addresses 
+ * @param {Array} addArr refers to value passed by function caller
+ * @returns {Array | Boolean} returns array or false respectively
+ */
+const isAddressArray =(addArr:any)=> {
+    let newArray :Array<string>= [];
+    if (Array.isArray(addArr) && addArr.length > 0) {
+        addArr.forEach((a:string):any => {
+            a = util.accountIdToHexAddress(a);
+            if (!isAccountIdAddress(a)) {
+                return false
+            }
+            newArray.push(a);
+        })
+        return newArray;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Validates recipient List
- * @param {string[] | Array<string>} arr refers to value passed by function caller
+ * @param {string[] | Array<string>} recipientList refers to value passed by function caller
  * @returns {Array | Boolean} returns recipient list or false if invalid
 */
 const validateRecipientList = (recipientList:any) => {
@@ -85,6 +146,8 @@ export const common = {
     isHederaId,
     validateArrayList,
     validateRecipientList,
-    isAccountIdObject
+    isAccountIdObject,
+    isAccountIdAddress,
+    isAddressArray
 }
 

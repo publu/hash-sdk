@@ -1,14 +1,15 @@
-import validateCrytoTransferData from './cryptotransferDataValidation';
+import validateCryptoTransferData from './cryptotransferDataValidation';
+import validateContractCallData from './contractcallDataValidation';
 
 // Exports validation as one module for the ease to use it
 export const validateService = (data:any,type:string)=>{
     try{
         switch(type){
             case 'crypto-transfer':
-                return validateCrytoTransferData(data);
+                return validateCryptoTransferData(data);
 
             case 'contract-call':
-                return  validateCrytoTransferData(data);
+                return validateContractCallData(data);
             
             default:
                 throw "No service found!";
