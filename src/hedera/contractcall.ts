@@ -12,18 +12,10 @@ import {helper} from '../helper';
 export const contractCallController =(data:any)=> {
     return new Promise(async(resolve,reject)=>{
         try{
-            ((window)as any).HashAccount={
-                accountId:'0.0.17210',
-                keys:{
-                    privateKey:"302e020100300506032b657004220420dc3460f46df4673acfbce2f2218990fff07e38e24b99c4bb2b8213f6e275f9b9"
-                },
-                mnemonics:'',
-                network:''
-            };
-            ((window)as any).provider = 'software';
+           
             const provider = ((window)as any).provider;
          
-            const {memo,transactionfee,amount,gasfee,contractId,functionParams} = data;
+            const {memo,transactionfee,amount,gasfee,contractId,functionParams,abi} = data;
 
             switch(provider){
                 case 'hardware':
@@ -36,23 +28,26 @@ export const contractCallController =(data:any)=> {
                     const account:any = util.getAccountIdObjectFull(accountData.accountId);
 
                     // Converting to Object form
-                    const contractIdLike = util.getAccountIdLikeToObj(contractId);
+                    const contractIdLike = util.getAccountIdLikeToObj(contractId,'contract');
 
                     // Creating a Hedera Client
                     let operator :any= helper.createClientOperator(account.accountIdObject,accountData.keys.privateKey)
                     let client = helper.createHederaClient(operator,accountData.network);
                  
                     let updatedData :any= {
+                        abi,
                         amount,
                         memo,
                         account,
                         client,
                         contractId:contractIdLike,
-                        functionParams
+                        functionParams,
+                        transactionfee,
+                        gasfee
                     }
 
                     let response :any= await contractCall(updatedData);
-                    console.log('RESPONSE CRYPTO INTERNAL::',response);
+                    console.log('RESPONSE CONTRACT CALL SDK::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
@@ -62,13 +57,14 @@ export const contractCallController =(data:any)=> {
                     break;
                 
                 case 'composer':
+                    console.log('DATA:::',data)
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-contract");
-                    hederaTag.setAttribute("data-contractid", data.contractid || '');
+                    hederaTag.setAttribute("data-contractid", data.contractId || '');
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
-                    hederaTag.setAttribute("data-params", data.params || '');
-                    hederaTag.setAttribute("data-abi", data.abi || '');
+                    hederaTag.setAttribute("data-params", JSON.stringify(data.params) || '');
+                    hederaTag.setAttribute("data-abi", JSON.stringify(data.abi) || '');
                     hederaTag.setAttribute("data-extensionid", extensionid);
                     hederaTag.setAttribute("data-gasfee", data.gasfee || '');
                     hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
@@ -91,10 +87,10 @@ export const contractCallController =(data:any)=> {
 
 const contractCall = async(data:any) =>{
     const {memo,contractId,transactionfee,amount,gasfee,abi,client,functionParams} = data;
-
+    console.log('DATA IN CALL',data)
     let transactionId = await new ContractExecuteTransaction()
     .setContractId(contractId)
-    .setFunction(data.abi[0].name, functionParams)
+    .setFunction(abi[0].name, functionParams)
     .setMaxTransactionFee(parseInt(transactionfee))
     .setGas(gasfee)
     .setTransactionMemo(memo)
@@ -104,18 +100,8 @@ const contractCall = async(data:any) =>{
     let contractCallRecord = await transactionId.getRecord(client);
 
     if (contractCallRecord && contractCallRecord.receipt && contractCallRecord.receipt.status.code == Status.Success.code) {
-        const data = {
-            contractID,
-            memo,
-            transactionID: transactionId,
-            abi,
-            params,
-            transactionFee: txFee,
-            amount,
-            accountId: sender
-        }
 
-        let successResult = {
+        let finalResult = {
             status: "success",
             ok: true,
             code: 200,
@@ -125,7 +111,7 @@ const contractCall = async(data:any) =>{
 
         if (abi[0].outputs && abi[0].outputs.length > 0 && contractCallRecord.getContractExecuteResult() && contractCallRecord.getContractExecuteResult().asBytes().length > 0) {
             const abiCoder = new AbiCoder()
-            let result = abiCoder.decodeParameters(abi[0].outputs, '0x' + forge.util.bytesToHex(contractCallRecord.getContractExecuteResult().asBytes()).toString())
+            let result = abiCoder.decodeParameters(abi[0].outputs, '0x' + forge.util.bytesToHex((contractCallRecord.getContractExecuteResult().asBytes() as any)).toString())
             if (result) {
                 let resultArray :any= [];
                 Object.keys(result).forEach(function (key, index) {
@@ -156,20 +142,11 @@ const contractCall = async(data:any) =>{
                 finalResult.result = resultArray;
             }
         }
-        if (callback) {
-            callback(null, finalResult);
-        }
-
+        return finalResult;
+       
     } else {
-        if (callback) {
-            let message = contractCallRecord && contractCallRecord.getContractExecuteResult() ? contractCallRecord.getContractExecuteResult().errorMessage : ""
-            callback(message, null);
-        }
+        let message = contractCallRecord && contractCallRecord.getContractExecuteResult() ? contractCallRecord.getContractExecuteResult().errorMessage : ""
+        throw message;
     }
-
-    return({
-        finalResult
-    })
-
 }
 

@@ -6,4 +6,6 @@ export declare const common: {
     validateArrayList: (arr: any) => any;
     validateRecipientList: (recipientList: any) => any;
     isAccountIdObject: (id: any) => any;
+    isAccountIdAddress: (id: string) => boolean;
+    isAddressArray: (addArr: any) => false | string[];
 };

@@ -5,12 +5,14 @@
 */
 declare const validate: (data: any) => Promise<{
     memo: string;
-    contractId: string;
+    fileId: string;
     abi: any;
     params: any;
     amount: number;
     transactionfee: number;
+    expirationTime: number;
     gasfee: number;
+    bytecode: string;
     functionParams: import("@hashgraph/sdk").ContractFunctionParams;
 }>;
 export default validate;

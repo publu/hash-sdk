@@ -1,6 +1,12 @@
 import {util} from '../utils';
 import {common} from '../validators/common';
-import { Client,Ed25519PrivateKey,ContractFunctionParams } from '@hashgraph/sdk'
+import { 
+    Client,Ed25519PrivateKey,
+    ContractFunctionParams,
+    FileCreateTransaction,
+    FileAppendTransaction,
+    ContractCreateTransaction
+} from '@hashgraph/sdk'
 import {IAccountIdLike,IOperator} from '../interface';
 
 
@@ -198,10 +204,10 @@ const createHederaClient = (operator:IOperator,network:string) => {
 }
 
 /**
- * Create a valid hedera client
+ * Create a valid hedera Operator
  * @param {Object} account
- * @param {Object} network
- * @returns {any} returns hedera client
+ * @param {string} privateKey
+ * @returns {any} returns hedera client operator
  */
 const createClientOperator = (account:IAccountIdLike,privatekey:string) => {
     const privateKey = Ed25519PrivateKey.fromString(privatekey)
@@ -211,8 +217,82 @@ const createClientOperator = (account:IAccountIdLike,privatekey:string) => {
     }
 }
 
+/**
+ * Create a hedera file
+ * @param {Client} client
+ * @param {Object} firstPartBytes
+ * @param {Date}  expirationTime
+ * @param {number} txFee
+ * @param {string} memo
+ * @returns {any} returns receipt
+ */
+const createFile = async(client:any, firstPartBytes:any, expirationTime:any, txFee:number, memo:string)=> {
+    let transactionId = await new FileCreateTransaction()
+        .setContents(firstPartBytes)
+        .setExpirationTime(expirationTime)
+        .addKey(client._getOperatorKey())
+        .setTransactionMemo(memo)
+        .setMaxTransactionFee(txFee)
+        .execute(client);
+    const response = await transactionId.getReceipt(client);
+    return { ...response }
+}
+
+/**
+ * Appends file content to an already created hedera file
+ * @param {Client} client
+ * @param {Object} fileId
+ * @param {string} contents
+ * @param {number} txFee
+ * @returns {any} returns receipt
+ */
+const appendFile = async(client:any, fileId:any, contents:any, txFee:number)=> {
+    let transactionId = await new FileAppendTransaction()
+        .setFileId(fileId)
+        .setContents(contents)
+        .setMaxTransactionFee(txFee)
+        .execute(client);
+
+    let response = await transactionId.getReceipt(client);
+    return { ...response }
+}
+
+/**
+ * Creates Contract transaction with fileId
+ * @param {Client} client
+ * @param {Object} fileId
+ * @param {any} constructorParams
+ * @param {number} amount
+ * @param {number} gasFee
+ * @param {number} txFee
+ * @param {string} memo
+ * @param {Date} autoRenewPeriod
+ * @returns {any} returns receipt
+ */
+const createContractTx = async(client:any,fileId:any, constructorParams:any, amount :number=0, gasFee:number, txFee:number,memo:string, autoRenewPeriod:any) => {
+    //autoRenewPeriod = autoRenewPeriod + 0; // Just to evade tslint
+    let transactionId = await new ContractCreateTransaction()
+        .setBytecodeFileId(fileId)
+        .setGas(gasFee)
+        .setAutoRenewPeriod(autoRenewPeriod)
+        .setAdminKey(client._getOperatorKey())
+        .setConstructorParams(constructorParams)
+        .setInitialBalance(amount)
+        .setTransactionMemo(memo)
+        .setMaxTransactionFee(txFee)
+        .execute(client);
+    const receipt = await transactionId.getReceipt(client);
+    return {
+        receipt: { ...receipt },
+        transactionId
+    }
+}
+
 export const helper ={
     createClientOperator,
     createHederaClient,
-    getContractFunctionParams
+    getContractFunctionParams,
+    createFile,
+    appendFile,
+    createContractTx
 }

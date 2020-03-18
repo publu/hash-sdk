@@ -10,19 +10,19 @@ const validate = (data:any) =>{
         try{
             // Something is wrong with the data object, return false
             if (!data) {
-                throw new Error('Data is undefined');
+                throw ('Data is undefined');
             }
     
             // Checks validity of memo
             let memo = common.isString(data.memo) || '';
             if (util.stringToBytesSize(memo)>100) {
-                throw new Error('Memo size cannot exceed 100 bytes');
+                throw ('Memo size cannot exceed 100 bytes');
             }
     
             // Checks validity of recipient list
             let recipientList = common.validateRecipientList(data.recipientlist);
             if (recipientList === false) {
-                throw new Error('Not a valid recipient list');
+                throw ('Not a valid recipient list');
             }
 
             // Returning whatever seems to be necessary

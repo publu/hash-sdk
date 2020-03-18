@@ -1,6 +1,6 @@
 
 import {util} from '../utils'
-import { SHA3Hash,SHA3 } from 'sha3';
+import { SHA3 } from 'sha3';
 
 /**
  * Validates if given value is of type string

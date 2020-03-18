@@ -4,7 +4,6 @@ import external from 'rollup-plugin-peer-deps-external'
 import resolve from 'rollup-plugin-node-resolve'
 import pkg from './package.json';
 import json from '@rollup/plugin-json';
-import image from '@rollup/plugin-image';
 import sourceMaps from 'rollup-plugin-sourcemaps'
 
 

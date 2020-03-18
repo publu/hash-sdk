@@ -39,6 +39,21 @@ const stringToBytesSize = (s:string):number => {
 }
 
 /**
+ * Copies bytes from given range
+ * @param {string} start refers to start of copying range
+ * @param {string} length refers to size copying range
+ * @param {Uint8Array} bytes refers to original bytes
+ * @returns {number} returns copied bytes
+ */
+const copyBytes = (start:number, length:number, bytes:any) => {
+    let newUint = new Uint8Array(length);
+    for (let i = 0; i < length; i++) {
+        newUint[i] = bytes[start + i];
+    }
+    return newUint;
+}
+
+/**
  * Gives the account id object
  * @param {string} id refers to value passed by function caller
  * @param {type} type refers to type of account id(account, contract,file,topic)
@@ -183,7 +198,7 @@ const toBigNumber=(n:any)=> {
 
 /**
  * AccountId to Hexadecimal address convertor
- * @param {st} accountId refers to value passed by function caller
+ * @param {string} accountId refers to value passed by function caller
  * @returns {Boolean} returns hexAddress
 */
 const accountIdToHexAddress =(accountId:string)=> {
@@ -197,7 +212,7 @@ const accountIdToHexAddress =(accountId:string)=> {
 
 /**
  * Creates a String Array
- * @param {st} arr refers to value passed by function caller
+ * @param {Array} arr refers to value passed by function caller
  * @returns {Array<string>} returns String array
 */
 const createStringArray =(arr:any)=> {
@@ -210,12 +225,12 @@ const createStringArray =(arr:any)=> {
 
 /**
  * Creates a Number Array
- * @param {st} arr refers to value passed by function caller
+ * @param {Array} arr refers to value passed by function caller
  * @returns {Array<string>} returns Array of Numbers
 */
 const createNumberArray=(arr:any)=> {
     let newArr :Array<number>= [];
-    arr.forEach((n) => {
+    arr.forEach((n:any):void|false=>{
         n = Number(n);
         if (!isNaN(n)) {
             newArr.push(n);
@@ -228,12 +243,12 @@ const createNumberArray=(arr:any)=> {
 
 /**
  * Creates a BigNumber Array
- * @param {st} arr refers to value passed by function caller
+ * @param {Array} arr refers to value passed by function caller
  * @returns {Array<string>} returns Array of BigNumbers
 */
 const createBigNumberArray=(arr:any)=> {
     let newArr :Array<BigNumber>= [];
-    arr.forEach((n) => {
+    arr.forEach((n:any):void|false => {
         n = toBigNumber(n);
         if (!isNaN(n)) {
             newArr.push(n);
@@ -246,7 +261,7 @@ const createBigNumberArray=(arr:any)=> {
 
 /**
  * Creates hexadecimal to Decimal
- * @param {st} arr refers to value passed by function caller
+ * @param {string} hexString refers to value passed by function caller
  * @returns {Array<string>} returns decimal value
 */
 const hexToDecimal = (hexString:string) => {
@@ -255,7 +270,7 @@ const hexToDecimal = (hexString:string) => {
 
 /**
  * Creates hexadecimal to AccountId
- * @param {st} arr refers to value passed by function caller
+ * @param {string} hexString refers to value passed by function caller
  * @returns {Array<string>} returns account Id format (0.0.12345)
 */
 const hexToAccountID = (hexString:string) => {
@@ -265,7 +280,7 @@ const hexToAccountID = (hexString:string) => {
 
 /**
  * Converts hexadecimal to String
- * @param {st} arr refers to value passed by function caller
+ * @param {string} hex refers to value passed by function caller
  * @returns {Array<string>} returns string
 */
 const hexToString = (hex:string) => {
@@ -276,6 +291,18 @@ const hexToString = (hex:string) => {
     return str;
 }
 
+/**
+ * Extracts constructor from abi
+ * @param {Array} abi refers to value passed by function caller
+ * @returns {Array<string>} returns string
+*/
+const getConstructorFromAbi =(abi:any)=> {
+    abi.forEach((abiObj:any) => {
+        if (abiObj.type === "constructor") {
+            return abiObj;
+        }
+    });
+}
 
 export const util = {
     stringToBytes,
@@ -296,19 +323,7 @@ export const util = {
     createBigNumberArray,
     hexToAccountID,
     hexToDecimal,
-    hexToString
+    hexToString,
+    getConstructorFromAbi,
+    copyBytes
 }
-
-// export const supportCallbackAndPromiseResponse =(err:any,res:any,cb?:Function):any=>{
-//     if(cb){
-//         cb(err,res);
-//     }else{
-//         return new Promise((resolve,reject)=>{
-//             if (err) {
-//                 reject(err);
-//             } else {
-//                 resolve(res);
-//             }
-//         })
-//     }
-// }

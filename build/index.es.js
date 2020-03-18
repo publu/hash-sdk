@@ -1,4 +1,8 @@
-import { Client, Ed25519PrivateKey, CryptoTransferTransaction } from '@hashgraph/sdk';
+import { ContractFunctionParams, Client, Ed25519PrivateKey, FileCreateTransaction, FileAppendTransaction, ContractCreateTransaction, CryptoTransferTransaction, Status, ContractExecuteTransaction } from '@hashgraph/sdk';
+import { SHA3 } from 'sha3';
+import BigNumber from 'bignumber.js';
+import { AbiCoder } from 'web3-eth-abi';
+import forge from 'node-forge';
 
 var sum = function (a, b) { return a + b; };
 
@@ -16,6 +20,17 @@ MERCHANTABLITY OR NON-INFRINGEMENT.
 See the Apache Version 2.0 License for specific language governing permissions
 and limitations under the License.
 ***************************************************************************** */
+
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 
 function __awaiter(thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -428,6 +443,42 @@ var isString = function (s) { return typeof s === 'string' ? s : false; };
  */
 var isNumber = function (n) { return !isNaN(Number(n)) ? Number(n) : false; };
 /**
+ * Validates if given value is accountId address(0x.. or 0000.. [hex])
+ * @param {any} id refers to value passed by function caller
+ * @returns {Boolean} returns account id  of type string if true and false respectively
+ */
+var isAccountIdAddress = function (id) {
+    // check if it has the basic requirements of an address
+    if (!/^(0x)?[0-9a-f]{40}$/i.test(id)) {
+        return false;
+        // If it's ALL lowercase or ALL upppercase
+    }
+    else if (/^(0x|0X)?[0-9a-f]{40}$/.test(id) || /^(0x|0X)?[0-9A-F]{40}$/.test(id)) {
+        return true;
+        // Otherwise check each case
+    }
+    else {
+        return checkAddressChecksum(id);
+    }
+};
+/**
+ * Validates if given value is accountId address(0x.. or 0000.. [hex])
+ * @param {any} id refers to value passed by function caller
+ * @returns {Boolean} returns validation
+ */
+var checkAddressChecksum = function (address) {
+    // Check each case
+    // address = address.replace(/^0x/i, '');
+    var addressHash = new SHA3().update(address.toLowerCase().replace(/^0x/i, '')).digest("hex"); //SHA3Hash(address.toLowerCase()).replace(/^0x/i, '');
+    for (var i = 0; i < 40; i++) {
+        // the nth letter should be uppercase if the nth digit of casemap is 1
+        if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
+            return false;
+        }
+    }
+    return true;
+};
+/**
  * Validates if given value is accountIdlike(0.0.12345)
  * @param {any} id refers to value passed by function caller
  * @returns {string | Boolean} returns account id  of type string if true and false respectively
@@ -467,8 +518,29 @@ var validateArrayList = function (arr) {
     }
 };
 /**
+ * Validates if array has list of account addresses
+ * @param {Array} addArr refers to value passed by function caller
+ * @returns {Array | Boolean} returns array or false respectively
+ */
+var isAddressArray = function (addArr) {
+    var newArray = [];
+    if (Array.isArray(addArr) && addArr.length > 0) {
+        addArr.forEach(function (a) {
+            a = util.accountIdToHexAddress(a);
+            if (!isAccountIdAddress(a)) {
+                return false;
+            }
+            newArray.push(a);
+        });
+        return newArray;
+    }
+    else {
+        return false;
+    }
+};
+/**
  * Validates recipient List
- * @param {string[] | Array<string>} arr refers to value passed by function caller
+ * @param {string[] | Array<string>} recipientList refers to value passed by function caller
  * @returns {Array | Boolean} returns recipient list or false if invalid
 */
 var validateRecipientList = function (recipientList) {
@@ -498,7 +570,9 @@ var common = {
     isHederaId: isHederaId,
     validateArrayList: validateArrayList,
     validateRecipientList: validateRecipientList,
-    isAccountIdObject: isAccountIdObject
+    isAccountIdObject: isAccountIdObject,
+    isAccountIdAddress: isAccountIdAddress,
+    isAddressArray: isAddressArray
 };
 
 /**
@@ -538,6 +612,20 @@ var stringToBytesSize = function (s) {
     else {
         return 0;
     }
+};
+/**
+ * Copies bytes from given range
+ * @param {string} start refers to start of copying range
+ * @param {string} length refers to size copying range
+ * @param {Uint8Array} bytes refers to original bytes
+ * @returns {number} returns copied bytes
+ */
+var copyBytes = function (start, length, bytes) {
+    var newUint = new Uint8Array(length);
+    for (var i = 0; i < length; i++) {
+        newUint[i] = bytes[start + i];
+    }
+    return newUint;
 };
 /**
  * Gives the account id object
@@ -602,43 +690,6 @@ var getFriendlyErrorObject = function (e) {
     };
 };
 /**
- * Create a valid hedera client
- * @param {Object} operator
- * @param {Object} network
- * @returns {any} returns hedera client
- */
-var createHederaClient = function (operator, network) {
-    var currentNetwork = network;
-    var client;
-    if (currentNetwork == 'testnet') {
-        client = new Client({
-            operator: operator
-        });
-    }
-    else {
-        client = new Client({
-            network: {
-                "https://proxy.hashingsystems.com": { shard: 0, realm: 0, account: 3 }
-            },
-            operator: operator
-        });
-    }
-    return client;
-};
-/**
- * Create a valid hedera client
- * @param {Object} account
- * @param {Object} network
- * @returns {any} returns hedera client
- */
-var createClientOperator = function (account, privatekey) {
-    var privateKey = Ed25519PrivateKey.fromString(privatekey);
-    return {
-        account: account,
-        privateKey: privateKey
-    };
-};
-/**
  * Add up the amount in recipient list
  * @param {Array} recipientList
  * @returns {any} returns hedera client
@@ -663,6 +714,160 @@ var sumFromRecipientList = function (recipientList) {
 var isProviderSet = function () {
     return (window).provider ? (window).provider : false;
 };
+/**
+ * Checks string is Array
+ * @returns {any} returns string[] or string
+ */
+var convertIfArray = function (value) {
+    try {
+        if (value && typeof value === "string" && (/^[\],:{}\s]*$/.test(value.replace(/\\["\\\/bfnrtu]/g, '@').
+            replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+            replace(/(?:^|:|,)(?:\s*\[)+/g, '')))) {
+            if (common.validateArrayList(value)) {
+                return JSON.parse(value);
+            }
+            else {
+                return value;
+            }
+        }
+        else {
+            return value;
+        }
+    }
+    catch (e) {
+        throw Error('Invalid Array[]');
+    }
+};
+/**
+ * Normalizes values of array
+ * @param {string[] | Array<string>} arr refers to value passed by function caller
+ * @returns {Array | Boolean} returns recipient list or false if invalid
+*/
+var normalizeArrayValues = function (arr) {
+    if (arr && Array.isArray(arr) && arr.length > 0) {
+        return arr.map(function (a) { return convertIfArray(a); });
+    }
+    return arr;
+};
+/**
+ * Boolean creator
+ * @param {any} val refers to value passed by function caller
+ * @returns {Boolean} returns Boolean
+*/
+var getBool = function (val) {
+    return Boolean(!!JSON.parse(String(val).toLowerCase()));
+};
+/**
+ * BigNumber convertor
+ * @param {number} n refers to value passed by function caller
+ * @returns {Boolean} returns BigNumber
+*/
+var toBigNumber = function (n) {
+    n = typeof n !== 'number' ? Number(n) : n;
+    return new BigNumber(n);
+};
+/**
+ * AccountId to Hexadecimal address convertor
+ * @param {string} accountId refers to value passed by function caller
+ * @returns {Boolean} returns hexAddress
+*/
+var accountIdToHexAddress = function (accountId) {
+    var defaultAddress = '0000000000000000000000000000000000000000';
+    var accountNo = accountId.split('.')[2];
+    var hexAddressRaw = parseInt(accountNo).toString(16);
+    var remainingCount = 40 - hexAddressRaw.length;
+    var hexAddress = defaultAddress.substr(0, remainingCount) + hexAddressRaw + defaultAddress.substr(remainingCount + hexAddressRaw.length);
+    return hexAddress;
+};
+/**
+ * Creates a String Array
+ * @param {Array} arr refers to value passed by function caller
+ * @returns {Array<string>} returns String array
+*/
+var createStringArray = function (arr) {
+    arr = Array.isArray(arr) ? arr : JSON.parse(arr);
+    arr = arr.map(function (s) {
+        return s.toString();
+    });
+    return arr;
+};
+/**
+ * Creates a Number Array
+ * @param {Array} arr refers to value passed by function caller
+ * @returns {Array<string>} returns Array of Numbers
+*/
+var createNumberArray = function (arr) {
+    var newArr = [];
+    arr.forEach(function (n) {
+        n = Number(n);
+        if (!isNaN(n)) {
+            newArr.push(n);
+        }
+        else {
+            return false;
+        }
+    });
+    return newArr;
+};
+/**
+ * Creates a BigNumber Array
+ * @param {Array} arr refers to value passed by function caller
+ * @returns {Array<string>} returns Array of BigNumbers
+*/
+var createBigNumberArray = function (arr) {
+    var newArr = [];
+    arr.forEach(function (n) {
+        n = toBigNumber(n);
+        if (!isNaN(n)) {
+            newArr.push(n);
+        }
+        else {
+            return false;
+        }
+    });
+    return newArr;
+};
+/**
+ * Creates hexadecimal to Decimal
+ * @param {string} hexString refers to value passed by function caller
+ * @returns {Array<string>} returns decimal value
+*/
+var hexToDecimal = function (hexString) {
+    return parseInt(hexString, 16);
+};
+/**
+ * Creates hexadecimal to AccountId
+ * @param {string} hexString refers to value passed by function caller
+ * @returns {Array<string>} returns account Id format (0.0.12345)
+*/
+var hexToAccountID = function (hexString) {
+    var value = hexToDecimal(hexString);
+    return "0.0." + value;
+};
+/**
+ * Converts hexadecimal to String
+ * @param {string} hex refers to value passed by function caller
+ * @returns {Array<string>} returns string
+*/
+var hexToString = function (hex) {
+    var str = '';
+    for (var n = 2; n < hex.length; n += 2) {
+        str += String.fromCharCode(parseInt(hex.substr(n, 2), 16));
+    }
+    return str;
+};
+/**
+ * Extracts constructor from abi
+ * @param {Array} abi refers to value passed by function caller
+ * @returns {Array<string>} returns string
+*/
+var getConstructorFromAbi = function (abi) {
+    abi.forEach(function (abiObj) {
+        if (abiObj.type === "constructor") {
+            return abiObj;
+        }
+    });
+};
 var util = {
     stringToBytes: stringToBytes,
     stringToBytesSize: stringToBytesSize,
@@ -670,24 +875,389 @@ var util = {
     getAccountIdLikeToObj: getAccountIdLikeToObj,
     getAccountObjToIdLike: getAccountObjToIdLike,
     getFriendlyErrorObject: getFriendlyErrorObject,
-    createHederaClient: createHederaClient,
-    createClientOperator: createClientOperator,
     sumFromRecipientList: sumFromRecipientList,
-    isProviderSet: isProviderSet
+    isProviderSet: isProviderSet,
+    normalizeArrayValues: normalizeArrayValues,
+    convertIfArray: convertIfArray,
+    getBool: getBool,
+    toBigNumber: toBigNumber,
+    accountIdToHexAddress: accountIdToHexAddress,
+    createStringArray: createStringArray,
+    createNumberArray: createNumberArray,
+    createBigNumberArray: createBigNumberArray,
+    hexToAccountID: hexToAccountID,
+    hexToDecimal: hexToDecimal,
+    hexToString: hexToString,
+    getConstructorFromAbi: getConstructorFromAbi,
+    copyBytes: copyBytes
 };
-// export const supportCallbackAndPromiseResponse =(err:any,res:any,cb?:Function):any=>{
-//     if(cb){
-//         cb(err,res);
-//     }else{
-//         return new Promise((resolve,reject)=>{
-//             if (err) {
-//                 reject(err);
-//             } else {
-//                 resolve(res);
-//             }
-//         })
-//     }
-// }
+
+/**
+ * Merges abi and params to return hedera compatible data
+ * @param {Array} abi refers to abi array value passed by caller
+ * @param {Array} params refers to params aarray value passed by caller
+ * @returns {any} returns functionParams
+*/
+var getContractFunctionParams = function (abi, params) {
+    // Function params instance
+    var functionParams = new ContractFunctionParams();
+    if (abi && abi.inputs && abi.inputs.length > 0) {
+        try {
+            abi.inputs.forEach(function (data, index) {
+                if (common.isString(data.type)) {
+                    var value = params[index].toString();
+                    if (value) {
+                        if (common.isString(value)) {
+                            functionParams.addString(value);
+                        }
+                        else {
+                            throw Error('Input is not string');
+                        }
+                    }
+                    else {
+                        throw Error('Input string can not be empty');
+                    }
+                }
+                else if (data.type == "bool") {
+                    if (params[index] === true || params[index] === false) {
+                        functionParams.addBool(params[index]);
+                    }
+                    else if (params[index] == "true" || params[index] == "false") {
+                        var value = util.getBool(params[index]);
+                        if (typeof value === 'boolean') {
+                            functionParams.addBool(value);
+                        }
+                        else {
+                            throw Error('Input is not boolean(true/false)');
+                        }
+                        ;
+                    }
+                    else {
+                        throw Error('Input boolean can not be empty');
+                    }
+                }
+                else if (data.type == "int32") {
+                    var value = Number(params[index]);
+                    if (common.isNumber(value)) {
+                        functionParams.addInt32(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid Int32 number');
+                    }
+                    ;
+                }
+                else if (data.type == "int64") {
+                    var value = Number(params[index]);
+                    if (common.isNumber(value)) {
+                        functionParams.addInt64(util.toBigNumber(params[index]));
+                    }
+                    else {
+                        throw Error('Input is not a valid Int64 number');
+                    }
+                    ;
+                }
+                else if (data.type == "int256") {
+                    var value = Number(params[index]);
+                    if (common.isNumber(value)) {
+                        functionParams.addInt256(util.toBigNumber(params[index]));
+                    }
+                    else {
+                        throw Error('Input is not a valid Int256 number');
+                    }
+                    ;
+                }
+                else if (data.type == "uint32") {
+                    var value = Number(params[index]);
+                    if (common.isNumber(value)) {
+                        functionParams.addUint32(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid Uint32 number');
+                    }
+                    ;
+                }
+                else if (data.type == "uint64") {
+                    var value = Number(params[index]);
+                    if (common.isNumber(value)) {
+                        functionParams.addUint64(util.toBigNumber(params[index]));
+                    }
+                    else {
+                        throw Error('Input is not a valid Uint64 number');
+                    }
+                    ;
+                }
+                else if (data.type == "uint256") {
+                    var value = Number(params[index]);
+                    if (common.isNumber(value)) {
+                        functionParams.addUint256(util.toBigNumber(params[index]));
+                    }
+                    else {
+                        throw Error('Input is not a valid uint256 number');
+                    }
+                    ;
+                }
+                else if (data.type === "address") {
+                    var value = util.accountIdToHexAddress(params[index].toString());
+                    if (common.isAccountIdAddress(value)) {
+                        functionParams.addAddress(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid address(string)');
+                    }
+                    ;
+                }
+                else if (data.type == "string[]") {
+                    var value = params[index];
+                    if (Array.isArray(value)) {
+                        value = util.createStringArray(value);
+                        functionParams.addStringArray(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid string array');
+                    }
+                    ;
+                }
+                else if (data.type == "int32[]") {
+                    var value = Array.isArray(params[index]) ? util.createNumberArray(params[index]) : false;
+                    if (value) {
+                        functionParams.addInt32Array(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid int32(number) array');
+                    }
+                    ;
+                }
+                else if (data.type == "int64[]") {
+                    var value = Array.isArray(params[index]) ? util.createBigNumberArray(params[index]) : false;
+                    if (value) {
+                        functionParams.addInt64Array(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid int64(number) array');
+                    }
+                    ;
+                }
+                else if (data.type == "int256[]") {
+                    var value = Array.isArray(params[index]) ? util.createBigNumberArray(params[index]) : false;
+                    if (value) {
+                        functionParams.addInt256Array(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid int256(number) array');
+                    }
+                    ;
+                }
+                else if (data.type == "uint32[]") {
+                    var value = Array.isArray(params[index]) ? util.createNumberArray(params[index]) : false;
+                    if (value) {
+                        functionParams.addUint32Array(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid int32(number) array');
+                    }
+                    ;
+                }
+                else if (data.type == "uint64[]") {
+                    var value = Array.isArray(params[index]) ? util.createBigNumberArray(params[index]) : false;
+                    if (value) {
+                        functionParams.addUint64Array(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid int64(number) array');
+                    }
+                    ;
+                }
+                else if (data.type == "uint256[]") {
+                    var value = Array.isArray(params[index]) ? util.createBigNumberArray(params[index]) : false;
+                    if (value) {
+                        functionParams.addUint256Array(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid int256(number) array');
+                    }
+                    ;
+                }
+                else if (data.type == "address[]") {
+                    var value = common.isAddressArray(params[index]);
+                    if (value) {
+                        functionParams.addAddressArray(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid address(string) array');
+                    }
+                    ;
+                }
+                else if (data.type == "bytes") {
+                    var value = params[index];
+                    if (value) {
+                        functionParams.addBytes(value.toString());
+                    }
+                    else {
+                        throw Error('Input can not be empty bytes');
+                    }
+                }
+                else if (data.type == "bytes[]") {
+                    var value = params[index];
+                    if (Array.isArray(value)) {
+                        functionParams.addBytesArray(value);
+                    }
+                    else {
+                        throw Error('Input is not a valid bytes array');
+                    }
+                    ;
+                }
+            });
+            return functionParams;
+        }
+        catch (e) {
+            throw Error(e.message || "Error while creating ContractFunctionParams");
+        }
+    }
+    else {
+        return functionParams;
+    }
+};
+/**
+ * Create a valid hedera client
+ * @param {Object} operator
+ * @param {Object} network
+ * @returns {any} returns hedera client
+ */
+var createHederaClient = function (operator, network) {
+    var currentNetwork = network;
+    var client;
+    if (currentNetwork == 'testnet') {
+        client = new Client({
+            operator: operator
+        });
+    }
+    else {
+        client = new Client({
+            network: {
+                "https://proxy.hashingsystems.com": { shard: 0, realm: 0, account: 3 }
+            },
+            operator: operator
+        });
+    }
+    return client;
+};
+/**
+ * Create a valid hedera Operator
+ * @param {Object} account
+ * @param {string} privateKey
+ * @returns {any} returns hedera client operator
+ */
+var createClientOperator = function (account, privatekey) {
+    var privateKey = Ed25519PrivateKey.fromString(privatekey);
+    return {
+        account: account,
+        privateKey: privateKey
+    };
+};
+/**
+ * Create a hedera file
+ * @param {Client} client
+ * @param {Object} firstPartBytes
+ * @param {Date}  expirationTime
+ * @param {number} txFee
+ * @param {string} memo
+ * @returns {any} returns receipt
+ */
+var createFile = function (client, firstPartBytes, expirationTime, txFee, memo) { return __awaiter(void 0, void 0, void 0, function () {
+    var transactionId, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, new FileCreateTransaction()
+                    .setContents(firstPartBytes)
+                    .setExpirationTime(expirationTime)
+                    .addKey(client._getOperatorKey())
+                    .setTransactionMemo(memo)
+                    .setMaxTransactionFee(txFee)
+                    .execute(client)];
+            case 1:
+                transactionId = _a.sent();
+                return [4 /*yield*/, transactionId.getReceipt(client)];
+            case 2:
+                response = _a.sent();
+                return [2 /*return*/, __assign({}, response)];
+        }
+    });
+}); };
+/**
+ * Appends file content to an already created hedera file
+ * @param {Client} client
+ * @param {Object} fileId
+ * @param {string} contents
+ * @param {number} txFee
+ * @returns {any} returns receipt
+ */
+var appendFile = function (client, fileId, contents, txFee) { return __awaiter(void 0, void 0, void 0, function () {
+    var transactionId, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, new FileAppendTransaction()
+                    .setFileId(fileId)
+                    .setContents(contents)
+                    .setMaxTransactionFee(txFee)
+                    .execute(client)];
+            case 1:
+                transactionId = _a.sent();
+                return [4 /*yield*/, transactionId.getReceipt(client)];
+            case 2:
+                response = _a.sent();
+                return [2 /*return*/, __assign({}, response)];
+        }
+    });
+}); };
+/**
+ * Creates Contract transaction with fileId
+ * @param {Client} client
+ * @param {Object} fileId
+ * @param {any} constructorParams
+ * @param {number} amount
+ * @param {number} gasFee
+ * @param {number} txFee
+ * @param {string} memo
+ * @param {Date} autoRenewPeriod
+ * @returns {any} returns receipt
+ */
+var createContractTx = function (client, fileId, constructorParams, amount, gasFee, txFee, memo, autoRenewPeriod) {
+    if (amount === void 0) { amount = 0; }
+    return __awaiter(void 0, void 0, void 0, function () {
+        var transactionId, receipt;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, new ContractCreateTransaction()
+                        .setBytecodeFileId(fileId)
+                        .setGas(gasFee)
+                        .setAutoRenewPeriod(autoRenewPeriod)
+                        .setAdminKey(client._getOperatorKey())
+                        .setConstructorParams(constructorParams)
+                        .setInitialBalance(amount)
+                        .setTransactionMemo(memo)
+                        .setMaxTransactionFee(txFee)
+                        .execute(client)];
+                case 1:
+                    transactionId = _a.sent();
+                    return [4 /*yield*/, transactionId.getReceipt(client)];
+                case 2:
+                    receipt = _a.sent();
+                    return [2 /*return*/, {
+                            receipt: __assign({}, receipt),
+                            transactionId: transactionId
+                        }];
+            }
+        });
+    });
+};
+var helper = {
+    createClientOperator: createClientOperator,
+    createHederaClient: createHederaClient,
+    getContractFunctionParams: getContractFunctionParams,
+    createFile: createFile,
+    appendFile: appendFile,
+    createContractTx: createContractTx
+};
 
 /**
  * A function to handle crypto transfer based on type of the provider;
@@ -696,20 +1266,11 @@ var util = {
  */
 var cryptoTransferController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, recipientList, memo, _a, accountData, account, fromAccount, amount, operator, client, formattedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        var provider, recipientList, memo, _a, accountData, account, fromAccount, amount, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
-                    (window).HashAccount = {
-                        accountId: '0.0.17210',
-                        keys: {
-                            privateKey: "302e020100300506032b657004220420dc3460f46df4673acfbce2f2218990fff07e38e24b99c4bb2b8213f6e275f9b9"
-                        },
-                        mnemonics: '',
-                        network: ''
-                    };
-                    (window).provider = 'software';
                     provider = (window).provider;
                     recipientList = data.recipientList, memo = data.memo;
                     _a = provider;
@@ -729,19 +1290,16 @@ var cryptoTransferController = function (data) {
                     fromAccount.acc = accountData.accountId.split('.')[2];
                     fromAccount.privateKey = accountData.privateKey;
                     amount = util.sumFromRecipientList(recipientList);
-                    operator = util.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
-                    client = util.createHederaClient(operator, accountData.network);
-                    formattedData = {
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    updatedData = {
                         amount: amount,
                         memo: memo,
-                        operator: operator,
-                        recipientList: recipientList,
                         account: account,
                         client: client,
                         toAccount: util.getAccountIdLikeToObj(recipientList[0].to),
-                        network: accountData.network
                     };
-                    return [4 /*yield*/, cryptoTransfer(formattedData)];
+                    return [4 /*yield*/, cryptoTransfer(updatedData)];
                 case 3:
                     response = _b.sent();
                     console.log('RESPONSE CRYPTO INTERNAL::', response);
@@ -800,6 +1358,355 @@ var cryptoTransfer = function (data) { return __awaiter(void 0, void 0, void 0, 
 }); };
 
 /**
+ * A function to handle contract call based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var contractCallController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, transactionfee, amount, gasfee, contractId, functionParams, abi, _a, accountData, account, contractIdLike, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, transactionfee = data.transactionfee, amount = data.amount, gasfee = data.gasfee, contractId = data.contractId, functionParams = data.functionParams, abi = data.abi;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for contract call comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    contractIdLike = util.getAccountIdLikeToObj(contractId, 'contract');
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    updatedData = {
+                        abi: abi,
+                        amount: amount,
+                        memo: memo,
+                        account: account,
+                        client: client,
+                        contractId: contractIdLike,
+                        functionParams: functionParams,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee
+                    };
+                    return [4 /*yield*/, contractCall(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('RESPONSE CONTRACT CALL SDK::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-contract");
+                    hederaTag.setAttribute("data-contractid", data.contractId || '');
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-params", JSON.stringify(data.params) || '');
+                    hederaTag.setAttribute("data-abi", JSON.stringify(data.abi) || '');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-gasfee", data.gasfee || '');
+                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    hederaTag.setAttribute("data-amount", data.amount || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var contractCall = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, contractId, transactionfee, amount, gasfee, abi, client, functionParams, transactionId, contractCallRecord, finalResult, abiCoder, result_1, resultArray_1, message;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                memo = data.memo, contractId = data.contractId, transactionfee = data.transactionfee, amount = data.amount, gasfee = data.gasfee, abi = data.abi, client = data.client, functionParams = data.functionParams;
+                console.log('DATA IN CALL', data);
+                return [4 /*yield*/, new ContractExecuteTransaction()
+                        .setContractId(contractId)
+                        .setFunction(abi[0].name, functionParams)
+                        .setMaxTransactionFee(parseInt(transactionfee))
+                        .setGas(gasfee)
+                        .setTransactionMemo(memo)
+                        .setPayableAmount(amount)
+                        .execute(client)];
+            case 1:
+                transactionId = _a.sent();
+                return [4 /*yield*/, transactionId.getRecord(client)];
+            case 2:
+                contractCallRecord = _a.sent();
+                if (contractCallRecord && contractCallRecord.receipt && contractCallRecord.receipt.status.code == Status.Success.code) {
+                    finalResult = {
+                        status: "success",
+                        ok: true,
+                        code: 200,
+                        message: "",
+                        result: []
+                    };
+                    if (abi[0].outputs && abi[0].outputs.length > 0 && contractCallRecord.getContractExecuteResult() && contractCallRecord.getContractExecuteResult().asBytes().length > 0) {
+                        abiCoder = new AbiCoder();
+                        result_1 = abiCoder.decodeParameters(abi[0].outputs, '0x' + forge.util.bytesToHex(contractCallRecord.getContractExecuteResult().asBytes()).toString());
+                        if (result_1) {
+                            resultArray_1 = [];
+                            Object.keys(result_1).forEach(function (key, index) {
+                                if (index < abi[0].outputs.length) {
+                                    var output = "" + result_1[key];
+                                    if (abi[0].outputs[index].type.toString().includes("[]")) {
+                                        var valuesArray = output.split(',');
+                                        valuesArray.forEach(function (element) {
+                                            if (abi[0].outputs[index].type == "address[]") {
+                                                element = util.hexToAccountID(element);
+                                            }
+                                            else if (abi[0].outputs[index].type == "bytes[]") {
+                                                element = util.hexToString(element);
+                                            }
+                                            resultArray_1.push(element);
+                                        });
+                                    }
+                                    else if (abi[0].outputs[index].type == "bytes") {
+                                        output = util.hexToString(output);
+                                        resultArray_1.push(output);
+                                    }
+                                    else {
+                                        if (abi[0].outputs[index].type == "address") {
+                                            output = util.hexToAccountID(output);
+                                        }
+                                        resultArray_1.push(output);
+                                    }
+                                }
+                            });
+                            finalResult.result = resultArray_1;
+                        }
+                    }
+                    return [2 /*return*/, finalResult];
+                }
+                else {
+                    message = contractCallRecord && contractCallRecord.getContractExecuteResult() ? contractCallRecord.getContractExecuteResult().errorMessage : "";
+                    throw message;
+                }
+        }
+    });
+}); };
+
+var CONTRACT_CALL = {
+    TRANSACTION_FEE: 700000000,
+    GAS_FEE: 10000000 //given in Tinybars
+};
+var CONTRACT_DEPLOY = {
+    TRANSACTION_FEE: 2500000000,
+    GAS_FEE: 10000000,
+    EXPIRATION_TIME: 7890000000,
+    AUTORENEW_PERIOD: 7890000 //given in Milliseconds
+};
+var FILE_CREATE = {
+    TRANSACTION_FEE: 500000000,
+    GAS_FEE: 10000000 //given in Tinybars
+};
+var defaults = {
+    CONTRACT_CALL: CONTRACT_CALL,
+    CONTRACT_DEPLOY: CONTRACT_DEPLOY,
+    FILE_CREATE: FILE_CREATE
+};
+
+/**
+ * A function to handle contract call based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var contractDeployController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, transactionfee, amount, gasfee, fileId, expirationTime, bytecode, abi, params, functionParams, _a, accountData, account, fileIdLike, expirationtime, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, transactionfee = data.transactionfee, amount = data.amount, gasfee = data.gasfee, fileId = data.fileId, expirationTime = data.expirationTime, bytecode = data.bytecode, abi = data.abi, params = data.params, functionParams = data.functionParams;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for contract deploy comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    fileIdLike = fileId ? util.getAccountIdLikeToObj(fileId, 'file') : null;
+                    expirationtime = Date.now() + expirationTime;
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    updatedData = {
+                        abi: abi,
+                        amount: amount,
+                        memo: memo,
+                        account: account,
+                        client: client,
+                        fileId: fileIdLike,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                        functionParams: functionParams,
+                        expirationtime: expirationtime,
+                        bytecode: bytecode,
+                        params: params
+                    };
+                    console.log('RESPONSE CONTRACT CALL SDK::', updatedData);
+                    return [4 /*yield*/, contractDeploy(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('RESPONSE CONTRACT CALL SDK::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-deploy-contract");
+                    hederaTag.setAttribute("data-fileid", data.fileId || '');
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-params", JSON.stringify(data.params) || '');
+                    hederaTag.setAttribute("data-abi", JSON.stringify(data.abi) || '');
+                    hederaTag.setAttribute("data-bytecode", data.bytecode || '');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-gasfee", data.gasfee || '');
+                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    hederaTag.setAttribute("data-amount", data.amount || '');
+                    hederaTag.setAttribute("data-expirationTime", data.expirationTime || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var contractDeploy = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, transactionfee, amount, gasfee, client, bytecode, expirationtime, functionParams, fileId, autoRenewPeriod, fileCreateTx, contractCreateResult, contractDeployTx;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                memo = data.memo, transactionfee = data.transactionfee, amount = data.amount, gasfee = data.gasfee, client = data.client, bytecode = data.bytecode, expirationtime = data.expirationtime, functionParams = data.functionParams;
+                fileId = data.fileId;
+                autoRenewPeriod = defaults.CONTRACT_DEPLOY.AUTORENEW_PERIOD;
+                if (!!fileId) return [3 /*break*/, 2];
+                return [4 /*yield*/, fileCreateDeploy(client, bytecode, memo, transactionfee, expirationtime)];
+            case 1:
+                fileCreateTx = _a.sent();
+                if (fileCreateTx.status.code === Status.Success.code) {
+                    fileId = fileCreateTx._fileId;
+                }
+                else {
+                    return [2 /*return*/, fileCreateTx];
+                }
+                _a.label = 2;
+            case 2: return [4 /*yield*/, helper.createContractTx(client, fileId, functionParams, amount, gasfee, parseInt(transactionfee), memo, autoRenewPeriod)];
+            case 3:
+                contractCreateResult = _a.sent();
+                contractDeployTx = __assign({}, contractCreateResult.receipt);
+                if (contractDeployTx.status.code === Status.Success.code) {
+                    return [2 /*return*/, contractDeployTx];
+                }
+                else {
+                    throw contractDeployTx.codeName || 'Error in Contract deployment';
+                }
+        }
+    });
+}); };
+var fileCreateDeploy = function (client, bytecode, memo, txFee, expirationTime) {
+    if (memo === void 0) { memo = "Composer File Create"; }
+    return __awaiter(void 0, void 0, void 0, function () {
+        var contents, FILE_PART_SIZE, numParts, remainder, firstPartBytes, moreContents, fileReceipt, fileId, i, partBytes, fileAppendResult, partBytes, fileAppendResult;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!bytecode) {
+                        throw new Error('Bytecode can not be empty!');
+                    }
+                    contents = util.stringToBytes(bytecode);
+                    FILE_PART_SIZE = 2800;
+                    numParts = Math.floor(contents.length / FILE_PART_SIZE);
+                    remainder = contents.length % FILE_PART_SIZE;
+                    firstPartBytes = null;
+                    moreContents = false;
+                    if (contents.length <= FILE_PART_SIZE) {
+                        firstPartBytes = contents;
+                        remainder = 0;
+                    }
+                    else {
+                        moreContents = true;
+                        firstPartBytes = util.copyBytes(0, FILE_PART_SIZE, contents);
+                    }
+                    return [4 /*yield*/, helper.createFile(client, firstPartBytes, expirationTime, txFee, memo)];
+                case 1:
+                    fileReceipt = _a.sent();
+                    if (!moreContents) return [3 /*break*/, 8];
+                    if (!(fileReceipt.status.code === Status.Success.code)) return [3 /*break*/, 8];
+                    fileId = fileReceipt._fileId;
+                    i = 1;
+                    _a.label = 2;
+                case 2:
+                    if (!(i < numParts)) return [3 /*break*/, 5];
+                    partBytes = util.copyBytes(i * FILE_PART_SIZE, FILE_PART_SIZE, contents);
+                    return [4 /*yield*/, helper.appendFile(client, fileId, partBytes, txFee)];
+                case 3:
+                    fileAppendResult = _a.sent();
+                    if (fileAppendResult.status.code !== Status.Success.code) {
+                        throw new Error("Error Appending File");
+                    }
+                    _a.label = 4;
+                case 4:
+                    i++;
+                    return [3 /*break*/, 2];
+                case 5:
+                    if (!(remainder > 0)) return [3 /*break*/, 8];
+                    return [4 /*yield*/, util.copyBytes(numParts * FILE_PART_SIZE, remainder, contents)];
+                case 6:
+                    partBytes = _a.sent();
+                    return [4 /*yield*/, helper.appendFile(client, fileId, partBytes, txFee)];
+                case 7:
+                    fileAppendResult = _a.sent();
+                    if (fileAppendResult.status.code !== Status.Success.code) {
+                        throw new Error("Error Appending Last Chunks");
+                    }
+                    _a.label = 8;
+                case 8: return [2 /*return*/, fileReceipt];
+            }
+        });
+    });
+};
+
+/**
  * Does the needed validation and rectification of data before it is passed on to the service
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
@@ -808,17 +1715,17 @@ var validate = function (data) {
     try {
         // Something is wrong with the data object, return false
         if (!data) {
-            throw new Error('Data is undefined');
+            throw ('Data is undefined');
         }
         // Checks validity of memo
         var memo = common.isString(data.memo) || '';
         if (util.stringToBytesSize(memo) > 100) {
-            throw new Error('Memo size cannot exceed 100 bytes');
+            throw ('Memo size cannot exceed 100 bytes');
         }
         // Checks validity of recipient list
         var recipientList = common.validateRecipientList(data.recipientlist);
         if (recipientList === false) {
-            throw new Error('Not a valid recipient list');
+            throw ('Not a valid recipient list');
         }
         // Returning whatever seems to be necessary
         return ({
@@ -831,27 +1738,201 @@ var validate = function (data) {
     }
 };
 
-// Exports validation as one module for the ease to use it
-var validateService = function (data, type) {
-    try {
-        switch (type) {
-            case 'crypto-transfer':
-                return validate(data);
-            case 'contract-call':
-                return validate(data);
-            default:
-                throw "No service found!";
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$1 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, contractId, abi, params, functionParams, amount, transactionfee, gasfee, e_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                // Something is wrong with the data object, return false
+                if (!data) {
+                    throw 'Data is undefined';
+                }
+                memo = common.isString(data.memo) || '';
+                if (util.stringToBytesSize(memo) > 100) {
+                    throw 'Memo size cannot exceed 100 bytes';
+                }
+                contractId = common.isAccountIdLike(data.contractid);
+                if (contractId === false) {
+                    throw ('Not a valid contract id');
+                }
+                abi = common.validateArrayList(data.abi);
+                if (abi === false) {
+                    throw ('Not a valid abi');
+                }
+                params = common.validateArrayList(data.params);
+                if (params === false) {
+                    try {
+                        params = util.normalizeArrayValues(params);
+                    }
+                    catch (e) {
+                        throw ('Error in converting param values');
+                    }
+                    throw ('Not valid params');
+                }
+                return [4 /*yield*/, helper.getContractFunctionParams(abi[0], params)];
+            case 1:
+                functionParams = _a.sent();
+                amount = data.amount ? common.isNumber(data.amount) : 0;
+                if (amount === false) {
+                    throw ('Not valid Amount');
+                }
+                transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
+                if (transactionfee === false) {
+                    throw ('Not valid Transaction Fee');
+                }
+                gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
+                if (gasfee === false) {
+                    throw ('Not valid Gas Fee');
+                }
+                // Returning whatever seems to be necessary
+                return [2 /*return*/, ({
+                        memo: memo,
+                        contractId: contractId,
+                        abi: abi,
+                        params: params,
+                        amount: amount,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                        functionParams: functionParams
+                    })];
+            case 2:
+                e_1 = _a.sent();
+                throw e_1;
+            case 3: return [2 /*return*/];
         }
-    }
-    catch (e) {
-        console.log('Error in Service Validation:::', e);
-        throw e;
-    }
-};
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$2 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, fileId, abi, params, functionParams, amount, transactionfee, gasfee, expirationTime, bytecode, e_1;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                // Something is wrong with the data object, return false
+                if (!data) {
+                    //@TODO make error constants
+                    throw 'Data is undefined';
+                }
+                memo = common.isString(data.memo) || '';
+                if (util.stringToBytesSize(memo) > 100) {
+                    throw 'Memo size cannot exceed 100 bytes';
+                }
+                fileId = data.fileid ? common.isAccountIdLike(data.fileid) : '';
+                if (fileId === false) {
+                    throw 'Not a valid file id';
+                }
+                abi = common.validateArrayList(data.abi);
+                if (abi === false) {
+                    throw 'Not a valid abi';
+                }
+                params = common.validateArrayList(data.params);
+                if (params === false) {
+                    try {
+                        params = util.normalizeArrayValues(params);
+                    }
+                    catch (e) {
+                        throw 'Error in converting param values';
+                    }
+                    throw 'Not valid params';
+                }
+                return [4 /*yield*/, helper.getContractFunctionParams(abi[0], params)];
+            case 1:
+                functionParams = _a.sent();
+                amount = data.amount ? common.isNumber(data.amount) : 0;
+                if (amount === false) {
+                    throw 'Not valid Amount';
+                }
+                transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_DEPLOY.TRANSACTION_FEE;
+                if (transactionfee === false) {
+                    throw 'Not valid Transaction Fee';
+                }
+                gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_DEPLOY.GAS_FEE;
+                if (gasfee === false) {
+                    throw 'Not valid Gas Fee';
+                }
+                expirationTime = data.expirationtime ? common.isNumber(data.expirationtime) : defaults.CONTRACT_DEPLOY.EXPIRATION_TIME;
+                if (expirationTime === false) {
+                    throw 'Not valid Expiration Time';
+                }
+                bytecode = common.isString(data.bytecode);
+                if (bytecode === false) {
+                    throw 'Not a valid Bytecode';
+                }
+                // Returning whatever seems to be necessary
+                return [2 /*return*/, ({
+                        memo: memo,
+                        fileId: fileId,
+                        abi: abi,
+                        params: params,
+                        amount: amount,
+                        transactionfee: transactionfee,
+                        expirationTime: expirationTime,
+                        gasfee: gasfee,
+                        bytecode: bytecode,
+                        functionParams: functionParams
+                    })];
+            case 2:
+                e_1 = _a.sent();
+                throw e_1;
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
+
+// Exports validation as one module for the ease to use it
+var validateService = function (data, type) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, e_1;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _b.trys.push([0, 8, , 9]);
+                _a = type;
+                switch (_a) {
+                    case 'crypto-transfer': return [3 /*break*/, 1];
+                    case 'contract-call': return [3 /*break*/, 2];
+                    case 'contract-deploy': return [3 /*break*/, 4];
+                }
+                return [3 /*break*/, 6];
+            case 1: return [2 /*return*/, validate(data)];
+            case 2: return [4 /*yield*/, validate$1(data)];
+            case 3: return [2 /*return*/, _b.sent()];
+            case 4: return [4 /*yield*/, validate$2(data)];
+            case 5: return [2 /*return*/, _b.sent()];
+            case 6: throw "No service found!";
+            case 7: return [3 /*break*/, 9];
+            case 8:
+                e_1 = _b.sent();
+                console.log('Error in Service Validation:::', e_1);
+                throw e_1;
+            case 9: return [2 /*return*/];
+        }
+    });
+}); };
 
 var _callback = null;
 var _resolve = null;
 var _reject = null;
+(window).HashAccount = {
+    accountId: '0.0.17210',
+    keys: {
+        privateKey: "302e020100300506032b657004220420dc3460f46df4673acfbce2f2218990fff07e38e24b99c4bb2b8213f6e275f9b9"
+    },
+    mnemonics: '',
+    network: 'testnet'
+};
+(window).provider = 'composer';
 /**
  * triggers exposed crypto service call
  * @param {Object} data
@@ -885,16 +1966,83 @@ var triggerCryptoTransfer = function (data, callback) {
         });
     }); });
 };
+/**
+ * triggers exposed contract call service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerSmartContract = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_2, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'contract-call')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, contractCallController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_2 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_2);
+                    console.log('Error in contractCall:::', error_2);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * triggers exposed contract deploy service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var deploySmartContract = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_3, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'contract-deploy')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, contractDeployController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_3 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_3);
+                    console.log('Error in contractDeploy:::', error_3);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
 var receiveMessage = function (event) {
-    console.log('MESSAGE RECVD', event);
     if (event.data.type && event.origin === window.location.origin) {
         if (event.data.type.includes('deny')) {
-            console.log('REDIRECT TO DENY', event);
             _callback && _callback(event.data.res, null);
             _reject && _reject(event.data.res);
         }
         else {
-            console.log('REDIRECT TO SUCCESS', event);
             _callback && _callback(null, event.data.res);
             _resolve && _resolve(event.data.res);
         }
@@ -906,7 +2054,9 @@ var index = {
     sum: sum,
     selectProvider: selectProvider,
     setAccount: setAccount,
-    triggerCryptoTransfer: triggerCryptoTransfer
+    triggerCryptoTransfer: triggerCryptoTransfer,
+    triggerSmartContract: triggerSmartContract,
+    deploySmartContract: deploySmartContract
 };
 
 export default index;

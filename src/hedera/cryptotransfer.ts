@@ -10,15 +10,7 @@ import {helper} from '../helper';
 export const cryptoTransferController =(data:any)=> {
     return new Promise(async(resolve,reject)=>{
         try{
-            ((window)as any).HashAccount={
-                accountId:'0.0.17210',
-                keys:{
-                    privateKey:"302e020100300506032b657004220420dc3460f46df4673acfbce2f2218990fff07e38e24b99c4bb2b8213f6e275f9b9"
-                },
-                mnemonics:'',
-                network:''
-            };
-            ((window)as any).provider = 'software';
+            
             const provider = ((window)as any).provider;
          
             const {recipientList,memo} = data;

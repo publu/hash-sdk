@@ -1,6 +1,4 @@
-import { Client } from '@hashgraph/sdk';
-import { Ed25519PrivateKey } from '@hashgraph/sdk';
-import { IAccountIdLike, IOperator } from '../interface';
+import BigNumber from "bignumber.js";
 export declare const util: {
     stringToBytes: (s: string) => Uint8Array;
     stringToBytesSize: (s: string) => number;
@@ -8,11 +6,19 @@ export declare const util: {
     getAccountIdLikeToObj: (id: string, type?: string) => object;
     getAccountObjToIdLike: (id: Object) => string;
     getFriendlyErrorObject: (e: any) => Object;
-    createHederaClient: (operator: IOperator, network: string) => Client;
-    createClientOperator: (account: IAccountIdLike, privatekey: string) => {
-        account: IAccountIdLike;
-        privateKey: Ed25519PrivateKey;
-    };
     sumFromRecipientList: (recipientList: any) => number;
     isProviderSet: () => any;
+    normalizeArrayValues: (arr: string[]) => any[];
+    convertIfArray: (value: any) => any;
+    getBool: (val: any) => boolean;
+    toBigNumber: (n: any) => BigNumber;
+    accountIdToHexAddress: (accountId: string) => string;
+    createStringArray: (arr: any) => any;
+    createNumberArray: (arr: any) => number[];
+    createBigNumberArray: (arr: any) => BigNumber[];
+    hexToAccountID: (hexString: string) => string;
+    hexToDecimal: (hexString: string) => number;
+    hexToString: (hex: string) => string;
+    getConstructorFromAbi: (abi: any) => void;
+    copyBytes: (start: number, length: number, bytes: any) => Uint8Array;
 };
