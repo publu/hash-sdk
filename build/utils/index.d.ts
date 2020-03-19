@@ -21,4 +21,7 @@ export declare const util: {
     hexToString: (hex: string) => string;
     getConstructorFromAbi: (abi: any) => void;
     copyBytes: (start: number, length: number, bytes: any) => Uint8Array;
+    getMimetype: (signature: any) => "image/png" | "image/gif" | "application/pdf" | "image/jpeg" | "application/zip" | "Unknown filetype";
+    detectFileType: (buffer: Uint8Array) => "image/png" | "image/gif" | "application/pdf" | "image/jpeg" | "application/zip" | "Unknown filetype";
+    svgToUrlGenerator: (svg: string) => string;
 };

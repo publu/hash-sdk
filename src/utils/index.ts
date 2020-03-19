@@ -304,6 +304,57 @@ const getConstructorFromAbi =(abi:any)=> {
     });
 }
 
+/**
+ * Signature based mime-type store
+ * @param {string} signature refers to value passed by function caller
+ * @returns {string} returns mime-type
+*/
+const getMimetype = (signature:any) => {
+    console.log('SIGNATURE',signature)
+    switch (signature) {
+        case '89504E47':
+            return 'image/png'
+        case '47494638':
+            return 'image/gif'
+        case '25504446':
+            return 'application/pdf'
+        case 'FFD8FFDB':
+        case 'FFD8FFE0':
+        case 'FFD8FFE1':
+            return 'image/jpeg'
+        case '504B0304':
+            return 'application/zip'
+        default:
+            return 'Unknown filetype'
+    }
+}
+
+/**
+ * Detect File type based on buffer
+ * @param {Uint8Array} buffer refers to value passed by function caller
+ * @returns {string} returns mime-type
+*/
+const detectFileType =(buffer:Uint8Array)=>{
+    console.log('CHECK BUFFER',buffer)
+   // const uint = new Uint8Array(buffer)
+    let bytes :any= [];
+    buffer.forEach((byte) => {
+        bytes.push(byte.toString(16))
+    })
+    const hex = bytes.join('').toUpperCase();
+    return getMimetype(hex);
+}
+
+/**
+ * Creates URL from SVG string
+ * @param {string} svg refers to value passed by function caller
+ * @returns {string} returns image url
+*/
+const svgToUrlGenerator = (svg:string) =>{
+    let blob = new Blob([svg], {type: 'image/svg+xml'});
+    return URL.createObjectURL(blob);
+}
+
 export const util = {
     stringToBytes,
     stringToBytesSize,
@@ -325,5 +376,8 @@ export const util = {
     hexToDecimal,
     hexToString,
     getConstructorFromAbi,
-    copyBytes
+    copyBytes,
+    getMimetype,
+    detectFileType,
+    svgToUrlGenerator
 }

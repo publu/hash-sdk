@@ -1,6 +1,11 @@
+import {util} from '../utils';
+import {hardwareWallet} from './resources/hardware-wallet';
+import {softwareSdk} from './resources/software-sdk';
+import {composerLogo} from './resources/composer-logo';
 
 export const Images = {
-    hardwareWallet : require('../assets/hardware-wallet.svg'),
-    softwareSDKImage: require('../assets/software-sdk.svg'),
-    composerLogo: require('../assets/composer-logo.svg')
+    hardwareWallet:util.svgToUrlGenerator(hardwareWallet),
+    softwareSDKImage:util.svgToUrlGenerator(softwareSdk),
+    composerLogo:util.svgToUrlGenerator(composerLogo)
 }
+

@@ -39,10 +39,9 @@ export default {
     sourceMaps(),
     // svgResolverPlugin()
   ],
-  // globals: {
-  //   "@hashgraph/sdk": "_hashgraph_sdk",
-  //   "web3-eth-abi": "_web3-eth-abi"
-  // },
+  globals: {
+
+  },
   external: [
     ...Object.keys(pkg.dependencies || {})
    ]

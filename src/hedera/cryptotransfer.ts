@@ -10,9 +10,7 @@ import {helper} from '../helper';
 export const cryptoTransferController =(data:any)=> {
     return new Promise(async(resolve,reject)=>{
         try{
-            
             const provider = ((window)as any).provider;
-         
             const {recipientList,memo} = data;
 
             switch(provider){
@@ -35,7 +33,7 @@ export const cryptoTransferController =(data:any)=> {
                     
                     let operator :any= helper.createClientOperator(account.accountIdObject,accountData.keys.privateKey)
                     let client = helper.createHederaClient(operator,accountData.network);
-                    
+
                     let updatedData :any= {
                         amount,
                         memo,
@@ -45,6 +43,7 @@ export const cryptoTransferController =(data:any)=> {
                     }
 
                     let response :any= await cryptoTransfer(updatedData);
+                    //@TODO remove consoles
                     console.log('RESPONSE CRYPTO INTERNAL::',response);
 
                     // Message Interaction

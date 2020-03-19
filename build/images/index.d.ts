@@ -1,5 +1,5 @@
 export declare const Images: {
-    hardwareWallet: any;
-    softwareSDKImage: any;
-    composerLogo: any;
+    hardwareWallet: string;
+    softwareSDKImage: string;
+    composerLogo: string;
 };

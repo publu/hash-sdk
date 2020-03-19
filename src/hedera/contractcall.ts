@@ -47,7 +47,7 @@ export const contractCallController =(data:any)=> {
                     }
 
                     let response :any= await contractCall(updatedData);
-                    console.log('RESPONSE CONTRACT CALL SDK::',response);
+                    console.log('CONTRACT CALL SDK::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
@@ -63,7 +63,7 @@ export const contractCallController =(data:any)=> {
                     let hederaTag = document.createElement("hedera-contract");
                     hederaTag.setAttribute("data-contractid", data.contractId || '');
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
-                    hederaTag.setAttribute("data-params", JSON.stringify(data.params) || '');
+                    hederaTag.setAttribute("data-params", data.params ? JSON.stringify(data.params) : '[]');
                     hederaTag.setAttribute("data-abi", JSON.stringify(data.abi) || '');
                     hederaTag.setAttribute("data-extensionid", extensionid);
                     hederaTag.setAttribute("data-gasfee", data.gasfee || '');

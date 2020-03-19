@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+export const composerLogo = `<?xml version="1.0" encoding="UTF-8"?>
 <svg width="50px" height="50px" viewBox="0 0 50 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
         <circle id="path-1" cx="25" cy="25" r="25"></circle>
@@ -18,4 +18,4 @@
             </g>
         </g>
     </g>
-</svg>
+</svg>`;

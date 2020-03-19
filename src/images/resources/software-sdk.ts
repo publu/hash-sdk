@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+export const softwareSdk = `<?xml version="1.0"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1_1_" x="0px" y="0px" viewBox="0 0 64 64" style="enable-background:new 0 0 64 64;" xml:space="preserve" width="512px" height="512px" class=""><g><g>
 	<g>
 		<rect x="16" y="20" style="fill:#18B1D0" width="32" height="13" data-original="#F0BC5E" class="active-path" data-old_color="#F0BC5E"/>
@@ -25,4 +25,4 @@
 		<rect x="9" y="5" width="2" height="2" data-original="#000000" class="" style="fill:#000000" data-old_color="#000000"/>
 		<rect x="13" y="5" width="2" height="2" data-original="#000000" class="" style="fill:#000000" data-old_color="#000000"/>
 	</g>
-</g></g> </svg>
+</g></g> </svg>`;

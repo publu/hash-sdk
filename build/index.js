@@ -4,13 +4,11 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var sdk = require('@hashgraph/sdk');
 var sha3 = require('sha3');
 var BigNumber = _interopDefault(require('bignumber.js'));
+var sdk = require('@hashgraph/sdk');
 var web3EthAbi = require('web3-eth-abi');
 var forge = _interopDefault(require('node-forge'));
-
-var sum = function (a, b) { return a + b; };
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -75,6 +73,8 @@ function __generator(thisArg, body) {
     }
 }
 
+var sum = function (a, b) { return a + b; };
+
 // import {stylesMain} from '../ui-modules/styles/stylesMain';
 var customElementInjector = function (element, targetTag) {
     if (targetTag === void 0) { targetTag = 'body'; }
@@ -97,343 +97,6 @@ var internalStyleDestructor = function (id) {
     var headTag = document.querySelector('head');
     var targetStyleElement = document.querySelector("#" + id);
     targetStyleElement ? headTag === null || headTag === void 0 ? void 0 : headTag.removeChild(targetStyleElement) : null;
-};
-
-var Images = {
-    hardwareWallet: require('../assets/hardware-wallet.svg'),
-    softwareSDKImage: require('../assets/software-sdk.svg'),
-    composerLogo: require('../assets/composer-logo.svg')
-};
-
-var theme = {
-    default: {
-        white: 'rgba(255,255,255,1)',
-        black: 'rgba(0,0,0,1)',
-        // Common
-        primaryColor: 'rgb(24, 189, 208)',
-        secondaryColor: 'rgb(7,228,183)',
-        // Button
-        buttonUnImportantColor: 'rgba(0,0,0,0.1)',
-        buttonPrimary: 'rgba(81, 197, 255,1)',
-        buttonRadius: '7px',
-        // Modal 
-        modalOverlayColor: 'rgba(0,0,0,0.6)',
-        modalRadius: '15px',
-        modalZindex: '999'
-    }
-};
-
-var t = theme['default'];
-var cardStyle = "\n    .card-container{\n        padding:18px 12px;\n        font-family:inherit;\n        margin:25px 18px;\n        border-radius:6px;\n        flex:1;\n        display:flex;\n        flex-direction:column;\n        align-items:center;\n        box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        text-align:center;min-width: 100px;\n        transition: all 0.2s ease;\n    }\n\n    .card-container:hover{\n        background:rgb(35, 234, 181);\n        color:" + t.white + ";\n        transform: scale(1.05);\n    }\n\n    middleware-card .card-img{\n        width:60px;\n        height:auto;\n    }\n\n    middleware-card .card-title{\n        margin-top: 8px;\n        font-size: 18px;\n    }\n\n    middleware-card .card-desc{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgba(0,0,0,0.6);\n        font-style:italic;\n    }\n\n    middleware-card .card-recommended{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgb(234, 92, 110,0.7);\n    }\n";
-
-var t$1 = theme['default'];
-var stylesMain = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$1.modalZindex + ";\n        background:" + t$1.modalOverlayColor + ";\n    }\n\n    middleware-selector .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$1.white + ";\n        border-radius:" + t$1.modalRadius + ";\n    }\n\n    middleware-selector .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$1.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$1.modalRadius + ";\n        border-top-right-radius: " + t$1.modalRadius + ";\n        color: " + t$1.white + ";\n    }\n\n    middleware-selector .cancel-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    middleware-selector .modal-body{\n        display:flex;\n        flex-wrap:wrap;\n    }\n\n    middleware-selector .modal-title{\n        font-size:20px;\n    }\n\n    middleware-selector .cancel-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n";
-
-var myCustomElement = 'middleware-selector';
-var customElementModalTitle = 'Select a middleware';
-var cardData = [
-    {
-        id: 'option-1',
-        title: 'Hardware',
-        provider: 'hardware',
-        description: 'Ledger Nano (Hardware Wallet)',
-        imagePath: Images.hardwareWallet,
-        active: false,
-        recommended: true
-    },
-    {
-        id: 'option-2',
-        title: 'Composer',
-        provider: 'composer',
-        description: 'Extension based wallet (Private Key, Keystore, Mnemonic phrase)',
-        imagePath: Images.composerLogo,
-        active: true,
-        recommended: true
-    },
-    {
-        id: 'option-3',
-        title: 'Software',
-        provider: 'software',
-        description: 'SDK based wallet (Private Key, Keystore, Mnemonic phrase)',
-        imagePath: Images.softwareSDKImage,
-        active: true,
-        recommended: false
-    },
-];
-var renderMiddlewareSelectorUI = function (cb) {
-    try {
-        // Element creation.
-        var parentDiv = document.createElement(myCustomElement);
-        var modalContainer = document.createElement('div');
-        var modalHeader = document.createElement('div');
-        var modalBody = document.createElement('div');
-        var modalFooter = document.createElement('div');
-        var cancelButton = document.createElement('span');
-        var modalTitle = document.createElement('span');
-        // Element Styles
-        if (!document.querySelector("#" + myCustomElement + "-style")) {
-            var styleTag = document.createElement("style");
-            styleTag.id = 'hash-sdk-style';
-            styleTag.innerHTML = stylesMain;
-            document.getElementsByTagName("head")[0].appendChild(styleTag);
-        }
-        // Element Identification
-        parentDiv.setAttribute('class', 'modal-parent');
-        modalContainer.setAttribute('class', 'modal-container');
-        modalHeader.setAttribute('class', 'modal-header');
-        modalFooter.setAttribute('class', 'modal-footer');
-        modalBody.setAttribute('class', 'modal-body');
-        modalTitle.setAttribute('class', 'modal-title');
-        cancelButton.setAttribute('class', 'cancel-btn');
-        // Fetching dynamic variables
-        cancelButton.innerHTML = "&#x2715";
-        modalTitle.innerHTML = "" + customElementModalTitle;
-        renderUICard(cardData, modalBody, function (opt) {
-            cb && cb(null, opt);
-            removeMiddlewareUI();
-        });
-        parentDiv.onclick = function (event) {
-            if (event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement) {
-                removeMiddlewareUI();
-            }
-        };
-        cancelButton.onclick = function () {
-            removeMiddlewareUI();
-        };
-        // Element Merging and Finalization
-        modalHeader.appendChild(modalTitle);
-        modalHeader.appendChild(cancelButton);
-        modalContainer.appendChild(modalHeader);
-        modalContainer.appendChild(modalBody);
-        modalContainer.appendChild(modalFooter);
-        parentDiv.appendChild(modalContainer);
-        customElementInjector(parentDiv);
-    }
-    catch (e) {
-        console.error('Error in renderMiddlewareSelectorUI:::', e);
-        cb && cb(e);
-    }
-};
-var renderUICard = function (data, targetElement, cb) {
-    if (!document.querySelector('#hash-card-style')) {
-        var styleTag = document.createElement("style");
-        styleTag.id = 'hash-card-style';
-        styleTag.innerHTML = cardStyle;
-        document.getElementsByTagName("head")[0].appendChild(styleTag);
-    }
-    if (Array.isArray(data) && data.length > 0) {
-        var _loop_1 = function (d) {
-            var cardData_1 = d;
-            var newUICard = document.createElement('middleware-card');
-            newUICard.id = cardData_1.id;
-            newUICard.setAttribute('class', 'card-container');
-            newUICard.style.cssText = "" + (cardData_1.active ? 'cursor:pointer;' : 'pointer-events:none;filter: grayscale(1);background: rgba(0,0,0,0.1);');
-            //Image
-            var cardImg = document.createElement('img');
-            cardImg.setAttribute('class', 'card-img');
-            cardImg.src = cardData_1.imagePath;
-            // Title Text
-            var titleTextEle = document.createElement('div');
-            titleTextEle.setAttribute('class', 'card-title');
-            titleTextEle.innerHTML = cardData_1.title;
-            // Description Text
-            var desc = document.createElement('div');
-            desc.setAttribute('class', 'card-desc');
-            desc.innerHTML = cardData_1.description;
-            // Recommendation
-            var notRecommended = document.createElement('div');
-            notRecommended.setAttribute('class', 'card-recommended');
-            notRecommended.innerHTML = cardData_1.recommended ? '' : 'Not Recommended';
-            newUICard.appendChild(cardImg);
-            newUICard.appendChild(titleTextEle);
-            newUICard.appendChild(desc);
-            newUICard.appendChild(notRecommended);
-            newUICard.onclick = function () {
-                cb && cb(d);
-            };
-            targetElement.appendChild(newUICard);
-        };
-        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
-            var d = data_1[_i];
-            _loop_1(d);
-        }
-    }
-};
-var removeMiddlewareUI = function () {
-    internalStyleDestructor('hash-sdk-style');
-    internalStyleDestructor('hash-card-style');
-    elementDestructor(myCustomElement);
-};
-
-var t$2 = theme['default'];
-var accountStyle = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$2.modalZindex + ";\n        background:" + t$2.modalOverlayColor + ";\n    }\n\n    account-setter .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$2.white + ";\n        border-radius:" + t$2.modalRadius + ";\n    }\n\n    account-setter .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$2.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$2.modalRadius + ";\n        border-top-right-radius: " + t$2.modalRadius + ";\n        color: " + t$2.white + ";\n    }\n\n    account-setter .close-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    account-setter .modal-body{\n        display: flex;\n        justify-content: center;\n    }\n\n    account-setter .modal-body-wrapper{\n        display: flex;\n        flex-direction: column;\n        align-items: center;\n        flex-wrap:wrap;\n        flex: 1;\n        margin: 15px 20px;\n    }\n\n    account-setter .input-wrapper{\n        width: 100%;\n        margin:10px 0px;\n    }\n\n    account-setter .input-ele{\n        width: calc(100% - 20px);\n        padding:0px 10px;\n        height: 36px;\n        border-radius: 4px;\n        font-size: 14px;\n        background: rgba(255,255,255,1);\n        border: 1px solid rgba(0,0,0,0.2);\n    }\n\n    select.input-ele{\n        width: 100%;\n    }\n\n    account-setter .label-input{\n        font-size: 14px;\n        opacity:0.8;\n    }\n\n    account-setter .modal-title{\n        font-size:20px;\n    }\n\n    account-setter .close-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n\n    account-setter button{\n        border-radius: 5px;\n        border: none;\n        font-size: 15px;\n        padding: 10px 20px;\n        margin:10px;\n        cursor:pointer;\n        opacity:0.8;\n        transition:all 0.2s ease;\n    }\n\n    account-setter button:hover{\n        opacity:1;\n        transform:scale(1.02);\n    }\n\n    account-setter .modal-footer{\n        display:flex;\n        justify-content:center;\n    }\n\n    .cancel-btn{\n        background: rgba(0,0,0,0.05);\n    }\n\n    .confirm-btn{\n        background: " + t$2.secondaryColor + ";\n    }\n";
-
-var myCustomElement$1 = 'account-setter';
-var customElementModalTitle$1 = 'Set account';
-var networks = [
-    {
-        id: "n1",
-        title: 'Test Network',
-        value: 'testnet'
-    },
-    {
-        id: "n2",
-        title: 'Main Network',
-        value: 'mainnet'
-    }
-];
-var renderAccountSetterUI = function (cb) {
-    try {
-        // Element creation.
-        var parentDiv = document.createElement(myCustomElement$1);
-        var modalContainer = document.createElement('div');
-        var modalHeader = document.createElement('div');
-        var modalBody = document.createElement('div');
-        var modalBodyWrapper = document.createElement('div');
-        var modalFooter = document.createElement('div');
-        var closeButton = document.createElement('span');
-        var modalTitle = document.createElement('span');
-        var networkInput_1 = document.createElement('select');
-        var accountIdInput_1 = document.createElement('input');
-        var privateInput_1 = document.createElement('input');
-        var confirmButton = document.createElement('button');
-        var cancelButton = document.createElement('button');
-        // Element Styles
-        if (!document.querySelector("#" + myCustomElement$1 + "-style")) {
-            var styleTag = document.createElement("style");
-            styleTag.id = 'hash-sdk-style';
-            styleTag.innerHTML = accountStyle;
-            document.getElementsByTagName("head")[0].appendChild(styleTag);
-        }
-        // Element Identification
-        parentDiv.setAttribute('class', 'modal-parent');
-        modalContainer.setAttribute('class', 'modal-container');
-        modalHeader.setAttribute('class', 'modal-header');
-        modalFooter.setAttribute('class', 'modal-footer');
-        modalBody.setAttribute('class', 'modal-body');
-        modalBodyWrapper.setAttribute('class', 'modal-body-wrapper');
-        modalTitle.setAttribute('class', 'modal-title');
-        closeButton.setAttribute('class', 'close-btn');
-        cancelButton.setAttribute('class', 'cancel-btn');
-        confirmButton.setAttribute('class', 'confirm-btn');
-        networkInput_1.setAttribute('class', 'network-input');
-        accountIdInput_1.setAttribute('class', 'account-input');
-        privateInput_1.setAttribute('class', 'account-input');
-        // Fetching dynamic variables
-        closeButton.innerHTML = "&#x2715";
-        accountIdInput_1.placeholder = ' 0.0.1234(Account Id)';
-        privateInput_1.placeholder = ' Private Key';
-        modalTitle.innerHTML = "" + customElementModalTitle$1;
-        cancelButton.innerHTML = 'CANCEL';
-        confirmButton.innerHTML = 'VALIDATE & SET';
-        networks.forEach(function (n, i) {
-            if (i === 0) {
-                var option_1 = document.createElement('option');
-                option_1.setAttribute('key', i.toString());
-                option_1.innerHTML = 'Choose Network';
-                option_1.selected = true;
-                option_1.disabled = true;
-                networkInput_1.appendChild(option_1);
-            }
-            var option = document.createElement('option');
-            option.setAttribute('key', (i + 1).toString());
-            option.innerHTML = n.title;
-            option.value = n.value;
-            networkInput_1.appendChild(option);
-        });
-        renderLabeledWrappedUI('Network', networkInput_1, modalBodyWrapper);
-        renderLabeledWrappedUI('Account Id', accountIdInput_1, modalBodyWrapper);
-        renderLabeledWrappedUI('Private Key', privateInput_1, modalBodyWrapper);
-        parentDiv.onclick = function (event) {
-            if (event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement$1) {
-                removeAccountSetterUI();
-            }
-        };
-        closeButton.onclick = function () {
-            removeAccountSetterUI();
-        };
-        cancelButton.onclick = function () {
-            removeAccountSetterUI();
-        };
-        confirmButton.onclick = function () {
-            var accountData = {
-                accountId: accountIdInput_1.value,
-                network: networkInput_1.value,
-                keys: {
-                    privateKey: privateInput_1.value
-                },
-                mnemonics: ''
-            };
-            handleSetAccount(accountData);
-        };
-        // Element Merging and Finalization
-        modalHeader.appendChild(modalTitle);
-        modalHeader.appendChild(closeButton);
-        modalContainer.appendChild(modalHeader);
-        modalBody.appendChild(modalBodyWrapper);
-        modalContainer.appendChild(modalBody);
-        modalFooter.appendChild(cancelButton);
-        modalFooter.appendChild(confirmButton);
-        modalContainer.appendChild(modalFooter);
-        parentDiv.appendChild(modalContainer);
-        customElementInjector(parentDiv);
-    }
-    catch (e) {
-        console.error('Error in renderMiddlewareSelectorUI:::', e);
-        cb && cb(e);
-    }
-};
-var renderLabeledWrappedUI = function (labelText, inputElement, targetElement) {
-    var inputWrapper = document.createElement('div');
-    var label = document.createElement('div');
-    inputWrapper.setAttribute('class', 'input-wrapper');
-    label.setAttribute('class', 'label-input');
-    label.innerHTML = labelText;
-    inputElement.setAttribute('class', 'input-ele');
-    inputWrapper.appendChild(label);
-    inputWrapper.appendChild(inputElement);
-    targetElement.appendChild(inputWrapper);
-};
-var removeAccountSetterUI = function () {
-    internalStyleDestructor('hash-sdk-style');
-    elementDestructor(myCustomElement$1);
-};
-var handleSetAccount = function (accountData) {
-    window.HashAccount = accountData;
-    removeAccountSetterUI();
-};
-
-// interface IKeys{
-//     privateKey:string,
-//     publicKey?:string,
-//     mnemonics?:string
-// }
-var setAccount = function (cb) {
-    return new Promise(function (resolve, reject) {
-        renderAccountSetterUI(function (err, res) {
-            // setMiddleware(res.provider);
-            cb && cb(err, res);
-            err ? reject(err) : resolve(res);
-        });
-    });
-};
-
-var selectProvider = function (cb) {
-    return new Promise(function (resolve, reject) {
-        renderMiddlewareSelectorUI(function (err, res) {
-            setProvider(res.provider);
-            if ((window).provider === 'software' && !(window).HashAccount) {
-                setAccount();
-            }
-            else {
-                cb && cb(err, res);
-                err ? reject(err) : resolve(res);
-            }
-        });
-    });
-};
-var setProvider = function (provider) {
-    (window).provider = provider;
 };
 
 /**
@@ -874,6 +537,54 @@ var getConstructorFromAbi = function (abi) {
         }
     });
 };
+/**
+ * Signature based mime-type store
+ * @param {string} signature refers to value passed by function caller
+ * @returns {string} returns mime-type
+*/
+var getMimetype = function (signature) {
+    console.log('SIGNATURE', signature);
+    switch (signature) {
+        case '89504E47':
+            return 'image/png';
+        case '47494638':
+            return 'image/gif';
+        case '25504446':
+            return 'application/pdf';
+        case 'FFD8FFDB':
+        case 'FFD8FFE0':
+        case 'FFD8FFE1':
+            return 'image/jpeg';
+        case '504B0304':
+            return 'application/zip';
+        default:
+            return 'Unknown filetype';
+    }
+};
+/**
+ * Detect File type based on buffer
+ * @param {Uint8Array} buffer refers to value passed by function caller
+ * @returns {string} returns mime-type
+*/
+var detectFileType = function (buffer) {
+    console.log('CHECK BUFFER', buffer);
+    // const uint = new Uint8Array(buffer)
+    var bytes = [];
+    buffer.forEach(function (byte) {
+        bytes.push(byte.toString(16));
+    });
+    var hex = bytes.join('').toUpperCase();
+    return getMimetype(hex);
+};
+/**
+ * Creates URL from SVG string
+ * @param {string} svg refers to value passed by function caller
+ * @returns {string} returns image url
+*/
+var svgToUrlGenerator = function (svg) {
+    var blob = new Blob([svg], { type: 'image/svg+xml' });
+    return URL.createObjectURL(blob);
+};
 var util = {
     stringToBytes: stringToBytes,
     stringToBytesSize: stringToBytesSize,
@@ -895,7 +606,353 @@ var util = {
     hexToDecimal: hexToDecimal,
     hexToString: hexToString,
     getConstructorFromAbi: getConstructorFromAbi,
-    copyBytes: copyBytes
+    copyBytes: copyBytes,
+    getMimetype: getMimetype,
+    detectFileType: detectFileType,
+    svgToUrlGenerator: svgToUrlGenerator
+};
+
+var hardwareWallet = "<?xml version=\"1.0\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" id=\"Capa_1\" enable-background=\"new 0 0 512 512\" height=\"512px\" viewBox=\"0 0 512 512\" width=\"512px\" class=\"\"><g><g><path d=\"m361 7.5v210h-135l105-210z\" fill=\"#acd2f6\" data-original=\"#ACD2F6\" class=\"\" style=\"fill:#ACD2F6\"/><path d=\"m331 7.5v60l-30 15 30 15v120h-180v-210z\" fill=\"#c4f3ff\" data-original=\"#C4F3FF\" style=\"fill:#C4F3FF\" class=\"\"/><path d=\"m211 67.5-15 15 15 15h30v-30z\" fill=\"#4e4cd3\" data-original=\"#4E4CD3\" class=\"\" style=\"fill:#18B1D0\" data-old_color=\"#4e4cd3\"/><path d=\"m181 67.5h30v30h-30z\" fill=\"#666ddc\" data-original=\"#666DDC\" style=\"fill:#66C3DC\" class=\"\" data-old_color=\"#666ddc\"/><path d=\"m301 67.5-15 15 15 15h30v-30z\" fill=\"#4e4cd3\" data-original=\"#4E4CD3\" class=\"\" style=\"fill:#18B1D0\" data-old_color=\"#4e4cd3\"/><path d=\"m271 67.5h30v30h-30z\" fill=\"#666ddc\" data-original=\"#666DDC\" style=\"fill:#66C3DC\" class=\"\" data-old_color=\"#666ddc\"/><path d=\"m361 157.5-180 75h210v-75z\" fill=\"#ff545a\" data-original=\"#FF545A\" style=\"fill:#548AFF\" class=\"active-path\" data-old_color=\"#ff545a\"/><path d=\"m121 157.5h240v75h-240z\" fill=\"#ff7647\" data-original=\"#FF7647\" style=\"fill:#4793FF\" class=\"\" data-old_color=\"#ff7647\"/><path d=\"m391 187.5-30 30v287h30c16.569 0 30-13.431 30-30v-287z\" fill=\"#5c2bc8\" data-original=\"#5C2BC8\" class=\"\" style=\"fill:#2B89C8\" data-old_color=\"#5c2bc8\"/><path d=\"m91 187.5v287c0 16.569 13.431 30 30 30h240c16.569 0 30-13.431 30-30v-287z\" fill=\"#4e4cd3\" data-original=\"#4E4CD3\" class=\"\" style=\"fill:#18B1D0\" data-old_color=\"#4e4cd3\"/><circle cx=\"256\" cy=\"429.5\" fill=\"#05ff77\" r=\"15\" data-original=\"#05FF77\" style=\"fill:#05FF77\"/><path d=\"m241 60h-60c-4.142 0-7.5 3.358-7.5 7.5v30c0 4.142 3.358 7.5 7.5 7.5h60c4.142 0 7.5-3.358 7.5-7.5v-30c0-4.142-3.358-7.5-7.5-7.5zm-7.5 30h-45v-15h45z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/><path d=\"m331 60h-60c-4.142 0-7.5 3.358-7.5 7.5v30c0 4.142 3.358 7.5 7.5 7.5h60c4.142 0 7.5-3.358 7.5-7.5v-30c0-4.142-3.358-7.5-7.5-7.5zm-7.5 30h-45v-15h45z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/><path d=\"m421 180h-22.5v-22.5c0-4.142-3.358-7.5-7.5-7.5h-22.5v-142.5c0-4.142-3.358-7.5-7.5-7.5h-210c-4.142 0-7.5 3.358-7.5 7.5v142.5h-22.5c-4.142 0-7.5 3.358-7.5 7.5v22.5h-22.5c-4.142 0-7.5 3.358-7.5 7.5v128.5c0 4.142 3.358 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-121h315v279.5c0 12.407-10.093 22.5-22.5 22.5h-270c-12.407 0-22.5-10.093-22.5-22.5v-128.5c0-4.142-3.358-7.5-7.5-7.5s-7.5 3.358-7.5 7.5v128.5c0 20.678 16.822 37.5 37.5 37.5h270c20.678 0 37.5-16.822 37.5-37.5v-287c0-4.142-3.358-7.5-7.5-7.5zm-262.5-165h195v135h-195zm-30 150h255v15h-255z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/><path d=\"m278.5 429.5c0-12.407-10.093-22.5-22.5-22.5s-22.5 10.093-22.5 22.5 10.093 22.5 22.5 22.5 22.5-10.093 22.5-22.5zm-30 0c0-4.136 3.364-7.5 7.5-7.5s7.5 3.364 7.5 7.5-3.364 7.5-7.5 7.5-7.5-3.364-7.5-7.5z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/></g></g> \n</svg>";
+
+var softwareSdk = "<?xml version=\"1.0\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" id=\"Layer_1_1_\" x=\"0px\" y=\"0px\" viewBox=\"0 0 64 64\" style=\"enable-background:new 0 0 64 64;\" xml:space=\"preserve\" width=\"512px\" height=\"512px\" class=\"\"><g><g>\n\t<g>\n\t\t<rect x=\"16\" y=\"20\" style=\"fill:#18B1D0\" width=\"32\" height=\"13\" data-original=\"#F0BC5E\" class=\"active-path\" data-old_color=\"#F0BC5E\"/>\n\t</g>\n\t<g>\n\t\t<g>\n\t\t\t<path style=\"fill:#18B1D0\" d=\"M34.781,63h-5.562l-0.625-2.503c-0.802-0.237-1.576-0.559-2.313-0.96l-2.214,1.328l-3.932-3.932     l1.328-2.214c-0.401-0.737-0.723-1.512-0.96-2.313L18,51.781v-5.562l2.503-0.625c0.237-0.802,0.559-1.576,0.96-2.313     l-1.328-2.214l3.932-3.932l2.214,1.328c0.737-0.401,1.512-0.723,2.313-0.96L29.219,35h5.562l0.625,2.503     c0.802,0.237,1.576,0.559,2.313,0.96l2.214-1.328l3.932,3.932l-1.328,2.214c0.401,0.737,0.723,1.512,0.96,2.313L46,46.219v5.562     l-2.503,0.625c-0.237,0.802-0.559,1.576-0.96,2.313l1.328,2.214l-3.932,3.932l-2.214-1.328c-0.737,0.401-1.512,0.723-2.313,0.96     L34.781,63z\" data-original=\"#F0BC5E\" class=\"active-path\" data-old_color=\"#F0BC5E\"/>\n\t\t</g>\n\t</g>\n\t<g>\n\t\t<rect x=\"16\" y=\"27\" width=\"32\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"35\" y=\"31\" width=\"13\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"16\" y=\"31\" width=\"13\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"35\" y=\"23\" width=\"13\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"16\" y=\"23\" width=\"13\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"16\" y=\"19\" width=\"32\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<path d=\"M52,39c0,2.206-1.794,4-4,4v2c3.309,0,6-2.691,6-6v-5.171c0-1.557,0.606-3.021,1.707-4.122L56.414,29l-0.707-0.707    C54.606,27.192,54,25.729,54,24.171V19c0-3.309-2.691-6-6-6v2c2.206,0,4,1.794,4,4v5.171c0,1.773,0.585,3.457,1.665,4.829    C52.585,30.372,52,32.056,52,33.829V39z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<path d=\"M12,19c0-2.206,1.794-4,4-4v-2c-3.309,0-6,2.691-6,6v5.171c0,1.557-0.606,3.021-1.707,4.122L7.586,29l0.707,0.707    C9.394,30.808,10,32.271,10,33.829V39c0,3.309,2.691,6,6,6v-2c-2.206,0-4-1.794-4-4v-5.171c0-1.773-0.585-3.457-1.665-4.829    C11.415,27.628,12,25.944,12,24.171V19z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<path d=\"M32,45c-2.206,0-4,1.794-4,4s1.794,4,4,4s4-1.794,4-4S34.206,45,32,45z M32,51c-1.103,0-2-0.897-2-2s0.897-2,2-2    s2,0.897,2,2S33.103,51,32,51z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<path d=\"M32,41c-1.328,0-2.645,0.333-3.807,0.962l0.953,1.759C30.017,43.25,31.003,43,32,43c3.309,0,6,2.691,6,6    c0,0.997-0.25,1.983-0.721,2.854l1.759,0.953C39.667,51.645,40,50.328,40,49C40,44.589,36.411,41,32,41z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<path d=\"M32,55c-3.309,0-6-2.691-6-6c0-0.997,0.25-1.983,0.721-2.854l-1.759-0.953C24.333,46.355,24,47.672,24,49    c0,4.411,3.589,8,8,8c1.328,0,2.645-0.333,3.807-0.962l-0.953-1.759C33.983,54.75,32.997,55,32,55z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<path d=\"M60,1H4C2.346,1,1,2.346,1,4v46h17v-2H3V11h58v37H46v2h17V4C63,2.346,61.654,1,60,1z M3,9V4c0-0.551,0.449-1,1-1h56    c0.551,0,1,0.449,1,1v5H3z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"5\" y=\"5\" width=\"2\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"9\" y=\"5\" width=\"2\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t\t<rect x=\"13\" y=\"5\" width=\"2\" height=\"2\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/>\n\t</g>\n</g></g> </svg>";
+
+var composerLogo = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg width=\"50px\" height=\"50px\" viewBox=\"0 0 50 50\" version=\"1.1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">\n    <defs>\n        <circle id=\"path-1\" cx=\"25\" cy=\"25\" r=\"25\"></circle>\n    </defs>\n    <g id=\"Pages\" stroke=\"none\" stroke-width=\"1\" fill=\"none\" fill-rule=\"evenodd\">\n        <g id=\"deploy\" transform=\"translate(-651.000000, -5315.000000)\">\n            <g id=\"Group-4\" transform=\"translate(651.000000, 5315.000000)\">\n                <g id=\"api_icon\">\n                    <mask id=\"mask-2\" fill=\"white\">\n                        <use xlink:href=\"#path-1\"></use>\n                    </mask>\n                    <use id=\"Oval\" fill=\"#1EBEFF\" xlink:href=\"#path-1\"></use>\n                    <polygon id=\"Rectangle\" fill=\"#A1E4FF\" mask=\"url(#mask-2)\" points=\"15 15 32 15 50 33 50 50 33 50 15 32\"></polygon>\n                    <rect id=\"Rectangle\" fill=\"#1EBEFF\" mask=\"url(#mask-2)\" x=\"15\" y=\"15\" width=\"17\" height=\"17\"></rect>\n                    <polygon id=\"Path-4\" fill=\"#FFFFFF\" mask=\"url(#mask-2)\" points=\"15 32 0 32 0 0 32 0 32 15 15 15\"></polygon>\n                </g>\n            </g>\n        </g>\n    </g>\n</svg>";
+
+var Images = {
+    hardwareWallet: util.svgToUrlGenerator(hardwareWallet),
+    softwareSDKImage: util.svgToUrlGenerator(softwareSdk),
+    composerLogo: util.svgToUrlGenerator(composerLogo)
+};
+
+var theme = {
+    default: {
+        white: 'rgba(255,255,255,1)',
+        black: 'rgba(0,0,0,1)',
+        // Common
+        primaryColor: 'rgb(24, 189, 208)',
+        secondaryColor: 'rgb(7,228,183)',
+        // Button
+        buttonUnImportantColor: 'rgba(0,0,0,0.1)',
+        buttonPrimary: 'rgba(81, 197, 255,1)',
+        buttonRadius: '7px',
+        // Modal 
+        modalOverlayColor: 'rgba(0,0,0,0.6)',
+        modalRadius: '15px',
+        modalZindex: '999'
+    }
+};
+
+var t = theme['default'];
+var cardStyle = "\n    .card-container{\n        padding:18px 12px;\n        font-family:inherit;\n        margin:25px 18px;\n        border-radius:6px;\n        flex:1;\n        display:flex;\n        flex-direction:column;\n        align-items:center;\n        box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.3);\n        text-align:center;min-width: 100px;\n        transition: all 0.2s ease;\n    }\n\n    .card-container:hover{\n        background:rgb(35, 234, 181);\n        color:" + t.white + ";\n        transform: scale(1.05);\n    }\n\n    middleware-card .card-img{\n        width:60px;\n        height:auto;\n    }\n\n    middleware-card .card-title{\n        margin-top: 8px;\n        font-size: 18px;\n    }\n\n    middleware-card .card-desc{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgba(0,0,0,0.6);\n        font-style:italic;\n    }\n\n    middleware-card .card-recommended{\n        margin-top: 6px;\n        font-size: 12px;\n        color:rgb(234, 92, 110,0.7);\n    }\n";
+
+var t$1 = theme['default'];
+var stylesMain = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$1.modalZindex + ";\n        background:" + t$1.modalOverlayColor + ";\n    }\n\n    middleware-selector .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$1.white + ";\n        border-radius:" + t$1.modalRadius + ";\n    }\n\n    middleware-selector .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$1.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$1.modalRadius + ";\n        border-top-right-radius: " + t$1.modalRadius + ";\n        color: " + t$1.white + ";\n    }\n\n    middleware-selector .cancel-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    middleware-selector .modal-body{\n        display:flex;\n        flex-wrap:wrap;\n    }\n\n    middleware-selector .modal-title{\n        font-size:20px;\n    }\n\n    middleware-selector .cancel-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n";
+
+var myCustomElement = 'middleware-selector';
+var customElementModalTitle = 'Select a middleware';
+var cardData = [
+    {
+        id: 'option-1',
+        title: 'Hardware',
+        provider: 'hardware',
+        description: 'Ledger Nano (Hardware Wallet)',
+        imagePath: Images.hardwareWallet,
+        active: false,
+        recommended: true
+    },
+    {
+        id: 'option-2',
+        title: 'Composer',
+        provider: 'composer',
+        description: 'Extension based wallet (Private Key, Keystore, Mnemonic phrase)',
+        imagePath: Images.composerLogo,
+        active: true,
+        recommended: true
+    },
+    {
+        id: 'option-3',
+        title: 'Software',
+        provider: 'software',
+        description: 'SDK based wallet (Private Key, Keystore, Mnemonic phrase)',
+        imagePath: Images.softwareSDKImage,
+        active: true,
+        recommended: false
+    },
+];
+var renderMiddlewareSelectorUI = function (cb) {
+    try {
+        // Element creation.
+        var parentDiv = document.createElement(myCustomElement);
+        var modalContainer = document.createElement('div');
+        var modalHeader = document.createElement('div');
+        var modalBody = document.createElement('div');
+        var modalFooter = document.createElement('div');
+        var cancelButton = document.createElement('span');
+        var modalTitle = document.createElement('span');
+        // Element Styles
+        if (!document.querySelector("#" + myCustomElement + "-style")) {
+            var styleTag = document.createElement("style");
+            styleTag.id = 'hash-sdk-style';
+            styleTag.innerHTML = stylesMain;
+            document.getElementsByTagName("head")[0].appendChild(styleTag);
+        }
+        // Element Identification
+        parentDiv.setAttribute('class', 'modal-parent');
+        modalContainer.setAttribute('class', 'modal-container');
+        modalHeader.setAttribute('class', 'modal-header');
+        modalFooter.setAttribute('class', 'modal-footer');
+        modalBody.setAttribute('class', 'modal-body');
+        modalTitle.setAttribute('class', 'modal-title');
+        cancelButton.setAttribute('class', 'cancel-btn');
+        // Fetching dynamic variables
+        cancelButton.innerHTML = "&#x2715";
+        modalTitle.innerHTML = "" + customElementModalTitle;
+        renderUICard(cardData, modalBody, function (opt) {
+            cb && cb(null, opt);
+            removeMiddlewareUI();
+        });
+        parentDiv.onclick = function (event) {
+            if (event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement) {
+                removeMiddlewareUI();
+            }
+        };
+        cancelButton.onclick = function () {
+            removeMiddlewareUI();
+        };
+        // Element Merging and Finalization
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(cancelButton);
+        modalContainer.appendChild(modalHeader);
+        modalContainer.appendChild(modalBody);
+        modalContainer.appendChild(modalFooter);
+        parentDiv.appendChild(modalContainer);
+        customElementInjector(parentDiv);
+    }
+    catch (e) {
+        console.error('Error in renderMiddlewareSelectorUI:::', e);
+        cb && cb(e);
+    }
+};
+var renderUICard = function (data, targetElement, cb) {
+    if (!document.querySelector('#hash-card-style')) {
+        var styleTag = document.createElement("style");
+        styleTag.id = 'hash-card-style';
+        styleTag.innerHTML = cardStyle;
+        document.getElementsByTagName("head")[0].appendChild(styleTag);
+    }
+    if (Array.isArray(data) && data.length > 0) {
+        var _loop_1 = function (d) {
+            var cardData_1 = d;
+            var newUICard = document.createElement('middleware-card');
+            newUICard.id = cardData_1.id;
+            newUICard.setAttribute('class', 'card-container');
+            newUICard.style.cssText = "" + (cardData_1.active ? 'cursor:pointer;' : 'pointer-events:none;filter: grayscale(1);background: rgba(0,0,0,0.1);');
+            //Image
+            var cardImg = document.createElement('img');
+            cardImg.setAttribute('class', 'card-img');
+            cardImg.src = cardData_1.imagePath;
+            // Title Text
+            var titleTextEle = document.createElement('div');
+            titleTextEle.setAttribute('class', 'card-title');
+            titleTextEle.innerHTML = cardData_1.title;
+            // Description Text
+            var desc = document.createElement('div');
+            desc.setAttribute('class', 'card-desc');
+            desc.innerHTML = cardData_1.description;
+            // Recommendation
+            var notRecommended = document.createElement('div');
+            notRecommended.setAttribute('class', 'card-recommended');
+            notRecommended.innerHTML = cardData_1.recommended ? '' : 'Not Recommended';
+            newUICard.appendChild(cardImg);
+            newUICard.appendChild(titleTextEle);
+            newUICard.appendChild(desc);
+            newUICard.appendChild(notRecommended);
+            newUICard.onclick = function () {
+                cb && cb(d);
+            };
+            targetElement.appendChild(newUICard);
+        };
+        for (var _i = 0, data_1 = data; _i < data_1.length; _i++) {
+            var d = data_1[_i];
+            _loop_1(d);
+        }
+    }
+};
+var removeMiddlewareUI = function () {
+    internalStyleDestructor('hash-sdk-style');
+    internalStyleDestructor('hash-card-style');
+    elementDestructor(myCustomElement);
+};
+
+var t$2 = theme['default'];
+var accountStyle = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$2.modalZindex + ";\n        background:" + t$2.modalOverlayColor + ";\n    }\n\n    account-setter .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$2.white + ";\n        border-radius:" + t$2.modalRadius + ";\n    }\n\n    account-setter .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$2.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$2.modalRadius + ";\n        border-top-right-radius: " + t$2.modalRadius + ";\n        color: " + t$2.white + ";\n    }\n\n    account-setter .close-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    account-setter .modal-body{\n        display: flex;\n        justify-content: center;\n    }\n\n    account-setter .modal-body-wrapper{\n        display: flex;\n        flex-direction: column;\n        align-items: center;\n        flex-wrap:wrap;\n        flex: 1;\n        margin: 15px 20px;\n    }\n\n    account-setter .input-wrapper{\n        width: 100%;\n        margin:10px 0px;\n    }\n\n    account-setter .input-ele{\n        width: calc(100% - 20px);\n        padding:0px 10px;\n        height: 36px;\n        border-radius: 4px;\n        font-size: 14px;\n        background: rgba(255,255,255,1);\n        border: 1px solid rgba(0,0,0,0.2);\n    }\n\n    select.input-ele{\n        width: 100%;\n    }\n\n    account-setter .label-input{\n        font-size: 14px;\n        opacity:0.8;\n    }\n\n    account-setter .modal-title{\n        font-size:20px;\n    }\n\n    account-setter .close-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n\n    account-setter button{\n        border-radius: 5px;\n        border: none;\n        font-size: 15px;\n        padding: 10px 20px;\n        margin:10px;\n        cursor:pointer;\n        opacity:0.8;\n        transition:all 0.2s ease;\n    }\n\n    account-setter button:hover{\n        opacity:1;\n        transform:scale(1.02);\n    }\n\n    account-setter .modal-footer{\n        display:flex;\n        justify-content:center;\n    }\n\n    .cancel-btn{\n        background: rgba(0,0,0,0.05);\n    }\n\n    .confirm-btn{\n        background: " + t$2.secondaryColor + ";\n    }\n";
+
+var myCustomElement$1 = 'account-setter';
+var customElementModalTitle$1 = 'Set account';
+var networks = [
+    {
+        id: "n1",
+        title: 'Test Network',
+        value: 'testnet'
+    },
+    {
+        id: "n2",
+        title: 'Main Network',
+        value: 'mainnet'
+    }
+];
+var renderAccountSetterUI = function (cb) {
+    try {
+        // Element creation.
+        var parentDiv = document.createElement(myCustomElement$1);
+        var modalContainer = document.createElement('div');
+        var modalHeader = document.createElement('div');
+        var modalBody = document.createElement('div');
+        var modalBodyWrapper = document.createElement('div');
+        var modalFooter = document.createElement('div');
+        var closeButton = document.createElement('span');
+        var modalTitle = document.createElement('span');
+        var networkInput_1 = document.createElement('select');
+        var accountIdInput_1 = document.createElement('input');
+        var privateInput_1 = document.createElement('input');
+        var confirmButton = document.createElement('button');
+        var cancelButton = document.createElement('button');
+        // Element Styles
+        if (!document.querySelector("#" + myCustomElement$1 + "-style")) {
+            var styleTag = document.createElement("style");
+            styleTag.id = 'hash-sdk-style';
+            styleTag.innerHTML = accountStyle;
+            document.getElementsByTagName("head")[0].appendChild(styleTag);
+        }
+        // Element Identification
+        parentDiv.setAttribute('class', 'modal-parent');
+        modalContainer.setAttribute('class', 'modal-container');
+        modalHeader.setAttribute('class', 'modal-header');
+        modalFooter.setAttribute('class', 'modal-footer');
+        modalBody.setAttribute('class', 'modal-body');
+        modalBodyWrapper.setAttribute('class', 'modal-body-wrapper');
+        modalTitle.setAttribute('class', 'modal-title');
+        closeButton.setAttribute('class', 'close-btn');
+        cancelButton.setAttribute('class', 'cancel-btn');
+        confirmButton.setAttribute('class', 'confirm-btn');
+        networkInput_1.setAttribute('class', 'network-input');
+        accountIdInput_1.setAttribute('class', 'account-input');
+        privateInput_1.setAttribute('class', 'account-input');
+        // Fetching dynamic variables
+        closeButton.innerHTML = "&#x2715";
+        accountIdInput_1.placeholder = ' 0.0.1234(Account Id)';
+        privateInput_1.placeholder = ' Private Key';
+        modalTitle.innerHTML = "" + customElementModalTitle$1;
+        cancelButton.innerHTML = 'CANCEL';
+        confirmButton.innerHTML = 'VALIDATE & SET';
+        networks.forEach(function (n, i) {
+            if (i === 0) {
+                var option_1 = document.createElement('option');
+                option_1.setAttribute('key', i.toString());
+                option_1.innerHTML = 'Choose Network';
+                option_1.selected = true;
+                option_1.disabled = true;
+                networkInput_1.appendChild(option_1);
+            }
+            var option = document.createElement('option');
+            option.setAttribute('key', (i + 1).toString());
+            option.innerHTML = n.title;
+            option.value = n.value;
+            networkInput_1.appendChild(option);
+        });
+        renderLabeledWrappedUI('Network', networkInput_1, modalBodyWrapper);
+        renderLabeledWrappedUI('Account Id', accountIdInput_1, modalBodyWrapper);
+        renderLabeledWrappedUI('Private Key', privateInput_1, modalBodyWrapper);
+        parentDiv.onclick = function (event) {
+            if (event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement$1) {
+                removeAccountSetterUI();
+            }
+        };
+        closeButton.onclick = function () {
+            removeAccountSetterUI();
+        };
+        cancelButton.onclick = function () {
+            removeAccountSetterUI();
+        };
+        confirmButton.onclick = function () {
+            var accountData = {
+                accountId: accountIdInput_1.value,
+                network: networkInput_1.value,
+                keys: {
+                    privateKey: privateInput_1.value
+                },
+                mnemonics: ''
+            };
+            handleSetAccount(accountData);
+        };
+        // Element Merging and Finalization
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(closeButton);
+        modalContainer.appendChild(modalHeader);
+        modalBody.appendChild(modalBodyWrapper);
+        modalContainer.appendChild(modalBody);
+        modalFooter.appendChild(cancelButton);
+        modalFooter.appendChild(confirmButton);
+        modalContainer.appendChild(modalFooter);
+        parentDiv.appendChild(modalContainer);
+        customElementInjector(parentDiv);
+    }
+    catch (e) {
+        console.error('Error in renderMiddlewareSelectorUI:::', e);
+        cb && cb(e);
+    }
+};
+var renderLabeledWrappedUI = function (labelText, inputElement, targetElement) {
+    var inputWrapper = document.createElement('div');
+    var label = document.createElement('div');
+    inputWrapper.setAttribute('class', 'input-wrapper');
+    label.setAttribute('class', 'label-input');
+    label.innerHTML = labelText;
+    inputElement.setAttribute('class', 'input-ele');
+    inputWrapper.appendChild(label);
+    inputWrapper.appendChild(inputElement);
+    targetElement.appendChild(inputWrapper);
+};
+var removeAccountSetterUI = function () {
+    internalStyleDestructor('hash-sdk-style');
+    elementDestructor(myCustomElement$1);
+};
+var handleSetAccount = function (accountData) {
+    window.HashAccount = accountData;
+    removeAccountSetterUI();
+};
+
+// interface IKeys{
+//     privateKey:string,
+//     publicKey?:string,
+//     mnemonics?:string
+// }
+var setAccount = function (cb) {
+    return new Promise(function (resolve, reject) {
+        renderAccountSetterUI(function (err, res) {
+            // setMiddleware(res.provider);
+            cb && cb(err, res);
+            err ? reject(err) : resolve(res);
+        });
+    });
+};
+
+var selectProvider = function (cb) {
+    return new Promise(function (resolve, reject) {
+        renderMiddlewareSelectorUI(function (err, res) {
+            setProvider(res.provider);
+            if ((window).provider === 'software') {
+                setAccount();
+            }
+            else {
+                cb && cb(err, res);
+                err ? reject(err) : resolve(res);
+            }
+        });
+    });
+};
+var setProvider = function (provider) {
+    (window).provider = provider;
 };
 
 /**
@@ -1308,6 +1365,7 @@ var cryptoTransferController = function (data) {
                     return [4 /*yield*/, cryptoTransfer(updatedData)];
                 case 3:
                     response = _b.sent();
+                    //@TODO remove consoles
                     console.log('RESPONSE CRYPTO INTERNAL::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
@@ -1407,7 +1465,7 @@ var contractCallController = function (data) {
                     return [4 /*yield*/, contractCall(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('RESPONSE CONTRACT CALL SDK::', response);
+                    console.log('CONTRACT CALL SDK::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
@@ -1419,7 +1477,7 @@ var contractCallController = function (data) {
                     hederaTag = document.createElement("hedera-contract");
                     hederaTag.setAttribute("data-contractid", data.contractId || '');
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
-                    hederaTag.setAttribute("data-params", JSON.stringify(data.params) || '');
+                    hederaTag.setAttribute("data-params", data.params ? JSON.stringify(data.params) : '[]');
                     hederaTag.setAttribute("data-abi", JSON.stringify(data.abi) || '');
                     hederaTag.setAttribute("data-extensionid", extensionid);
                     hederaTag.setAttribute("data-gasfee", data.gasfee || '');
@@ -1525,16 +1583,50 @@ var CONTRACT_DEPLOY = {
 };
 var FILE_CREATE = {
     TRANSACTION_FEE: 500000000,
-    GAS_FEE: 10000000 //given in Tinybars
+    GAS_FEE: 10000000,
+    EXPIRATION_TIME: 7890000000,
+    FILE_SIZE: 0 //given in bytes
+};
+var FILE_RETRIEVE = {
+    TRANSACTION_FEE: 500000000,
+    GAS_FEE: 10000000,
+};
+var TOPIC_CREATE = {
+    TRANSACTION_FEE: 200000000,
+    GAS_FEE: 10000000,
+    AUTORENEW_PERIOD: 0,
+};
+var TOPIC_UPDATE = {
+    TRANSACTION_FEE: 200000000,
+    GAS_FEE: 10000000,
+    AUTORENEW_PERIOD: 0,
+};
+var TOPIC_INFO = {
+    TRANSACTION_FEE: 200000000,
+    GAS_FEE: 10000000,
+};
+var TOPIC_DELETE = {
+    TRANSACTION_FEE: 200000000,
+    GAS_FEE: 10000000,
+};
+var SUBMIT_MESSAGE = {
+    TRANSACTION_FEE: 200000000,
+    GAS_FEE: 10000000,
 };
 var defaults = {
     CONTRACT_CALL: CONTRACT_CALL,
     CONTRACT_DEPLOY: CONTRACT_DEPLOY,
-    FILE_CREATE: FILE_CREATE
+    FILE_CREATE: FILE_CREATE,
+    FILE_RETRIEVE: FILE_RETRIEVE,
+    TOPIC_CREATE: TOPIC_CREATE,
+    TOPIC_UPDATE: TOPIC_UPDATE,
+    TOPIC_INFO: TOPIC_INFO,
+    TOPIC_DELETE: TOPIC_DELETE,
+    SUBMIT_MESSAGE: SUBMIT_MESSAGE
 };
 
 /**
- * A function to handle contract call based on type of the provider;
+ * A function to handle contract deploy based on type of the provider;
  * @param {Object} data
  * @returns {any} returns response of txs success if success or throws error
  */
@@ -1578,11 +1670,11 @@ var contractDeployController = function (data) {
                         bytecode: bytecode,
                         params: params
                     };
-                    console.log('RESPONSE CONTRACT CALL SDK::', updatedData);
+                    console.log('CONTRACT DEPLOY SDK::', updatedData);
                     return [4 /*yield*/, contractDeploy(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('RESPONSE CONTRACT CALL SDK::', response);
+                    console.log('CONTRACT DEPLOY SDK::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
@@ -1594,12 +1686,13 @@ var contractDeployController = function (data) {
                     hederaTag = document.createElement("hedera-deploy-contract");
                     hederaTag.setAttribute("data-fileid", data.fileId || '');
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
-                    hederaTag.setAttribute("data-params", JSON.stringify(data.params) || '');
+                    hederaTag.setAttribute("data-params", data.params ? JSON.stringify(data.params) : '[]');
                     hederaTag.setAttribute("data-abi", JSON.stringify(data.abi) || '');
                     hederaTag.setAttribute("data-bytecode", data.bytecode || '');
                     hederaTag.setAttribute("data-extensionid", extensionid);
                     hederaTag.setAttribute("data-gasfee", data.gasfee || '');
-                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    // @TODO extension not accepting txs fees
+                    hederaTag.setAttribute("data-transactionfee", '');
                     hederaTag.setAttribute("data-amount", data.amount || '');
                     hederaTag.setAttribute("data-expirationTime", data.expirationTime || '');
                     domBody.appendChild(hederaTag);
@@ -1711,6 +1804,814 @@ var fileCreateDeploy = function (client, bytecode, memo, txFee, expirationTime) 
         });
     });
 };
+
+/**
+ * A function to handle file create based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var fileCreateController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, contents, transactionfee, gasfee, expirationTime, _a, accountData, account, expirationtime, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, contents = data.contents, transactionfee = data.transactionfee, gasfee = data.gasfee, expirationTime = data.expirationTime;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for file create comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    expirationtime = Date.now() + expirationTime;
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    updatedData = {
+                        memo: memo,
+                        contents: contents,
+                        account: account,
+                        client: client,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                        expirationtime: expirationtime,
+                    };
+                    console.log('FILE CREATE SDK DATA::', updatedData);
+                    return [4 /*yield*/, fileCreate(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('FILE CREATE SDK RES::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-file-create");
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-fileContent", JSON.stringify(data.fileContent) || '');
+                    hederaTag.setAttribute("data-fileSize", data.fileSize || '');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    // @TODO extension not accepting txs fees
+                    hederaTag.setAttribute("data-transactionfee", '');
+                    hederaTag.setAttribute("data-expirationTime", data.expirationTime || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var fileCreate = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, contents, transactionfee, client, expirationtime, FILE_PART_SIZE, numParts, remainder, firstPartBytes, moreContents, fileReceipt, fileId, i, partBytes, fileAppendResult, partBytes, fileAppendResult;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                memo = data.memo, contents = data.contents, transactionfee = data.transactionfee, client = data.client, expirationtime = data.expirationtime;
+                FILE_PART_SIZE = 2800;
+                numParts = Math.floor(contents.length / FILE_PART_SIZE);
+                remainder = contents.length % FILE_PART_SIZE;
+                firstPartBytes = null;
+                moreContents = false;
+                if (contents.length <= FILE_PART_SIZE) {
+                    firstPartBytes = contents;
+                    remainder = 0;
+                }
+                else {
+                    moreContents = true;
+                    firstPartBytes = util.copyBytes(0, FILE_PART_SIZE, contents);
+                }
+                return [4 /*yield*/, helper.createFile(client, firstPartBytes, expirationtime, transactionfee, memo)];
+            case 1:
+                fileReceipt = _a.sent();
+                // @INFO If u need transaction Id
+                // let transactionId = (fileReceipt as any).transactionId;
+                fileReceipt = __assign({}, fileReceipt);
+                if (!moreContents) return [3 /*break*/, 7];
+                if (!(fileReceipt.status.code === sdk.Status.Success.code)) return [3 /*break*/, 7];
+                fileId = fileReceipt._fileId;
+                i = 1;
+                _a.label = 2;
+            case 2:
+                if (!(i < numParts)) return [3 /*break*/, 5];
+                partBytes = util.copyBytes(i * FILE_PART_SIZE, FILE_PART_SIZE, contents);
+                return [4 /*yield*/, helper.appendFile(client, fileId, partBytes, transactionfee)];
+            case 3:
+                fileAppendResult = _a.sent();
+                if (fileAppendResult.status.code !== sdk.Status.Success.code) {
+                    throw new Error("Error Appending File");
+                }
+                _a.label = 4;
+            case 4:
+                i++;
+                return [3 /*break*/, 2];
+            case 5:
+                if (!(remainder > 0)) return [3 /*break*/, 7];
+                partBytes = util.copyBytes(numParts * FILE_PART_SIZE, remainder, contents);
+                return [4 /*yield*/, helper.appendFile(client, fileId, partBytes, transactionfee)];
+            case 6:
+                fileAppendResult = _a.sent();
+                if (fileAppendResult.status.code !== sdk.Status.Success.code) {
+                    throw new Error("Error Appending Last Chunks");
+                }
+                _a.label = 7;
+            case 7:
+                if (fileReceipt.status.code === sdk.Status.Success.code) {
+                    return [2 /*return*/, fileReceipt];
+                }
+                else {
+                    throw fileReceipt.codeName;
+                }
+        }
+    });
+}); };
+
+/**
+ * A function to handle file retrieve based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var fileRetrieveController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, fileId, transactionfee, gasfee, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, fileId = data.fileId, transactionfee = data.transactionfee, gasfee = data.gasfee;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for file retrieve comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    updatedData = {
+                        memo: memo,
+                        fileId: fileId,
+                        account: account,
+                        client: client,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                    };
+                    console.log('FILE RETRIEVE SDK DATA::', updatedData);
+                    return [4 /*yield*/, fileRetrieve(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('FILE RETRIEVE SDK RES::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-file-retrieve");
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-fileId", data.fileId || '');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    // @TODO extension not accepting txs fees
+                    hederaTag.setAttribute("data-transactionfee", '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var fileRetrieve = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var fileId, transactionfee, client, fileQueryResp, contentAsString, type, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                fileId = data.fileId, transactionfee = data.transactionfee, client = data.client;
+                return [4 /*yield*/, new sdk.FileContentsQuery()
+                        .setFileId(fileId)
+                        .setMaxQueryPayment(transactionfee)
+                        .execute(client)];
+            case 1:
+                fileQueryResp = _a.sent();
+                contentAsString = Buffer.from(fileQueryResp).toString();
+                return [4 /*yield*/, util.detectFileType(fileQueryResp)];
+            case 2:
+                type = _a.sent();
+                response = {
+                    fileType: type,
+                    contents: Array.from(fileQueryResp),
+                    contentAsString: contentAsString
+                };
+                console.log('Response FILETYPE:::', response);
+                return [2 /*return*/, response];
+        }
+    });
+}); };
+
+/**
+ * A function to handle topic create based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var topicCreateController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, submitKeyList, autoRenewAccount, autoRenewPeriod, transactionfee, gasfee, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, submitKeyList = data.submitKeyList, autoRenewAccount = data.autoRenewAccount, autoRenewPeriod = data.autoRenewPeriod, transactionfee = data.transactionfee, gasfee = data.gasfee;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for topic create comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    updatedData = {
+                        memo: memo,
+                        submitKeyList: submitKeyList,
+                        autoRenewAccount: autoRenewAccount,
+                        autoRenewPeriod: autoRenewPeriod,
+                        account: account,
+                        client: client,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                    };
+                    console.log('TOPIC CREATE SDK DATA::', updatedData);
+                    return [4 /*yield*/, topicCreate(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('TOPIC CREATE  SDK RES::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-topic-create");
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    hederaTag.setAttribute("data-submitkeylist", data.submitKeyList ? JSON.stringify(data.submitKeyList) : '');
+                    hederaTag.setAttribute("data-expirationtime", data.expirationTime || '');
+                    hederaTag.setAttribute("data-autorenewperiod", data.autoRenewPeriod || '');
+                    hederaTag.setAttribute("data-autorenewaccount", data.autoRenewAccount || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var topicCreate = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var client, memo, autoRenewAccount, autoRenewPeriod, submitKeyList, transactionfee, expirationTime, transactionId, keyList, _i, submitKeyList_1, k, transactionReceipt, topicId, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                client = data.client, memo = data.memo, autoRenewAccount = data.autoRenewAccount, autoRenewPeriod = data.autoRenewPeriod, submitKeyList = data.submitKeyList, transactionfee = data.transactionfee, expirationTime = data.expirationTime;
+                return [4 /*yield*/, new sdk.ConsensusTopicCreateTransaction()
+                        .setTopicMemo(memo)
+                        .setMaxTransactionFee(transactionfee)
+                        .setAdminKey(client._operatorPublicKey)
+                    // Sets expiry if given
+                ];
+            case 1:
+                transactionId = _a.sent();
+                // Sets expiry if given
+                if (expirationTime && !isNaN(expirationTime)) {
+                    transactionId.setExpirationTime(Date.now() + expirationTime);
+                }
+                // Sets autoRenewPeriod if given
+                if (autoRenewPeriod && !isNaN(autoRenewPeriod)) {
+                    transactionId.setAutoRenewPeriod(autoRenewPeriod);
+                }
+                // Sets autoRenewAccount if given
+                if (autoRenewAccount) {
+                    transactionId.setAutoRenewAccount(autoRenewAccount);
+                }
+                if (!(submitKeyList && submitKeyList.length > 0)) return [3 /*break*/, 3];
+                keyList = new sdk.KeyList();
+                for (_i = 0, submitKeyList_1 = submitKeyList; _i < submitKeyList_1.length; _i++) {
+                    k = submitKeyList_1[_i];
+                    keyList.add(sdk.Ed25519PublicKey.fromString(k));
+                }
+                return [4 /*yield*/, transactionId.setSubmitKey(keyList)];
+            case 2:
+                transactionId = _a.sent();
+                _a.label = 3;
+            case 3: return [4 /*yield*/, transactionId.execute(client)
+                // Fetch transaction reciept
+            ];
+            case 4:
+                // Execution to create topic
+                transactionId = _a.sent();
+                return [4 /*yield*/, transactionId.getReceipt(client)
+                    // Get the newly generated topic Id
+                ];
+            case 5:
+                transactionReceipt = _a.sent();
+                topicId = transactionReceipt.getConsensusTopicId();
+                response = ({
+                    nodePrecheckcode: transactionReceipt.status.code,
+                    receiptStatus: transactionReceipt.status.code,
+                    transactionId: transactionId,
+                    topicId: topicId
+                });
+                return [2 /*return*/, response];
+        }
+    });
+}); };
+
+/**
+ * A function to handle topic update based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var topicUpdateController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, submitKeyList, autoRenewPeriod, transactionfee, gasfee, topicId, autoRenewAccount, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, submitKeyList = data.submitKeyList, autoRenewPeriod = data.autoRenewPeriod, transactionfee = data.transactionfee, gasfee = data.gasfee;
+                    topicId = data.topicId, autoRenewAccount = data.autoRenewAccount;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for topic update comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    // Converting to Object form
+                    topicId = util.getAccountIdLikeToObj(topicId, 'topic');
+                    autoRenewAccount = autoRenewAccount ? util.getAccountIdLikeToObj(autoRenewAccount, 'account') : autoRenewAccount;
+                    updatedData = {
+                        memo: memo,
+                        topicId: topicId,
+                        submitKeyList: submitKeyList,
+                        autoRenewAccount: autoRenewAccount,
+                        autoRenewPeriod: autoRenewPeriod,
+                        account: account,
+                        client: client,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                    };
+                    console.log('TOPIC UPDATE SDK DATA::', updatedData);
+                    return [4 /*yield*/, topicUpdate(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('TOPIC UPDATE  SDK RES::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-topic-update");
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-topicid", data.topicId || '');
+                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    hederaTag.setAttribute("data-submitkeylist", data.submitKeyList ? JSON.stringify(data.submitKeyList) : '');
+                    hederaTag.setAttribute("data-expirationtime", data.expirationTime || '');
+                    hederaTag.setAttribute("data-autorenewperiod", data.autoRenewPeriod || '');
+                    hederaTag.setAttribute("data-autorenewaccount", data.autoRenewAccount || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var topicUpdate = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var client, topicId, memo, autoRenewAccount, autoRenewPeriod, submitKeyList, expirationTime, id, transactionId, keyList, _i, submitKeyList_1, k, transactionReceipt, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                client = data.client, topicId = data.topicId, memo = data.memo, autoRenewAccount = data.autoRenewAccount, autoRenewPeriod = data.autoRenewPeriod, submitKeyList = data.submitKeyList, expirationTime = data.expirationTime;
+                id = new sdk.ConsensusTopicId(topicId);
+                return [4 /*yield*/, new sdk.ConsensusTopicUpdateTransaction()
+                        .setTopicId(id)
+                        .setAdminKey(client._operatorPublicKey)
+                    // Sets memo if given
+                ];
+            case 1:
+                transactionId = _a.sent();
+                // Sets memo if given
+                if (memo && typeof memo === 'string' && memo.trim()) {
+                    transactionId.setTopicMemo(memo);
+                }
+                // Sets expiry if given
+                if (expirationTime && !isNaN(expirationTime)) {
+                    transactionId.setExpirationTime(Date.now() + expirationTime);
+                }
+                // Sets autoRenewPeriod if given
+                if (autoRenewPeriod && !isNaN(autoRenewPeriod)) {
+                    transactionId.setAutoRenewPeriod(autoRenewPeriod);
+                }
+                // Sets autoRenewAccount if given
+                if (autoRenewAccount) {
+                    transactionId.setAutoRenewAccount(autoRenewAccount);
+                }
+                if (!(submitKeyList && submitKeyList.length > 0)) return [3 /*break*/, 3];
+                keyList = new sdk.KeyList();
+                for (_i = 0, submitKeyList_1 = submitKeyList; _i < submitKeyList_1.length; _i++) {
+                    k = submitKeyList_1[_i];
+                    keyList.add(sdk.Ed25519PublicKey.fromString(k));
+                }
+                return [4 /*yield*/, transactionId.setSubmitKey(keyList)];
+            case 2:
+                transactionId = _a.sent();
+                _a.label = 3;
+            case 3: return [4 /*yield*/, transactionId.execute(client)
+                // Fetch transaction reciept
+            ];
+            case 4:
+                // Execution to create topic
+                transactionId = _a.sent();
+                return [4 /*yield*/, transactionId.getReceipt(client)];
+            case 5:
+                transactionReceipt = _a.sent();
+                response = {
+                    nodePrecheckcode: transactionReceipt.status.code,
+                    receiptStatus: transactionReceipt.status.code,
+                    transactionId: transactionId
+                };
+                return [2 /*return*/, response];
+        }
+    });
+}); };
+
+/**
+ * A function to handle topic info based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var topicInfoController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, transactionfee, gasfee, topicId, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, transactionfee = data.transactionfee, gasfee = data.gasfee;
+                    topicId = data.topicId;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for topic info comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    // Converting to Object form
+                    topicId = util.getAccountIdLikeToObj(topicId, 'topic');
+                    updatedData = {
+                        memo: memo,
+                        topicId: topicId,
+                        account: account,
+                        client: client,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                    };
+                    console.log('TOPIC INFO SDK DATA::', updatedData);
+                    return [4 /*yield*/, topicInfo(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('TOPIC INFO  SDK RES::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-topic-info");
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    hederaTag.setAttribute("data-topicid", data.topicId || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var topicInfo = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var client, topicId, id, topicInfo, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                client = data.client, topicId = data.topicId;
+                id = new sdk.ConsensusTopicId(topicId);
+                return [4 /*yield*/, new sdk.ConsensusTopicInfoQuery()
+                        .setTopicId(id)
+                        .execute(client)];
+            case 1:
+                topicInfo = _a.sent();
+                response = {
+                    topicInfo: topicInfo
+                };
+                return [2 /*return*/, response];
+        }
+    });
+}); };
+
+/**
+ * A function to handle topic delete based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var topicDeleteController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, transactionfee, gasfee, topicId, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, transactionfee = data.transactionfee, gasfee = data.gasfee;
+                    topicId = data.topicId;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for topic delete comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    // Converting to Object form
+                    topicId = util.getAccountIdLikeToObj(topicId, 'topic');
+                    updatedData = {
+                        memo: memo,
+                        topicId: topicId,
+                        account: account,
+                        client: client,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                    };
+                    console.log('TOPIC DELETE SDK DATA::', updatedData);
+                    return [4 /*yield*/, topicDelete(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('TOPIC DELETE SDK RES::', response);
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-topic-delete");
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    hederaTag.setAttribute("data-topicid", data.topicId || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var topicDelete = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var client, topicId, id, transactionId, transactionReceipt, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                client = data.client, topicId = data.topicId;
+                id = new sdk.ConsensusTopicId(topicId);
+                return [4 /*yield*/, new sdk.ConsensusTopicDeleteTransaction()
+                        .setTopicId(id)
+                        .execute(client)
+                    // Fetch transaction reciept
+                ];
+            case 1:
+                transactionId = _a.sent();
+                return [4 /*yield*/, transactionId.getReceipt(client)];
+            case 2:
+                transactionReceipt = _a.sent();
+                response = {
+                    nodePrecheckcode: transactionReceipt.status.code,
+                    receiptStatus: transactionReceipt.status.code,
+                    transactionId: transactionId
+                };
+                return [2 /*return*/, response];
+        }
+    });
+}); };
+
+/**
+ * A function to handle submit message based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var submitMessageController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, memo, transactionfee, gasfee, message, topicId, _a, accountData, account, operator, client, updatedData, response, messageI, extensionid, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    memo = data.memo, transactionfee = data.transactionfee, gasfee = data.gasfee, message = data.message;
+                    topicId = data.topicId;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for submit message comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = util.getAccountIdObjectFull(accountData.accountId);
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    // Converting to Object form
+                    topicId = util.getAccountIdLikeToObj(topicId, 'topic');
+                    updatedData = {
+                        memo: memo,
+                        topicId: topicId,
+                        message: message,
+                        account: account,
+                        client: client,
+                        transactionfee: transactionfee,
+                        gasfee: gasfee,
+                    };
+                    console.log('SUBMIT MESSAGE SDK DATA::', updatedData);
+                    return [4 /*yield*/, submitMessage(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    console.log('SUBMIT MESSAGE SDK RES::', response);
+                    messageI = { res: response, type: 'success' };
+                    window.postMessage(messageI, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    console.log('DATA:::', data);
+                    extensionid = window.extensionId;
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-topic-delete");
+                    hederaTag.setAttribute("data-memo", data.memo || ' ');
+                    hederaTag.setAttribute("data-extensionid", extensionid);
+                    hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
+                    hederaTag.setAttribute("data-topicid", data.topicId || '');
+                    hederaTag.setAttribute("data-message", data.message || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var submitMessage = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var client, topicId, message, id, transactionId, transactionReceipt, response;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                client = data.client, topicId = data.topicId, message = data.message;
+                id = new sdk.ConsensusTopicId(topicId);
+                return [4 /*yield*/, new sdk.ConsensusSubmitMessageTransaction()
+                        .setTopicId(id)
+                        .setMessage(message)
+                        // .sign(operatorPrivateKey) // Must sign by the topic's submitKey
+                        .execute(client)
+                    // Fetch transaction reciept
+                ];
+            case 1:
+                transactionId = _a.sent();
+                return [4 /*yield*/, transactionId.getReceipt(client)];
+            case 2:
+                transactionReceipt = _a.sent();
+                response = {
+                    nodePrecheckcode: transactionReceipt.status.code,
+                    receiptStatus: transactionReceipt.status.code,
+                    transactionId: transactionId
+                };
+                return [2 /*return*/, response];
+        }
+    });
+}); };
 
 /**
  * Does the needed validation and rectification of data before it is passed on to the service
@@ -1897,32 +2798,409 @@ var validate$2 = function (data) { return __awaiter(void 0, void 0, void 0, func
     });
 }); };
 
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$3 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, contents, fileSize, transactionfee, gasfee, expirationTime;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                //@TODO make error constants
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            contents = common.validateArrayList(data.fileContent);
+            // @TODO may be we can check is its uint8array convertable if needed
+            contents = contents ? new Uint8Array(contents) : contents;
+            if (contents === false) {
+                throw 'Not valid File Contents';
+            }
+            fileSize = data.fileSize ? common.isNumber(data.fileSize) : defaults.FILE_CREATE.FILE_SIZE;
+            if (fileSize === false) {
+                throw 'Not valid File Size';
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.FILE_CREATE.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw 'Not valid Transaction Fee';
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.FILE_CREATE.GAS_FEE;
+            if (gasfee === false) {
+                throw 'Not valid Gas Fee';
+            }
+            expirationTime = data.expirationtime ? common.isNumber(data.expirationtime) : defaults.FILE_CREATE.EXPIRATION_TIME;
+            if (expirationTime === false) {
+                throw 'Not valid Expiration Time';
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    fileSize: fileSize,
+                    fileContent: data.fileContent,
+                    contents: contents,
+                    transactionfee: transactionfee,
+                    expirationTime: expirationTime,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$4 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, fileId, transactionfee, gasfee;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                //@TODO make error constants
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            fileId = data.fileId ? common.isAccountIdLike(data.fileId) : '';
+            if (fileId === false) {
+                throw 'Not a valid file id';
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.FILE_RETRIEVE.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw 'Not valid Transaction Fee';
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.FILE_RETRIEVE.GAS_FEE;
+            if (gasfee === false) {
+                throw 'Not valid Gas Fee';
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    fileId: fileId,
+                    transactionfee: transactionfee,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$5 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, submitKeyList, transactionfee, gasfee, autoRenewAccount, autoRenewPeriod;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            submitKeyList = data.submitKeyList ? common.validateArrayList(data.submitKeyList) : [];
+            //@TODO In-depth validation of public keys can be done
+            if (submitKeyList === false) {
+                throw ('Not a valid submitKeyList');
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw ('Not valid Transaction Fee');
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
+            if (gasfee === false) {
+                throw ('Not valid Gas Fee');
+            }
+            autoRenewAccount = data.autoRenewAccount ? common.isAccountIdLike(data.autoRenewAccount) : '';
+            if (autoRenewAccount === false) {
+                throw ('Not a valid auto renew account id');
+            }
+            autoRenewPeriod = data.autoRenewPeriod ? common.isNumber(data.autoRenewPeriod) : defaults.TOPIC_CREATE.AUTORENEW_PERIOD;
+            if (autoRenewPeriod === false) {
+                throw 'Not valid Auto Renew Period';
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    submitKeyList: submitKeyList,
+                    autoRenewAccount: autoRenewAccount,
+                    autoRenewPeriod: autoRenewPeriod,
+                    transactionfee: transactionfee,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$6 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, topicId, submitKeyList, transactionfee, gasfee, autoRenewAccount, autoRenewPeriod;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            topicId = common.isAccountIdLike(data.topicId);
+            if (topicId === false) {
+                throw ('Not a valid topic id');
+            }
+            submitKeyList = data.submitKeyList ? common.validateArrayList(data.submitKeyList) : [];
+            //@TODO In-depth validation of public keys can be done
+            if (submitKeyList === false) {
+                throw ('Not a valid submitKeyList');
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw ('Not valid Transaction Fee');
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
+            if (gasfee === false) {
+                throw ('Not valid Gas Fee');
+            }
+            autoRenewAccount = data.autoRenewAccount ? common.isAccountIdLike(data.autoRenewAccount) : '';
+            if (autoRenewAccount === false) {
+                throw ('Not a valid auto renew account id');
+            }
+            autoRenewPeriod = data.autoRenewPeriod ? common.isNumber(data.autoRenewPeriod) : defaults.TOPIC_CREATE.AUTORENEW_PERIOD;
+            if (autoRenewPeriod === false) {
+                throw 'Not valid Auto Renew Period';
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    topicId: topicId,
+                    submitKeyList: submitKeyList,
+                    autoRenewAccount: autoRenewAccount,
+                    autoRenewPeriod: autoRenewPeriod,
+                    transactionfee: transactionfee,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$7 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, topicId, transactionfee, gasfee;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            topicId = common.isAccountIdLike(data.topicId);
+            if (topicId === false) {
+                throw ('Not a valid topic id');
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw ('Not valid Transaction Fee');
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
+            if (gasfee === false) {
+                throw ('Not valid Gas Fee');
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    topicId: topicId,
+                    transactionfee: transactionfee,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$8 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, topicId, transactionfee, gasfee;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            topicId = common.isAccountIdLike(data.topicId);
+            if (topicId === false) {
+                throw ('Not a valid topic id');
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw ('Not valid Transaction Fee');
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
+            if (gasfee === false) {
+                throw ('Not valid Gas Fee');
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    topicId: topicId,
+                    transactionfee: transactionfee,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$9 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, message, topicId, transactionfee, gasfee;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            message = common.isString(data.message);
+            message = message && util.stringToBytesSize(message) < 4000 ? message : false;
+            if (message === false) {
+                throw 'Message size should be between 1-4kb';
+            }
+            topicId = common.isAccountIdLike(data.topicId);
+            if (topicId === false) {
+                throw ('Not a valid topic id');
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw ('Not valid Transaction Fee');
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
+            if (gasfee === false) {
+                throw ('Not valid Gas Fee');
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    message: message,
+                    topicId: topicId,
+                    transactionfee: transactionfee,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
 // Exports validation as one module for the ease to use it
 var validateService = function (data, type) { return __awaiter(void 0, void 0, void 0, function () {
     var _a, e_1;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 8, , 9]);
+                _b.trys.push([0, 22, , 23]);
                 _a = type;
                 switch (_a) {
                     case 'crypto-transfer': return [3 /*break*/, 1];
                     case 'contract-call': return [3 /*break*/, 2];
                     case 'contract-deploy': return [3 /*break*/, 4];
+                    case 'file-create': return [3 /*break*/, 6];
+                    case 'file-retrieve': return [3 /*break*/, 8];
+                    case 'topic-create': return [3 /*break*/, 10];
+                    case 'topic-update': return [3 /*break*/, 12];
+                    case 'topic-info': return [3 /*break*/, 14];
+                    case 'topic-delete': return [3 /*break*/, 16];
+                    case 'submit-message': return [3 /*break*/, 18];
                 }
-                return [3 /*break*/, 6];
+                return [3 /*break*/, 20];
             case 1: return [2 /*return*/, validate(data)];
             case 2: return [4 /*yield*/, validate$1(data)];
             case 3: return [2 /*return*/, _b.sent()];
             case 4: return [4 /*yield*/, validate$2(data)];
             case 5: return [2 /*return*/, _b.sent()];
-            case 6: throw "No service found!";
-            case 7: return [3 /*break*/, 9];
-            case 8:
+            case 6: return [4 /*yield*/, validate$3(data)];
+            case 7: return [2 /*return*/, _b.sent()];
+            case 8: return [4 /*yield*/, validate$4(data)];
+            case 9: return [2 /*return*/, _b.sent()];
+            case 10: return [4 /*yield*/, validate$5(data)];
+            case 11: return [2 /*return*/, _b.sent()];
+            case 12: return [4 /*yield*/, validate$6(data)];
+            case 13: return [2 /*return*/, _b.sent()];
+            case 14: return [4 /*yield*/, validate$7(data)];
+            case 15: return [2 /*return*/, _b.sent()];
+            case 16: return [4 /*yield*/, validate$8(data)];
+            case 17: return [2 /*return*/, _b.sent()];
+            case 18: return [4 /*yield*/, validate$9(data)];
+            case 19: return [2 /*return*/, _b.sent()];
+            case 20: throw "No service found!";
+            case 21: return [3 /*break*/, 23];
+            case 22:
                 e_1 = _b.sent();
                 console.log('Error in Service Validation:::', e_1);
                 throw e_1;
-            case 9: return [2 /*return*/];
+            case 23: return [2 /*return*/];
         }
     });
 }); };
@@ -1950,24 +3228,26 @@ var triggerCryptoTransfer = function (data, callback) {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    _a.trys.push([0, 2, , 3]);
+                    _a.trys.push([0, 3, , 4]);
                     util.isProviderSet();
-                    updatedData = validateService(data, 'crypto-transfer');
-                    return [4 /*yield*/, cryptoTransferController(updatedData)];
+                    return [4 /*yield*/, validateService(data, 'crypto-transfer')];
                 case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, cryptoTransferController(updatedData)];
+                case 2:
                     _a.sent();
                     _callback = callback;
                     _resolve = resolve;
                     _reject = reject;
-                    return [3 /*break*/, 3];
-                case 2:
+                    return [3 /*break*/, 4];
+                case 3:
                     error_1 = _a.sent();
                     err = util.getFriendlyErrorObject(error_1);
                     console.log('Error in cryptoTransfer:::', error_1);
                     callback && callback(err);
                     reject(err);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
             }
         });
     }); });
@@ -2042,6 +3322,255 @@ var deploySmartContract = function (data, callback) {
         });
     }); });
 };
+/**
+ * triggers exposed file create service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerFileCreate = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_4, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'file-create')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, fileCreateController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_4 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_4);
+                    console.log('Error in fileCreate:::', error_4);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * triggers exposed file retrieve service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerFileRetrieve = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_5, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'file-retrieve')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, fileRetrieveController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_5 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_5);
+                    console.log('Error in fileRetrieve:::', error_5);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * triggers exposed topic create service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerTopicCreate = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_6, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'topic-create')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, topicCreateController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_6 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_6);
+                    console.log('Error in topicCreate:::', error_6);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * triggers exposed topic update service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerTopicUpdate = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_7, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'topic-update')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, topicUpdateController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_7 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_7);
+                    console.log('Error in topicUpdate:::', error_7);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * triggers exposed topic info service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerTopicInfo = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_8, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'topic-info')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, topicInfoController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_8 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_8);
+                    console.log('Error in topicInfo:::', error_8);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * triggers exposed topic delete service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerTopicDelete = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_9, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'topic-delete')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, topicDeleteController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_9 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_9);
+                    console.log('Error in topicDelete:::', error_9);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * triggers exposed submit message service call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerSubmitMessage = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_10, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'submit-message')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, submitMessageController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_10 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_10);
+                    console.log('Error in submitMessage:::', error_10);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
+ * Accepts message event and returns to promise and callback
+ * @param {MessageEvent} event
+ */
 var receiveMessage = function (event) {
     if (event.data.type && event.origin === window.location.origin) {
         if (event.data.type.includes('deny')) {
@@ -2049,21 +3578,37 @@ var receiveMessage = function (event) {
             _reject && _reject(event.data.res);
         }
         else {
+            //@TODO Rectify JSON stringified responses for composer
             _callback && _callback(null, event.data.res);
             _resolve && _resolve(event.data.res);
         }
     }
 };
+/**
+ * 'message' event listener to catch messages from composer or software responses
+ */
 window.addEventListener("message", receiveMessage, false);
 
-var index = {
+// Exposed Functions
+var exports$1 = {
     sum: sum,
     selectProvider: selectProvider,
     setAccount: setAccount,
     triggerCryptoTransfer: triggerCryptoTransfer,
     triggerSmartContract: triggerSmartContract,
-    deploySmartContract: deploySmartContract
+    deploySmartContract: deploySmartContract,
+    triggerFileCreate: triggerFileCreate,
+    triggerFileRetrieve: triggerFileRetrieve,
+    triggerTopicCreate: triggerTopicCreate,
+    triggerTopicUpdate: triggerTopicUpdate,
+    triggerTopicInfo: triggerTopicInfo,
+    triggerTopicDelete: triggerTopicDelete,
+    triggerSubmitMessage: triggerSubmitMessage
 };
+// Exposing inject to window object
+window.hash = __assign({}, exports$1);
+// Exposing function using default
+var index = __assign({}, exports$1);
 
 exports.default = index;
 //# sourceMappingURL=index.js.map

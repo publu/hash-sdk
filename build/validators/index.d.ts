@@ -12,13 +12,27 @@ export declare const validateService: (data: any, type: string) => Promise<{
     functionParams: import("@hashgraph/sdk").ContractFunctionParams;
 } | {
     memo: string;
-    fileId: string;
-    abi: any;
-    params: any;
-    amount: number;
+    fileSize: number;
+    fileContent: any;
+    contents: any;
     transactionfee: number;
     expirationTime: number;
     gasfee: number;
-    bytecode: string;
-    functionParams: import("@hashgraph/sdk").ContractFunctionParams;
+} | {
+    memo: string;
+    fileId: string;
+    transactionfee: number;
+    gasfee: number;
+} | {
+    memo: string;
+    submitKeyList: any;
+    autoRenewAccount: string;
+    autoRenewPeriod: number;
+    transactionfee: number;
+    gasfee: number;
+} | {
+    memo: string;
+    topicId: string;
+    transactionfee: number;
+    gasfee: number;
 }>;

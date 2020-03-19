@@ -5,7 +5,7 @@ export const selectProvider = (cb?:Function) => {
     return new Promise((resolve,reject)=>{
         renderMiddlewareSelectorUI((err:any,res:any):any=>{
             setProvider(res.provider);
-            if(((window)as any).provider === 'software' && !((window)as any).HashAccount){
+            if(((window)as any).provider === 'software'){
               setAccount();
             }else{
                 cb && cb(err,res);
@@ -16,7 +16,7 @@ export const selectProvider = (cb?:Function) => {
 }
 
 const setProvider = (provider:string) => {
-    
+
     ((window)as any).provider = provider;
 
     switch(provider){
