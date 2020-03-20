@@ -18,7 +18,7 @@ window.onload = function () {
      * Variable that gives id of extension when the composer extension is up and running
      * 
      * @example
-     * console.log(extensionid);
+     * // console.log(extensionid);
      * @returns {string} "igptwehnsjcokfkansilfhgntepvjbojm"
      * 
      */
@@ -33,10 +33,10 @@ window.onload = function () {
     * hash.enable((err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // triggers a prompt window on your website
@@ -69,10 +69,10 @@ window.onload = function () {
     * hash.triggerCryptoTransfer(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers cryptotransfer extension prompt
@@ -117,10 +117,10 @@ window.onload = function () {
     * hash.triggerSmartContract(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers smart contract call extension prompt
@@ -166,10 +166,10 @@ window.onload = function () {
     * hash.deploySmartContract(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers smart contract deploy extension prompt
@@ -220,10 +220,10 @@ window.onload = function () {
     * hash.triggerFileCreate(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers create file extension prompt
@@ -266,10 +266,10 @@ window.onload = function () {
     * hash.triggerFileRetrieve(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers create file extension prompt
@@ -308,10 +308,10 @@ window.onload = function () {
     * hash.triggerTopicCreate(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers create topic extension prompt
@@ -357,10 +357,10 @@ window.onload = function () {
     * hash.triggerTopicUpdate(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers update topic extension prompt
@@ -408,10 +408,10 @@ window.onload = function () {
     * hash.triggerTopicInfo(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers info topic extension prompt
@@ -451,10 +451,10 @@ window.onload = function () {
     * hash.triggerTopicDelete(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers info topic extension prompt
@@ -494,10 +494,10 @@ window.onload = function () {
     * hash.triggerMessageSubmit(data, (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * // tiggers message submit extension prompt
@@ -539,7 +539,7 @@ window.onload = function () {
     * hash.triggerCheckBalance("0.0.12345", (err,res)=>{
     *   if(err){
     *       //error case
-    *       console.log('Error:::',err);
+    *       // console.log('Error:::',err);
     *   }else{
     *       //success case
     *       // {
@@ -549,7 +549,7 @@ window.onload = function () {
     *       //           currentNetwork:"mainnet"
     *       //       }
     *       // }
-    *       console.log('Success:::',res);
+    *       // console.log('Success:::',res);
     *   }
     * });
     * @returns {function} callback
@@ -611,18 +611,18 @@ window.onload = function () {
 
     document.addEventListener('DOMNodeInserted', () => {
         let banner = document.getElementById("hedera-banner-wrapper")
-        console.log("Banner:", banner);
+        // console.log("Banner:", banner);
         if (banner) {
             let chromeExtensionId = banner.getAttribute('data-id')
             let smartContractTrigger = banner.getAttribute('data-smart-contract-trigger')
-            console.log(smartContractTrigger)
+            // console.log(smartContractTrigger)
             if (smartContractTrigger === 'true') {
                 banner.style.display = 'none';
-                console.log(`chrome-extension://${chromeExtensionId}/html/smart-contract-details.html?sender_url=${window.location.origin}`)
+                // console.log(`chrome-extension://${chromeExtensionId}/html/smart-contract-details.html?sender_url=${window.location.origin}`)
                 let popupWindow = window.open(`chrome-extension://${chromeExtensionId}/html/smart-contract-details.html?sender_url=${window.location.origin}`, "extension_popup", "height=520,width=350,status=1,scrollbars=1,resizable=no");
-                console.log('open popup window')
+                // console.log('open popup window')
                 popupWindow.onbeforeunload = function () {
-                    console.log('popupWindow closed..');
+                    // console.log('popupWindow closed..');
                 }
                 return;
             }
@@ -640,10 +640,10 @@ window.onload = function () {
     
     function receiveMessage(event) {
         if (event.data.type && event.origin === window.location.origin) {
-            console.log("receiveMessage::")
-            console.log(event.origin);
-            console.log(event.data.type);
-            console.log(event.data.res);
+            // console.log("receiveMessage::")
+            // console.log(event.origin);
+            // console.log(event.data.type);
+            // console.log(event.data.res);
             switch (event.data.type) {
                 case 'account-connect-deny':
                     window.hash.onConnectAccountError && window.hash.onConnectAccountError(event.data.res)

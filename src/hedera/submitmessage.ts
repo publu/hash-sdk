@@ -43,9 +43,7 @@ export const submitMessageController =(data:any)=> {
                         gasfee,
                     }
 
-                    console.log('SUBMIT MESSAGE SDK DATA::',updatedData);
                     let response :any= await submitMessage(updatedData);
-                    console.log('SUBMIT MESSAGE SDK RES::',response);
 
                     // Message Interaction
                     const messageI = {res:response,type:'success'};
@@ -55,7 +53,6 @@ export const submitMessageController =(data:any)=> {
                     break;
                 
                 case 'composer':
-                    console.log('DATA:::',data)
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-topic-delete");

@@ -42,9 +42,7 @@ export const fileCreateController =(data:any)=> {
                         expirationtime,
                     }
 
-                    console.log('FILE CREATE SDK DATA::',updatedData);
                     let response :any= await fileCreate(updatedData);
-                    console.log('FILE CREATE SDK RES::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
@@ -54,7 +52,6 @@ export const fileCreateController =(data:any)=> {
                     break;
                 
                 case 'composer':
-                    console.log('DATA:::',data)
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
                     // @TODO shift tag names to constants

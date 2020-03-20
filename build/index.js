@@ -543,7 +543,6 @@ var getConstructorFromAbi = function (abi) {
  * @returns {string} returns mime-type
 */
 var getMimetype = function (signature) {
-    console.log('SIGNATURE', signature);
     switch (signature) {
         case '89504E47':
             return 'image/png';
@@ -567,7 +566,6 @@ var getMimetype = function (signature) {
  * @returns {string} returns mime-type
 */
 var detectFileType = function (buffer) {
-    console.log('CHECK BUFFER', buffer);
     // const uint = new Uint8Array(buffer)
     var bytes = [];
     buffer.forEach(function (byte) {
@@ -942,6 +940,7 @@ var selectProvider = function (cb) {
         renderMiddlewareSelectorUI(function (err, res) {
             setProvider(res.provider);
             if ((window).provider === 'software') {
+                //@TODO handle below
                 setAccount();
             }
             else {
@@ -1323,6 +1322,85 @@ var helper = {
 };
 
 /**
+ * A function to handle getting account Info based on type of the provider;
+ * @param {Object} data
+ * @returns {any} returns response of txs success if success or throws error
+ */
+var accountInfoController = function (data) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var provider, accountId, _a, accountData, account, operator, client, updatedData, response, message, domBody, hederaTag, e_1, message;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    provider = (window).provider;
+                    accountId = data.accountId;
+                    _a = provider;
+                    switch (_a) {
+                        case 'hardware': return [3 /*break*/, 1];
+                        case 'software': return [3 /*break*/, 2];
+                        case 'composer': return [3 /*break*/, 4];
+                    }
+                    return [3 /*break*/, 5];
+                case 1: 
+                //@TODO flow comming soon
+                throw "Hardware option for account info comming soon!";
+                case 2:
+                    accountData = (window.HashAccount);
+                    account = accountId ? util.getAccountIdObjectFull(accountId) : util.getAccountIdObjectFull(accountData.accountId);
+                    operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
+                    client = helper.createHederaClient(operator, accountData.network);
+                    updatedData = {
+                        accountData: accountData,
+                        account: account,
+                        client: client,
+                    };
+                    return [4 /*yield*/, accountInfo(updatedData)];
+                case 3:
+                    response = _b.sent();
+                    message = { res: response, type: 'success' };
+                    window.postMessage(message, window.location.origin);
+                    resolve(response);
+                    return [3 /*break*/, 5];
+                case 4:
+                    domBody = document.getElementsByTagName('body')[0];
+                    hederaTag = document.createElement("hedera-balance");
+                    hederaTag.setAttribute("data-accountID", data.accountId || '');
+                    domBody.appendChild(hederaTag);
+                    resolve(data);
+                    return [3 /*break*/, 5];
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    message = { res: e_1, type: 'deny' };
+                    window.postMessage(message, window.location.origin);
+                    reject(e_1);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+var accountInfo = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var client, account, accountData, balance, network;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                client = data.client, account = data.account, accountData = data.accountData;
+                return [4 /*yield*/, client.getAccountBalance(client._getOperatorAccountId())];
+            case 1:
+                balance = (_a.sent()).asTinybar().toString();
+                network = accountData.network || 'Not Set';
+                return [2 /*return*/, {
+                        accountId: account.accountIdLike,
+                        currentNetwork: network,
+                        balance: balance
+                    }];
+        }
+    });
+}); };
+
+/**
  * A function to handle crypto transfer based on type of the provider;
  * @param {Object} data
  * @returns {any} returns response of txs success if success or throws error
@@ -1365,8 +1443,6 @@ var cryptoTransferController = function (data) {
                     return [4 /*yield*/, cryptoTransfer(updatedData)];
                 case 3:
                     response = _b.sent();
-                    //@TODO remove consoles
-                    console.log('RESPONSE CRYPTO INTERNAL::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
@@ -1465,13 +1541,11 @@ var contractCallController = function (data) {
                     return [4 /*yield*/, contractCall(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('CONTRACT CALL SDK::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-contract");
@@ -1504,7 +1578,6 @@ var contractCall = function (data) { return __awaiter(void 0, void 0, void 0, fu
         switch (_a.label) {
             case 0:
                 memo = data.memo, contractId = data.contractId, transactionfee = data.transactionfee, amount = data.amount, gasfee = data.gasfee, abi = data.abi, client = data.client, functionParams = data.functionParams;
-                console.log('DATA IN CALL', data);
                 return [4 /*yield*/, new sdk.ContractExecuteTransaction()
                         .setContractId(contractId)
                         .setFunction(abi[0].name, functionParams)
@@ -1670,17 +1743,14 @@ var contractDeployController = function (data) {
                         bytecode: bytecode,
                         params: params
                     };
-                    console.log('CONTRACT DEPLOY SDK::', updatedData);
                     return [4 /*yield*/, contractDeploy(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('CONTRACT DEPLOY SDK::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-deploy-contract");
@@ -1844,17 +1914,14 @@ var fileCreateController = function (data) {
                         gasfee: gasfee,
                         expirationtime: expirationtime,
                     };
-                    console.log('FILE CREATE SDK DATA::', updatedData);
                     return [4 /*yield*/, fileCreate(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('FILE CREATE SDK RES::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-file-create");
@@ -1981,17 +2048,14 @@ var fileRetrieveController = function (data) {
                         transactionfee: transactionfee,
                         gasfee: gasfee,
                     };
-                    console.log('FILE RETRIEVE SDK DATA::', updatedData);
                     return [4 /*yield*/, fileRetrieve(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('FILE RETRIEVE SDK RES::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-file-retrieve");
@@ -2036,7 +2100,6 @@ var fileRetrieve = function (data) { return __awaiter(void 0, void 0, void 0, fu
                     contents: Array.from(fileQueryResp),
                     contentAsString: contentAsString
                 };
-                console.log('Response FILETYPE:::', response);
                 return [2 /*return*/, response];
         }
     });
@@ -2081,17 +2144,14 @@ var topicCreateController = function (data) {
                         transactionfee: transactionfee,
                         gasfee: gasfee,
                     };
-                    console.log('TOPIC CREATE SDK DATA::', updatedData);
                     return [4 /*yield*/, topicCreate(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('TOPIC CREATE  SDK RES::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-create");
@@ -2220,17 +2280,14 @@ var topicUpdateController = function (data) {
                         transactionfee: transactionfee,
                         gasfee: gasfee,
                     };
-                    console.log('TOPIC UPDATE SDK DATA::', updatedData);
                     return [4 /*yield*/, topicUpdate(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('TOPIC UPDATE  SDK RES::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-update");
@@ -2356,17 +2413,14 @@ var topicInfoController = function (data) {
                         transactionfee: transactionfee,
                         gasfee: gasfee,
                     };
-                    console.log('TOPIC INFO SDK DATA::', updatedData);
                     return [4 /*yield*/, topicInfo(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('TOPIC INFO  SDK RES::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-info");
@@ -2449,17 +2503,14 @@ var topicDeleteController = function (data) {
                         transactionfee: transactionfee,
                         gasfee: gasfee,
                     };
-                    console.log('TOPIC DELETE SDK DATA::', updatedData);
                     return [4 /*yield*/, topicDelete(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('TOPIC DELETE SDK RES::', response);
                     message = { res: response, type: 'success' };
                     window.postMessage(message, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-delete");
@@ -2550,17 +2601,14 @@ var submitMessageController = function (data) {
                         transactionfee: transactionfee,
                         gasfee: gasfee,
                     };
-                    console.log('SUBMIT MESSAGE SDK DATA::', updatedData);
                     return [4 /*yield*/, submitMessage(updatedData)];
                 case 3:
                     response = _b.sent();
-                    console.log('SUBMIT MESSAGE SDK RES::', response);
                     messageI = { res: response, type: 'success' };
                     window.postMessage(messageI, window.location.origin);
                     resolve(response);
                     return [3 /*break*/, 5];
                 case 4:
-                    console.log('DATA:::', data);
                     extensionid = window.extensionId;
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-delete");
@@ -2618,7 +2666,32 @@ var submitMessage = function (data) { return __awaiter(void 0, void 0, void 0, f
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate = function (data) {
+var validate = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var accountId;
+    return __generator(this, function (_a) {
+        try {
+            accountId = data && data.accountID ? common.isAccountIdLike(data.accountID) : '';
+            if (accountId === false) {
+                throw ('Not a valid account id');
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    accountId: accountId
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$1 = function (data) {
     try {
         // Something is wrong with the data object, return false
         if (!data) {
@@ -2650,7 +2723,7 @@ var validate = function (data) {
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate$1 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+var validate$2 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var memo, contractId, abi, params, functionParams, amount, transactionfee, gasfee, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -2721,7 +2794,7 @@ var validate$1 = function (data) { return __awaiter(void 0, void 0, void 0, func
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate$2 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+var validate$3 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var memo, fileId, abi, params, functionParams, amount, transactionfee, gasfee, expirationTime, bytecode, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -2803,7 +2876,7 @@ var validate$2 = function (data) { return __awaiter(void 0, void 0, void 0, func
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate$3 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+var validate$4 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var memo, contents, fileSize, transactionfee, gasfee, expirationTime;
     return __generator(this, function (_a) {
         try {
@@ -2861,7 +2934,7 @@ var validate$3 = function (data) { return __awaiter(void 0, void 0, void 0, func
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate$4 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+var validate$5 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var memo, fileId, transactionfee, gasfee;
     return __generator(this, function (_a) {
         try {
@@ -2906,7 +2979,7 @@ var validate$4 = function (data) { return __awaiter(void 0, void 0, void 0, func
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate$5 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+var validate$6 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var memo, submitKeyList, transactionfee, gasfee, autoRenewAccount, autoRenewPeriod;
     return __generator(this, function (_a) {
         try {
@@ -2961,7 +3034,7 @@ var validate$5 = function (data) { return __awaiter(void 0, void 0, void 0, func
  * @param {Object} data refers to value passed by function caller
  * @returns {function} callback
 */
-var validate$6 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+var validate$7 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var memo, topicId, submitKeyList, transactionfee, gasfee, autoRenewAccount, autoRenewPeriod;
     return __generator(this, function (_a) {
         try {
@@ -3005,50 +3078,6 @@ var validate$6 = function (data) { return __awaiter(void 0, void 0, void 0, func
                     submitKeyList: submitKeyList,
                     autoRenewAccount: autoRenewAccount,
                     autoRenewPeriod: autoRenewPeriod,
-                    transactionfee: transactionfee,
-                    gasfee: gasfee,
-                })];
-        }
-        catch (e) {
-            throw e;
-        }
-        return [2 /*return*/];
-    });
-}); };
-
-/**
- * Does the needed validation and rectification of data before it is passed on to the service
- * @param {Object} data refers to value passed by function caller
- * @returns {function} callback
-*/
-var validate$7 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
-    var memo, topicId, transactionfee, gasfee;
-    return __generator(this, function (_a) {
-        try {
-            // Something is wrong with the data object, return false
-            if (!data) {
-                throw 'Data is undefined';
-            }
-            memo = common.isString(data.memo) || '';
-            if (util.stringToBytesSize(memo) > 100) {
-                throw 'Memo size cannot exceed 100 bytes';
-            }
-            topicId = common.isAccountIdLike(data.topicId);
-            if (topicId === false) {
-                throw ('Not a valid topic id');
-            }
-            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
-            if (transactionfee === false) {
-                throw ('Not valid Transaction Fee');
-            }
-            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
-            if (gasfee === false) {
-                throw ('Not valid Gas Fee');
-            }
-            // Returning whatever seems to be necessary
-            return [2 /*return*/, ({
-                    memo: memo,
-                    topicId: topicId,
                     transactionfee: transactionfee,
                     gasfee: gasfee,
                 })];
@@ -3110,6 +3139,50 @@ var validate$8 = function (data) { return __awaiter(void 0, void 0, void 0, func
  * @returns {function} callback
 */
 var validate$9 = function (data) { return __awaiter(void 0, void 0, void 0, function () {
+    var memo, topicId, transactionfee, gasfee;
+    return __generator(this, function (_a) {
+        try {
+            // Something is wrong with the data object, return false
+            if (!data) {
+                throw 'Data is undefined';
+            }
+            memo = common.isString(data.memo) || '';
+            if (util.stringToBytesSize(memo) > 100) {
+                throw 'Memo size cannot exceed 100 bytes';
+            }
+            topicId = common.isAccountIdLike(data.topicId);
+            if (topicId === false) {
+                throw ('Not a valid topic id');
+            }
+            transactionfee = data.transactionfee ? common.isNumber(data.transactionfee) : defaults.CONTRACT_CALL.TRANSACTION_FEE;
+            if (transactionfee === false) {
+                throw ('Not valid Transaction Fee');
+            }
+            gasfee = data.gasfee ? common.isNumber(data.gasfee) : defaults.CONTRACT_CALL.GAS_FEE;
+            if (gasfee === false) {
+                throw ('Not valid Gas Fee');
+            }
+            // Returning whatever seems to be necessary
+            return [2 /*return*/, ({
+                    memo: memo,
+                    topicId: topicId,
+                    transactionfee: transactionfee,
+                    gasfee: gasfee,
+                })];
+        }
+        catch (e) {
+            throw e;
+        }
+        return [2 /*return*/];
+    });
+}); };
+
+/**
+ * Does the needed validation and rectification of data before it is passed on to the service
+ * @param {Object} data refers to value passed by function caller
+ * @returns {function} callback
+*/
+var validate$a = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     var memo, message, topicId, transactionfee, gasfee;
     return __generator(this, function (_a) {
         try {
@@ -3160,47 +3233,48 @@ var validateService = function (data, type) { return __awaiter(void 0, void 0, v
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
-                _b.trys.push([0, 22, , 23]);
+                _b.trys.push([0, 23, , 24]);
                 _a = type;
                 switch (_a) {
-                    case 'crypto-transfer': return [3 /*break*/, 1];
-                    case 'contract-call': return [3 /*break*/, 2];
-                    case 'contract-deploy': return [3 /*break*/, 4];
-                    case 'file-create': return [3 /*break*/, 6];
-                    case 'file-retrieve': return [3 /*break*/, 8];
-                    case 'topic-create': return [3 /*break*/, 10];
-                    case 'topic-update': return [3 /*break*/, 12];
-                    case 'topic-info': return [3 /*break*/, 14];
-                    case 'topic-delete': return [3 /*break*/, 16];
-                    case 'submit-message': return [3 /*break*/, 18];
+                    case 'account-info': return [3 /*break*/, 1];
+                    case 'crypto-transfer': return [3 /*break*/, 2];
+                    case 'contract-call': return [3 /*break*/, 3];
+                    case 'contract-deploy': return [3 /*break*/, 5];
+                    case 'file-create': return [3 /*break*/, 7];
+                    case 'file-retrieve': return [3 /*break*/, 9];
+                    case 'topic-create': return [3 /*break*/, 11];
+                    case 'topic-update': return [3 /*break*/, 13];
+                    case 'topic-info': return [3 /*break*/, 15];
+                    case 'topic-delete': return [3 /*break*/, 17];
+                    case 'submit-message': return [3 /*break*/, 19];
                 }
-                return [3 /*break*/, 20];
+                return [3 /*break*/, 21];
             case 1: return [2 /*return*/, validate(data)];
-            case 2: return [4 /*yield*/, validate$1(data)];
-            case 3: return [2 /*return*/, _b.sent()];
-            case 4: return [4 /*yield*/, validate$2(data)];
-            case 5: return [2 /*return*/, _b.sent()];
-            case 6: return [4 /*yield*/, validate$3(data)];
-            case 7: return [2 /*return*/, _b.sent()];
-            case 8: return [4 /*yield*/, validate$4(data)];
-            case 9: return [2 /*return*/, _b.sent()];
-            case 10: return [4 /*yield*/, validate$5(data)];
-            case 11: return [2 /*return*/, _b.sent()];
-            case 12: return [4 /*yield*/, validate$6(data)];
-            case 13: return [2 /*return*/, _b.sent()];
-            case 14: return [4 /*yield*/, validate$7(data)];
-            case 15: return [2 /*return*/, _b.sent()];
-            case 16: return [4 /*yield*/, validate$8(data)];
-            case 17: return [2 /*return*/, _b.sent()];
-            case 18: return [4 /*yield*/, validate$9(data)];
-            case 19: return [2 /*return*/, _b.sent()];
-            case 20: throw "No service found!";
-            case 21: return [3 /*break*/, 23];
-            case 22:
+            case 2: return [2 /*return*/, validate$1(data)];
+            case 3: return [4 /*yield*/, validate$2(data)];
+            case 4: return [2 /*return*/, _b.sent()];
+            case 5: return [4 /*yield*/, validate$3(data)];
+            case 6: return [2 /*return*/, _b.sent()];
+            case 7: return [4 /*yield*/, validate$4(data)];
+            case 8: return [2 /*return*/, _b.sent()];
+            case 9: return [4 /*yield*/, validate$5(data)];
+            case 10: return [2 /*return*/, _b.sent()];
+            case 11: return [4 /*yield*/, validate$6(data)];
+            case 12: return [2 /*return*/, _b.sent()];
+            case 13: return [4 /*yield*/, validate$7(data)];
+            case 14: return [2 /*return*/, _b.sent()];
+            case 15: return [4 /*yield*/, validate$8(data)];
+            case 16: return [2 /*return*/, _b.sent()];
+            case 17: return [4 /*yield*/, validate$9(data)];
+            case 18: return [2 /*return*/, _b.sent()];
+            case 19: return [4 /*yield*/, validate$a(data)];
+            case 20: return [2 /*return*/, _b.sent()];
+            case 21: throw "No service found!";
+            case 22: return [3 /*break*/, 24];
+            case 23:
                 e_1 = _b.sent();
-                console.log('Error in Service Validation:::', e_1);
                 throw e_1;
-            case 23: return [2 /*return*/];
+            case 24: return [2 /*return*/];
         }
     });
 }); };
@@ -3218,13 +3292,47 @@ var _reject = null;
 };
 (window).provider = 'composer';
 /**
+ * triggers exposed check balance and account details call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+var triggerCheckBalance = function (data, callback) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var updatedData, error_1, err;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 3, , 4]);
+                    util.isProviderSet();
+                    return [4 /*yield*/, validateService(data, 'account-info')];
+                case 1:
+                    updatedData = _a.sent();
+                    return [4 /*yield*/, accountInfoController(updatedData)];
+                case 2:
+                    _a.sent();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    return [3 /*break*/, 4];
+                case 3:
+                    error_1 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_1);
+                    callback && callback(err);
+                    reject(err);
+                    return [3 /*break*/, 4];
+                case 4: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+/**
  * triggers exposed crypto service call
  * @param {Object} data
  * @returns {any} returns response of success if success or throws error
  */
 var triggerCryptoTransfer = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_1, err;
+        var updatedData, error_2, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3241,9 +3349,8 @@ var triggerCryptoTransfer = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_1 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_1);
-                    console.log('Error in cryptoTransfer:::', error_1);
+                    error_2 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_2);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3259,7 +3366,7 @@ var triggerCryptoTransfer = function (data, callback) {
  */
 var triggerSmartContract = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_2, err;
+        var updatedData, error_3, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3276,9 +3383,8 @@ var triggerSmartContract = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_2 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_2);
-                    console.log('Error in contractCall:::', error_2);
+                    error_3 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_3);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3294,7 +3400,7 @@ var triggerSmartContract = function (data, callback) {
  */
 var deploySmartContract = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_3, err;
+        var updatedData, error_4, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3311,9 +3417,8 @@ var deploySmartContract = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_3 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_3);
-                    console.log('Error in contractDeploy:::', error_3);
+                    error_4 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_4);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3329,7 +3434,7 @@ var deploySmartContract = function (data, callback) {
  */
 var triggerFileCreate = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_4, err;
+        var updatedData, error_5, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3346,9 +3451,8 @@ var triggerFileCreate = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_4 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_4);
-                    console.log('Error in fileCreate:::', error_4);
+                    error_5 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_5);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3364,7 +3468,7 @@ var triggerFileCreate = function (data, callback) {
  */
 var triggerFileRetrieve = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_5, err;
+        var updatedData, error_6, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3381,9 +3485,8 @@ var triggerFileRetrieve = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_5 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_5);
-                    console.log('Error in fileRetrieve:::', error_5);
+                    error_6 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_6);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3399,7 +3502,7 @@ var triggerFileRetrieve = function (data, callback) {
  */
 var triggerTopicCreate = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_6, err;
+        var updatedData, error_7, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3416,9 +3519,8 @@ var triggerTopicCreate = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_6 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_6);
-                    console.log('Error in topicCreate:::', error_6);
+                    error_7 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_7);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3434,7 +3536,7 @@ var triggerTopicCreate = function (data, callback) {
  */
 var triggerTopicUpdate = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_7, err;
+        var updatedData, error_8, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3451,9 +3553,8 @@ var triggerTopicUpdate = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_7 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_7);
-                    console.log('Error in topicUpdate:::', error_7);
+                    error_8 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_8);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3469,7 +3570,7 @@ var triggerTopicUpdate = function (data, callback) {
  */
 var triggerTopicInfo = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_8, err;
+        var updatedData, error_9, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3486,9 +3587,8 @@ var triggerTopicInfo = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_8 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_8);
-                    console.log('Error in topicInfo:::', error_8);
+                    error_9 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_9);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3504,7 +3604,7 @@ var triggerTopicInfo = function (data, callback) {
  */
 var triggerTopicDelete = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_9, err;
+        var updatedData, error_10, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3521,9 +3621,8 @@ var triggerTopicDelete = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_9 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_9);
-                    console.log('Error in topicDelete:::', error_9);
+                    error_10 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_10);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3539,7 +3638,7 @@ var triggerTopicDelete = function (data, callback) {
  */
 var triggerSubmitMessage = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_10, err;
+        var updatedData, error_11, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -3556,9 +3655,8 @@ var triggerSubmitMessage = function (data, callback) {
                     _reject = reject;
                     return [3 /*break*/, 4];
                 case 3:
-                    error_10 = _a.sent();
-                    err = util.getFriendlyErrorObject(error_10);
-                    console.log('Error in submitMessage:::', error_10);
+                    error_11 = _a.sent();
+                    err = util.getFriendlyErrorObject(error_11);
                     callback && callback(err);
                     reject(err);
                     return [3 /*break*/, 4];
@@ -3578,8 +3676,8 @@ var receiveMessage = function (event) {
             _reject && _reject(event.data.res);
         }
         else {
-            //@TODO Rectify JSON stringified responses for composer
-            _callback && _callback(null, event.data.res);
+            var rectifiedResponse = util.convertIfArray(event.data.res);
+            _callback && _callback(null, rectifiedResponse);
             _resolve && _resolve(event.data.res);
         }
     }
@@ -3594,6 +3692,7 @@ var exports$1 = {
     sum: sum,
     selectProvider: selectProvider,
     setAccount: setAccount,
+    triggerCheckBalance: triggerCheckBalance,
     triggerCryptoTransfer: triggerCryptoTransfer,
     triggerSmartContract: triggerSmartContract,
     deploySmartContract: deploySmartContract,
@@ -3603,7 +3702,7 @@ var exports$1 = {
     triggerTopicUpdate: triggerTopicUpdate,
     triggerTopicInfo: triggerTopicInfo,
     triggerTopicDelete: triggerTopicDelete,
-    triggerSubmitMessage: triggerSubmitMessage
+    triggerSubmitMessage: triggerSubmitMessage,
 };
 // Exposing inject to window object
 window.hash = __assign({}, exports$1);

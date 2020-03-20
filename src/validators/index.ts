@@ -1,3 +1,5 @@
+
+import validateAccountInfoData from './accountinfoDataValidation copy';
 import validateCryptoTransferData from './cryptotransferDataValidation';
 import validateContractCallData from './contractcallDataValidation';
 import validateContractDeployData from './contractdeployDataValidation';
@@ -14,6 +16,9 @@ import validateSubmitMessageData from './submitMessageDataValidation'
 export const validateService = async(data:any,type:string)=>{
     try{
         switch(type){
+            case 'account-info':
+                return validateAccountInfoData(data);
+
             case 'crypto-transfer':
                 return validateCryptoTransferData(data);
 
@@ -49,7 +54,6 @@ export const validateService = async(data:any,type:string)=>{
                 
         }
     }catch(e){
-        console.log('Error in Service Validation:::',e);
         throw e;
     }
 }

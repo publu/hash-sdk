@@ -6,6 +6,7 @@ export const selectProvider = (cb?:Function) => {
         renderMiddlewareSelectorUI((err:any,res:any):any=>{
             setProvider(res.provider);
             if(((window)as any).provider === 'software'){
+                //@TODO handle below
               setAccount();
             }else{
                 cb && cb(err,res);

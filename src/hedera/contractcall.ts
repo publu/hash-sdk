@@ -47,7 +47,6 @@ export const contractCallController =(data:any)=> {
                     }
 
                     let response :any= await contractCall(updatedData);
-                    console.log('CONTRACT CALL SDK::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
@@ -57,7 +56,6 @@ export const contractCallController =(data:any)=> {
                     break;
                 
                 case 'composer':
-                    console.log('DATA:::',data)
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-contract");
@@ -87,7 +85,6 @@ export const contractCallController =(data:any)=> {
 
 const contractCall = async(data:any) =>{
     const {memo,contractId,transactionfee,amount,gasfee,abi,client,functionParams} = data;
-    console.log('DATA IN CALL',data)
     let transactionId = await new ContractExecuteTransaction()
     .setContractId(contractId)
     .setFunction(abi[0].name, functionParams)

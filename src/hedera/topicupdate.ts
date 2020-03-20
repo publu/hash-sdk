@@ -46,9 +46,7 @@ export const topicUpdateController =(data:any)=> {
                         gasfee,
                     }
 
-                    console.log('TOPIC UPDATE SDK DATA::',updatedData);
                     let response :any= await topicUpdate(updatedData);
-                    console.log('TOPIC UPDATE  SDK RES::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
@@ -58,7 +56,6 @@ export const topicUpdateController =(data:any)=> {
                     break;
                 
                 case 'composer':
-                    console.log('DATA:::',data)
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-topic-update");

@@ -1,4 +1,10 @@
 /**
+ * triggers exposed check balance and account details call
+ * @param {Object} data
+ * @returns {any} returns response of success if success or throws error
+ */
+export declare const triggerCheckBalance: (data: any, callback?: Function | undefined) => Promise<unknown>;
+/**
  * triggers exposed crypto service call
  * @param {Object} data
  * @returns {any} returns response of success if success or throws error

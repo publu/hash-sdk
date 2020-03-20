@@ -3,6 +3,7 @@ import {sum} from './sum';
 import {selectProvider} from './middleware';
 import {setAccount} from './account';
 import {
+  triggerCheckBalance,
   triggerCryptoTransfer,
   triggerSmartContract,
   deploySmartContract,
@@ -20,6 +21,7 @@ const exports = {
   sum,
   selectProvider,
   setAccount,
+  triggerCheckBalance,
   triggerCryptoTransfer,
   triggerSmartContract,
   deploySmartContract,
@@ -29,7 +31,7 @@ const exports = {
   triggerTopicUpdate,
   triggerTopicInfo,
   triggerTopicDelete,
-  triggerSubmitMessage
+  triggerSubmitMessage,
 };
 
 // Exposing inject to window object

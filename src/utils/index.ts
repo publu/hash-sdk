@@ -310,7 +310,6 @@ const getConstructorFromAbi =(abi:any)=> {
  * @returns {string} returns mime-type
 */
 const getMimetype = (signature:any) => {
-    console.log('SIGNATURE',signature)
     switch (signature) {
         case '89504E47':
             return 'image/png'
@@ -335,7 +334,6 @@ const getMimetype = (signature:any) => {
  * @returns {string} returns mime-type
 */
 const detectFileType =(buffer:Uint8Array)=>{
-    console.log('CHECK BUFFER',buffer)
    // const uint = new Uint8Array(buffer)
     let bytes :any= [];
     buffer.forEach((byte) => {

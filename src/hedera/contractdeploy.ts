@@ -51,9 +51,7 @@ export const contractDeployController =(data:any)=> {
                         params
                     }
 
-                    console.log('CONTRACT DEPLOY SDK::',updatedData);
                     let response :any= await contractDeploy(updatedData);
-                    console.log('CONTRACT DEPLOY SDK::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
@@ -63,7 +61,6 @@ export const contractDeployController =(data:any)=> {
                     break;
                 
                 case 'composer':
-                    console.log('DATA:::',data)
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-deploy-contract");

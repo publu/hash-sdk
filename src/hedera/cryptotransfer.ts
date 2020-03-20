@@ -43,8 +43,6 @@ export const cryptoTransferController =(data:any)=> {
                     }
 
                     let response :any= await cryptoTransfer(updatedData);
-                    //@TODO remove consoles
-                    console.log('RESPONSE CRYPTO INTERNAL::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};

@@ -39,9 +39,7 @@ export const fileRetrieveController =(data:any)=> {
                         gasfee,
                     }
 
-                    console.log('FILE RETRIEVE SDK DATA::',updatedData);
                     let response :any= await fileRetrieve(updatedData);
-                    console.log('FILE RETRIEVE SDK RES::',response);
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
@@ -51,7 +49,6 @@ export const fileRetrieveController =(data:any)=> {
                     break;
                 
                 case 'composer':
-                    console.log('DATA:::',data)
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-file-retrieve");
@@ -93,6 +90,5 @@ const fileRetrieve = async(data:any) =>{
         contents: Array.from(fileQueryResp),
         contentAsString: contentAsString
     }
-    console.log('Response FILETYPE:::',response);
     return response;
 }

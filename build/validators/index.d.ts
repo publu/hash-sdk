@@ -1,4 +1,6 @@
 export declare const validateService: (data: any, type: string) => Promise<{
+    accountId: string;
+} | {
     memo: string;
     recipientList: any;
 } | {

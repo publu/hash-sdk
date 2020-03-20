@@ -2,6 +2,7 @@ declare const _default: {
     sum: (a: number, b: number) => number;
     selectProvider: (cb?: Function | undefined) => Promise<unknown>;
     setAccount: (cb?: Function | undefined) => Promise<unknown>;
+    triggerCheckBalance: (data: any, callback?: Function | undefined) => Promise<unknown>;
     triggerCryptoTransfer: (data: any, callback?: Function | undefined) => Promise<unknown>;
     triggerSmartContract: (data: any, callback?: Function | undefined) => Promise<unknown>;
     deploySmartContract: (data: any, callback?: Function | undefined) => Promise<unknown>;
