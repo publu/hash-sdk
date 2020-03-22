@@ -1,9 +1,9 @@
 {
   "name": "hash-sdk",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "A javascript based library that makes life easy, integrating and using Hedera services.",
   "main": "build/index.js",
-  "author": "Paul Lobo",
+  "author": "Hashing Systems, Inc",
   "module": "build/index.es.js",
   "jsnext:main": "build/index.es.js",
   "scripts": {
@@ -25,9 +25,9 @@
     ]
   },
   "keywords": [
-    "Hash.js"
+    "auth", "login", "web3", "crypto", "hashgraph", "hedera", "wallet", "blockchain", "dapp", "streaming"
   ],
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-image": "^2.0.4",
     "@rollup/plugin-json": "^4.0.2",
@@ -52,5 +52,13 @@
     "node-forge": "^0.9.1",
     "sha3": "2.1.1",
     "web3-eth-abi": "1.0.0-beta.52"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/publu/hash-sdk.git"
+  },
+  "bugs": {
+    "url": "https://github.com/publu/hash-sdk/issues"
+  },
+  "homepage": "https://github.com/publu/hash-sdk#readme"
 }
