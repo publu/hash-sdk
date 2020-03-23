@@ -25,7 +25,16 @@
     ]
   },
   "keywords": [
-    "auth", "login", "web3", "crypto", "hashgraph", "hedera", "wallet", "blockchain", "dapp", "streaming"
+    "auth",
+    "login",
+    "web3",
+    "crypto",
+    "hashgraph",
+    "hedera",
+    "wallet",
+    "blockchain",
+    "dapp",
+    "streaming"
   ],
   "license": "MIT",
   "devDependencies": {
@@ -49,6 +58,7 @@
     "@hashgraph/sdk": "1.1.8",
     "@types/node-forge": "0.9.2",
     "bignumber.js": "9.0.0",
+    "file-type": "^14.1.4",
     "node-forge": "^0.9.1",
     "sha3": "2.1.1",
     "web3-eth-abi": "1.0.0-beta.52"

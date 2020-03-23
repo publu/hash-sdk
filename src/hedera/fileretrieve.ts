@@ -1,6 +1,7 @@
 import { FileContentsQuery } from '@hashgraph/sdk';
 import {util} from '../utils';
 import {helper} from '../helper';
+const fileType = require('file-type/browser');
 
 
 /**
@@ -83,12 +84,14 @@ const fileRetrieve = async(data:any) =>{
         .execute(client);
   
     let contentAsString = Buffer.from(fileQueryResp).toString();
-    const type = await util.detectFileType(fileQueryResp);
+    const type = await fileType.fromBuffer(fileQueryResp);
 
-    let response = {
-        fileType: type,
+    let response :any= {
         contents: Array.from(fileQueryResp),
         contentAsString: contentAsString
+    }
+    if(type){
+        response.fileType=type;
     }
     return response;
 }

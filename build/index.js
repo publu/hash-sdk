@@ -2011,6 +2011,7 @@ var fileCreate = function (data) { return __awaiter(void 0, void 0, void 0, func
     });
 }); };
 
+var fileType = require('file-type/browser');
 /**
  * A function to handle file retrieve based on type of the provider;
  * @param {Object} data
@@ -2092,9 +2093,10 @@ var fileRetrieve = function (data) { return __awaiter(void 0, void 0, void 0, fu
             case 1:
                 fileQueryResp = _a.sent();
                 contentAsString = Buffer.from(fileQueryResp).toString();
-                return [4 /*yield*/, util.detectFileType(fileQueryResp)];
+                return [4 /*yield*/, fileType.fromBuffer(fileQueryResp)];
             case 2:
                 type = _a.sent();
+                console.log('Type recvd', fileType, type, fileQueryResp);
                 response = {
                     fileType: type,
                     contents: Array.from(fileQueryResp),
@@ -3282,15 +3284,6 @@ var validateService = function (data, type) { return __awaiter(void 0, void 0, v
 var _callback = null;
 var _resolve = null;
 var _reject = null;
-(window).HashAccount = {
-    accountId: '0.0.17210',
-    keys: {
-        privateKey: "302e020100300506032b657004220420dc3460f46df4673acfbce2f2218990fff07e38e24b99c4bb2b8213f6e275f9b9"
-    },
-    mnemonics: '',
-    network: 'testnet'
-};
-(window).provider = 'composer';
 /**
  * triggers exposed check balance and account details call
  * @param {Object} data
