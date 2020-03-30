@@ -55,7 +55,7 @@ export const submitMessageController =(data:any)=> {
                 case 'composer':
                     const extensionid = (window as any).extensionId;
                     let domBody = document.getElementsByTagName('body')[0];
-                    let hederaTag = document.createElement("hedera-topic-delete");
+                    let hederaTag = document.createElement("hedera-message-submit");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
                     hederaTag.setAttribute("data-extensionid", extensionid);
                     hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
