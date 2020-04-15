@@ -11,9 +11,11 @@ import {helper} from '../helper';
  */
 export const contractCallController =(data:any)=> {
     return new Promise(async(resolve,reject)=>{
+        const env = util.checkEnvironment();
+
         try{
            
-            const provider = ((window)as any).provider;
+            const provider = util.getStoreData('provider');
          
             const {memo,transactionfee,amount,gasfee,contractId,functionParams,abi} = data;
 
@@ -24,7 +26,7 @@ export const contractCallController =(data:any)=> {
                     break;
 
                 case 'software':
-                    const accountData :any= ((window as any).HashAccount);
+                    const accountData :any= util.getStoreData('HashAccount');
                     const account:any = util.getAccountIdObjectFull(accountData.accountId);
 
                     // Converting to Object form
@@ -50,13 +52,15 @@ export const contractCallController =(data:any)=> {
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
-                    window.postMessage(message, window.location.origin);
+                    if(env==='client'){
+                        window.postMessage(message, window.location.origin);
+                    }
 
-                    resolve(response);
+                    resolve(message);
                     break;
                 
                 case 'composer':
-                    const extensionid = (window as any).extensionId;
+                    const extensionid = util.getStoreData('extensionId');
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-contract");
                     hederaTag.setAttribute("data-contractid", data.contractId || '');
@@ -75,9 +79,11 @@ export const contractCallController =(data:any)=> {
         }catch(e){
             // Message Interaction
             const message = {res:e,type:'deny'};
-            window.postMessage(message, window.location.origin);
+            if(env==='client'){
+                window.postMessage(message, window.location.origin);
+            }
 
-            reject(e);
+            reject(message);
         }
     })
 }

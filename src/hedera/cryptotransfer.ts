@@ -9,8 +9,10 @@ import {helper} from '../helper';
  */
 export const cryptoTransferController =(data:any)=> {
     return new Promise(async(resolve,reject)=>{
+        const env = util.checkEnvironment();
+
         try{
-            const provider = ((window)as any).provider;
+            const provider = util.getStoreData('provider');;
             const {recipientList,memo} = data;
 
             switch(provider){
@@ -20,7 +22,7 @@ export const cryptoTransferController =(data:any)=> {
                     break;
 
                 case 'software':
-                    const accountData :any= ((window as any).HashAccount);
+                    const accountData :any= util.getStoreData('HashAccount');
                     const account:any = util.getAccountIdObjectFull(accountData.accountId);
 
                     // sender details
@@ -46,13 +48,15 @@ export const cryptoTransferController =(data:any)=> {
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
-                    window.postMessage(message, window.location.origin);
+                    if(env==='client'){
+                        window.postMessage(message, window.location.origin);
+                    }
 
-                    resolve(response);
+                    resolve(message);
                     break;
                 
                 case 'composer':
-                    const extensionid = (window as any).extensionId;
+                    const extensionid = util.getStoreData('extensionId');
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-micropayment");
                     hederaTag.setAttribute("data-time", '');
@@ -70,15 +74,19 @@ export const cryptoTransferController =(data:any)=> {
         }catch(e){
             // Message Interaction
             const message = {res:e,type:'deny'};
-            window.postMessage(message, window.location.origin);
+            if(env==='client'){
+                window.postMessage(message, window.location.origin);
+            }
 
-            reject(e);
+            reject(message);
         }
     })
 }
  
 
 const cryptoTransfer = async(data:any) =>{
+    console.log('datat:::',data)
+
    const transactionId = await new CryptoTransferTransaction()
        .addSender(data.account.accountIdObject, data.amount)
        .addRecipient(data.toAccount, data.amount)
@@ -86,6 +94,7 @@ const cryptoTransfer = async(data:any) =>{
        //.setTransactionFee(1000000)
        .execute(data.client);
    const receipt = await transactionId.getReceipt(data.client);
+   console.log('reciept:::',receipt,data)
 
     return({
         nodePrecheckcode: receipt.status.code,

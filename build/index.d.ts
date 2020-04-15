@@ -1,7 +1,9 @@
 declare const _default: {
     sum: (a: number, b: number) => number;
-    selectProvider: (cb?: Function | undefined) => Promise<unknown>;
-    setAccount: (cb?: Function | undefined) => Promise<unknown>;
+    setProvider: (provider: string, cb?: Function | undefined) => Promise<unknown>;
+    setProviderUI: (cb?: Function | undefined) => Promise<unknown>;
+    setAccount: (accountData: import("./interface").IAccountDataLike, cb?: Function | undefined) => Promise<unknown>;
+    setAccountUI: (cb?: Function | undefined) => Promise<unknown>;
     triggerCheckBalance: (data: any, callback?: Function | undefined) => Promise<unknown>;
     triggerCryptoTransfer: (data: any, callback?: Function | undefined) => Promise<unknown>;
     triggerSmartContract: (data: any, callback?: Function | undefined) => Promise<unknown>;

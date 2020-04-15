@@ -1,5 +1,6 @@
 import {util} from '../utils';
 import {helper} from '../helper';
+import {AccountBalanceQuery} from '@hashgraph/sdk';
 
 /**
  * A function to handle getting account Info based on type of the provider;
@@ -8,8 +9,11 @@ import {helper} from '../helper';
  */
 export const accountInfoController =(data:any)=> {
     return new Promise(async(resolve,reject)=>{
+        const env = util.checkEnvironment();
+
         try{
-            const provider = ((window)as any).provider;
+
+            const provider = util.getStoreData('provider');
             const {accountId} = data;
 
             switch(provider){
@@ -19,7 +23,7 @@ export const accountInfoController =(data:any)=> {
                     break;
 
                 case 'software':
-                    const accountData :any= ((window as any).HashAccount);
+                    const accountData :any= util.getStoreData('HashAccount');
                     const account:any = accountId ? util.getAccountIdObjectFull(accountId) : util.getAccountIdObjectFull(accountData.accountId);
 
                     let operator :any= helper.createClientOperator(account.accountIdObject,accountData.keys.privateKey)
@@ -32,12 +36,12 @@ export const accountInfoController =(data:any)=> {
                     }
 
                     let response :any= await accountInfo(updatedData);
-
                     // Message Interaction
                     const message = {res:response,type:'success'};
-                    window.postMessage(message, window.location.origin);
-
-                    resolve(response);
+                    if(env==='client'){
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
                     break;
                 
                 case 'composer':
@@ -52,9 +56,10 @@ export const accountInfoController =(data:any)=> {
         }catch(e){
             // Message Interaction
             const message = {res:e,type:'deny'};
-            window.postMessage(message, window.location.origin);
-
-            reject(e);
+            if(env==='client'){
+                window.postMessage(message, window.location.origin);
+            }
+            reject(message);
         }
     })
 }
@@ -62,13 +67,14 @@ export const accountInfoController =(data:any)=> {
 
 const accountInfo = async(data:any) =>{
     const {client,account,accountData} = data;
-    const balance = (await client.getAccountBalance(client._getOperatorAccountId())).asTinybar().toString();
+    const balance = await new AccountBalanceQuery()
+                    .setAccountId(account.accountIdLike)
+                    .execute(client)
     const network = accountData.network || 'Not Set';
-
     return{
         accountId:account.accountIdLike,
         currentNetwork:network,
-        balance
+        balance:balance.asTinybar().toString()
     }
 }
 

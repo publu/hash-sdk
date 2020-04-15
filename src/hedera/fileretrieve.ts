@@ -11,9 +11,11 @@ const fileType = require('file-type/browser');
  */
 export const fileRetrieveController =(data:any)=> {
     return new Promise(async(resolve,reject)=>{
+        const env = util.checkEnvironment();
+
         try{
            
-            const provider = ((window)as any).provider;
+            const provider = util.getStoreData('provider');;
          
             const {memo,fileId,transactionfee,gasfee} = data;
 
@@ -24,7 +26,7 @@ export const fileRetrieveController =(data:any)=> {
                     break;
 
                 case 'software':
-                    const accountData :any= ((window as any).HashAccount);
+                    const accountData :any= util.getStoreData('HashAccount');
                     const account:any = util.getAccountIdObjectFull(accountData.accountId);
 
                     // Creating a Hedera Client
@@ -44,13 +46,15 @@ export const fileRetrieveController =(data:any)=> {
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
-                    window.postMessage(message, window.location.origin);
+                    if(env==='client'){
+                        window.postMessage(message, window.location.origin);
+                    }
 
-                    resolve(response);
+                    resolve(message);
                     break;
                 
                 case 'composer':
-                    const extensionid = (window as any).extensionId;
+                    const extensionid = util.getStoreData('extensionId');
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-file-retrieve");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -67,9 +71,11 @@ export const fileRetrieveController =(data:any)=> {
 
             // Message Interaction
             const message = {res:e,type:'deny'};
-            window.postMessage(message, window.location.origin);
+            if(env==='client'){
+                window.postMessage(message, window.location.origin);
+            }
 
-            reject(e);
+            reject(message);
         }
     })
 }

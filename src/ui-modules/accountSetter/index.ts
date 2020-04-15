@@ -4,6 +4,7 @@ import {
     internalStyleDestructor
 } from '../../ui-utils/index';
 import { accountStyle } from '../styles/accountStyle';
+import {helper} from '../../helper';
 
 interface INetwork{
     id:string,
@@ -11,8 +12,23 @@ interface INetwork{
     value:string
 }
 
+interface ITabDetails{
+    id:string,
+    title:string
+}
+
 const myCustomElement = 'account-setter';
 const customElementModalTitle = 'Set account';
+const tabs:Array<ITabDetails> = [
+    {
+        id:"t1",
+        title:'Private Key'
+    },
+    // {
+    //     id:"t2",
+    //     title:'Mnemonics'
+    // }
+];
 const networks:Array<INetwork> = [
     {
         id:"n1",
@@ -24,7 +40,9 @@ const networks:Array<INetwork> = [
         title:'Main Network',
         value:'mainnet'
     }
-]
+];
+
+var selectedTab = 't1';
 
 export const renderAccountSetterUI =(cb?:Function)=> {
 
@@ -35,19 +53,16 @@ export const renderAccountSetterUI =(cb?:Function)=> {
         const modalContainer = document.createElement('div');
         const modalHeader = document.createElement('div');
         const modalBody = document.createElement('div');
+        const modalBodyTabRow = document.createElement('div');
         const modalBodyWrapper = document.createElement('div');
         const modalFooter = document.createElement('div');
         const closeButton = document.createElement('span');
         const modalTitle = document.createElement('span');
 
-        const networkInput = document.createElement('select');
-        const accountIdInput = document.createElement('input');
-        const privateInput = document.createElement('input');
+       
 
         const confirmButton = document.createElement('button');
         const cancelButton = document.createElement('button');
-
-
 
         // Element Styles
         if(!document.querySelector(`#${myCustomElement}-style`)){
@@ -63,6 +78,7 @@ export const renderAccountSetterUI =(cb?:Function)=> {
         modalHeader.setAttribute('class','modal-header');
         modalFooter.setAttribute('class','modal-footer');
         modalBody.setAttribute('class','modal-body');
+        modalBodyTabRow.setAttribute('class','modal-tab-row');
         modalBodyWrapper.setAttribute('class','modal-body-wrapper');
         modalTitle.setAttribute('class','modal-title');
         closeButton.setAttribute('class','close-btn');
@@ -70,40 +86,12 @@ export const renderAccountSetterUI =(cb?:Function)=> {
         cancelButton.setAttribute('class','cancel-btn');
         confirmButton.setAttribute('class','confirm-btn');
 
-        networkInput.setAttribute('class','network-input');
-        accountIdInput.setAttribute('class','account-input');
-        privateInput.setAttribute('class','account-input');
-
-
         // Fetching dynamic variables
         closeButton.innerHTML="&#x2715";
-        accountIdInput.placeholder = ' 0.0.1234(Account Id)';
-        privateInput.placeholder = ' Private Key';
 
         modalTitle.innerHTML=`${customElementModalTitle}`;
         cancelButton.innerHTML = 'CANCEL';
         confirmButton.innerHTML = 'VALIDATE & SET';
-        networks.forEach((n,i)=>{
-            if(i===0){
-                const option = document.createElement('option');
-                option.setAttribute('key',i.toString());
-                option.innerHTML = 'Choose Network';
-                option.selected = true;
-                option.disabled = true;
-                networkInput.appendChild(option);
-            }
-            const option = document.createElement('option');
-            option.setAttribute('key',(i+1).toString());
-            option.innerHTML = n.title;
-            option.value=n.value;
-            networkInput.appendChild(option);
-        })
-        
-
-        renderLabeledWrappedUI('Network',networkInput,modalBodyWrapper);
-        renderLabeledWrappedUI('Account Id',accountIdInput,modalBodyWrapper);
-        renderLabeledWrappedUI('Private Key',privateInput,modalBodyWrapper);
-
 
         parentDiv.onclick = function(event:any){
             if(event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement){
@@ -119,22 +107,17 @@ export const renderAccountSetterUI =(cb?:Function)=> {
             removeAccountSetterUI();
         }
         
-        confirmButton.onclick = function(){
-            let accountData = {
-                accountId : accountIdInput.value,
-                network : networkInput.value,
-                keys : {
-                    privateKey:privateInput.value
-                },
-                mnemonics:''
-            }
-            handleSetAccount(accountData);
-        }
 
+        confirmButton.onclick = function(){
+            // @TODO Based on tab do the required operation
+            handleConfirmButtonClick();
+        }
+ 
         // Element Merging and Finalization
         modalHeader.appendChild(modalTitle);
         modalHeader.appendChild(closeButton);
         modalContainer.appendChild(modalHeader);
+        modalBody.appendChild(modalBodyTabRow);
         modalBody.appendChild(modalBodyWrapper);
         modalContainer.appendChild(modalBody);
         modalFooter.appendChild(cancelButton);
@@ -142,11 +125,110 @@ export const renderAccountSetterUI =(cb?:Function)=> {
         modalContainer.appendChild(modalFooter);
         parentDiv.appendChild(modalContainer);
         customElementInjector(parentDiv);
+
+        renderTabRow();
+        renderTabContent();
             
     }catch(e){
         console.error('Error in renderMiddlewareSelectorUI:::',e);
         cb && cb(e);
     }
+
+}
+
+const handleConfirmButtonClick = async() =>{
+    const network = (document.querySelector('.network-input') as HTMLInputElement).value;
+    const accountId = (document.querySelector('.account-input') as HTMLInputElement).value;
+    let accountData = {
+        accountId : accountId,
+        network,
+        keys : {
+            privateKey:''
+        }
+    };
+    switch(selectedTab){
+        case 't1':
+            accountData.keys.privateKey = (document.querySelector('.privatekey-input') as HTMLInputElement).value;
+            break;
+        
+        case 't2':
+            const mnemonics = (document.querySelector('.phrase-input') as HTMLInputElement).value;
+            if(mnemonics){
+                accountData.keys = await helper.generateKeysFromMnemonics(mnemonics);
+            }
+            break;
+        
+        case 't3':
+            // @TODO handle keystore
+            break;
+    }
+    
+    handleSetAccount(accountData);
+}
+
+const renderTabRow =()=>{
+    const tabRow :any= document.querySelector('.modal-tab-row');
+    tabRow.innerHTML="";
+    tabs.forEach((t,i)=>{
+        const tabItem = document.createElement('div');
+        tabItem.setAttribute('id',`tab-${i}`);
+        tabItem.setAttribute('class',`tab-item ${t.id === selectedTab?'active':''}`);
+        tabItem.innerHTML = t.title;
+        tabItem.onclick=function(){
+            selectedTab = t.id;
+            renderTabRow();
+            renderTabContent();
+        }
+        tabRow.appendChild(tabItem);
+    });
+    
+}
+
+const renderTabContent = () =>{
+    const parent :any= document.querySelector('.modal-body-wrapper');
+    parent.innerHTML = "";
+    const networkInput = document.createElement('select');
+    const accountIdInput = document.createElement('input');
+
+    networkInput.setAttribute('class','network-input');
+    accountIdInput.setAttribute('class','account-input');
+ 
+    accountIdInput.placeholder = ' 0.0.1234(Account Id)';
+   
+    networks.forEach((n,i)=>{
+        if(i===0){
+            const option = document.createElement('option');
+            option.setAttribute('key',i.toString());
+            option.innerHTML = 'Choose Network';
+            option.selected = true;
+            option.disabled = true;
+            networkInput.appendChild(option);
+        }
+        const option = document.createElement('option');
+        option.setAttribute('key',(i+1).toString());
+        option.innerHTML = n.title;
+        option.value=n.value;
+        networkInput.appendChild(option);
+    })
+    
+
+    renderLabeledWrappedUI('Network',networkInput,parent);
+    renderLabeledWrappedUI('Account Id',accountIdInput,parent);
+
+    if(selectedTab === 't1'){
+        const privateInput = document.createElement('input');
+        privateInput.setAttribute('class','privatekey-input');
+        privateInput.placeholder = ' Private Key';
+        renderLabeledWrappedUI('Private Key',privateInput,parent);
+    }else if(selectedTab === 't2'){
+        const phraseInput = document.createElement('textarea');
+        phraseInput.setAttribute('class','phrase-input');
+        phraseInput.rows = 4;
+        phraseInput.placeholder = ' Private Key';
+        renderLabeledWrappedUI('Mnemonics',phraseInput,parent);
+    }
+
+   
 
 }
 
@@ -158,7 +240,7 @@ const renderLabeledWrappedUI = (labelText:string,inputElement:HTMLElement,target
     label.setAttribute('class','label-input');
 
     label.innerHTML = labelText;
-    inputElement.setAttribute('class','input-ele')
+    inputElement.classList.add('input-ele');
     inputWrapper.appendChild(label);
     inputWrapper.appendChild(inputElement);
     targetElement.appendChild(inputWrapper); 

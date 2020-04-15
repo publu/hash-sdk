@@ -8,10 +8,12 @@ import {helper} from '../helper';
  * @returns {any} returns response of txs success if success or throws error
  */
 export const topicInfoController =(data:any)=> {
+    const env = util.checkEnvironment();
+
     return new Promise(async(resolve,reject)=>{
         try{
            
-            const provider = ((window)as any).provider;
+            const provider = util.getStoreData('provider');;
          
             const {memo,transactionfee,gasfee} = data;
             let {topicId} = data;
@@ -23,7 +25,7 @@ export const topicInfoController =(data:any)=> {
                     break;
 
                 case 'software':
-                    const accountData :any= ((window as any).HashAccount);
+                    const accountData :any= util.getStoreData('HashAccount');
                     const account:any = util.getAccountIdObjectFull(accountData.accountId);
 
                     // Creating a Hedera Client
@@ -46,13 +48,15 @@ export const topicInfoController =(data:any)=> {
 
                     // Message Interaction
                     const message = {res:response,type:'success'};
-                    window.postMessage(message, window.location.origin);
+                    if(env==='client'){
+                        window.postMessage(message, window.location.origin);
+                    }
 
-                    resolve(response);
+                    resolve(message);
                     break;
                 
                 case 'composer':
-                    const extensionid = (window as any).extensionId;
+                    const extensionid = util.getStoreData('extensionId');
                     let domBody = document.getElementsByTagName('body')[0];
                     let hederaTag = document.createElement("hedera-topic-info");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -68,9 +72,11 @@ export const topicInfoController =(data:any)=> {
 
             // Message Interaction
             const message = {res:e,type:'deny'};
-            window.postMessage(message, window.location.origin);
+            if(env==='client'){
+                window.postMessage(message, window.location.origin);
+            }
 
-            reject(e);
+            reject(message);
         }
     })
 }

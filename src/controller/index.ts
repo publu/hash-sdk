@@ -28,13 +28,13 @@ let _reject :any= null;
 export const triggerCheckBalance = (data:any,callback?:Function) =>{
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'account-info');
-            await accountInfoController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-            
+            checkPrerequisites();
+            const updatedData = await validateService(data,'account-info');
+            const res = await accountInfoController(updatedData);
+            handleResponse(res);
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -51,13 +51,13 @@ export const triggerCheckBalance = (data:any,callback?:Function) =>{
 export const triggerCryptoTransfer = (data:any,callback?:Function) =>{
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'crypto-transfer');
-            await cryptoTransferController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-            
+            checkPrerequisites();
+            const updatedData = await validateService(data,'crypto-transfer');
+            const res = await cryptoTransferController(updatedData);
+            handleResponse(res);
             
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
@@ -76,14 +76,13 @@ export const triggerSmartContract = (data:any,callback?:Function) =>{
     
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'contract-call');
-            await contractCallController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-            
-            
+            checkPrerequisites();
+            const updatedData = await validateService(data,'contract-call');
+            const res = await contractCallController(updatedData);
+            handleResponse(res);
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -101,14 +100,13 @@ export const deploySmartContract = (data:any,callback?:Function) =>{
     
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'contract-deploy');
-            await contractDeployController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-            
-            
+            checkPrerequisites();
+            const updatedData = await validateService(data,'contract-deploy');
+            const res = await contractDeployController(updatedData);
+            handleResponse(res);
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -126,14 +124,13 @@ export const triggerFileCreate = (data:any,callback?:Function) =>{
     
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'file-create');
-            await fileCreateController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-            
-            
+            checkPrerequisites();
+            const updatedData = await validateService(data,'file-create');
+            const res = await fileCreateController(updatedData);
+            handleResponse(res);
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -151,14 +148,13 @@ export const triggerFileRetrieve = (data:any,callback?:Function) =>{
     
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'file-retrieve');
-            await fileRetrieveController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-            
-            
+            checkPrerequisites();
+            const updatedData = await validateService(data,'file-retrieve');
+            const res = await fileRetrieveController(updatedData);
+            handleResponse(res);
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -175,13 +171,13 @@ export const triggerFileRetrieve = (data:any,callback?:Function) =>{
 export const triggerTopicCreate = (data:any,callback?:Function) =>{  
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'topic-create');
-            await topicCreateController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-                
+            checkPrerequisites();
+            const updatedData = await validateService(data,'topic-create');
+            const res = await topicCreateController(updatedData);
+            handleResponse(res);  
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -198,13 +194,13 @@ export const triggerTopicCreate = (data:any,callback?:Function) =>{
 export const triggerTopicUpdate = (data:any,callback?:Function) =>{  
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'topic-update');
-            await topicUpdateController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-                
+            checkPrerequisites();
+            const updatedData = await validateService(data,'topic-update');
+            const res = await topicUpdateController(updatedData);
+            handleResponse(res);  
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -221,13 +217,13 @@ export const triggerTopicUpdate = (data:any,callback?:Function) =>{
 export const triggerTopicInfo = (data:any,callback?:Function) =>{  
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'topic-info');
-            await topicInfoController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-                
+            checkPrerequisites();
+            const updatedData = await validateService(data,'topic-info');
+            const res = await topicInfoController(updatedData);
+            handleResponse(res);   
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -244,13 +240,13 @@ export const triggerTopicInfo = (data:any,callback?:Function) =>{
 export const triggerTopicDelete = (data:any,callback?:Function) =>{  
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'topic-delete');
-            await topicDeleteController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-                
+            checkPrerequisites();
+            const updatedData = await validateService(data,'topic-delete');
+            const res = await topicDeleteController(updatedData);
+            handleResponse(res);   
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -267,13 +263,12 @@ export const triggerTopicDelete = (data:any,callback?:Function) =>{
 export const triggerSubmitMessage = (data:any,callback?:Function) =>{  
     return new Promise(async(resolve,reject)=>{
         try{
-            util.isProviderSet();
-            const updatedData = await validateService(data,'submit-message');
-            await submitMessageController(updatedData);
             _callback=callback
             _resolve=resolve;
             _reject=reject;
-                
+            const updatedData = await validateService(data,'submit-message');
+            const res = await submitMessageController(updatedData);
+            handleResponse(res);   
         }catch(error){
             let err = util.getFriendlyErrorObject(error)
             callback && callback(err);
@@ -282,24 +277,55 @@ export const triggerSubmitMessage = (data:any,callback?:Function) =>{
     });
 }
 
+const handleResponse =(data:any)=>{
+    if(data.type.includes('deny')){
+        _callback && _callback(data.res,null);
+        _reject && _reject(data.res);
+    }else{
+        const rectifiedResponse = util.convertIfArray(data.res);
+        _callback && _callback(null, rectifiedResponse);
+        _resolve && _resolve(data.res);
+    }
+}
+
 /**
  * Accepts message event and returns to promise and callback
  * @param {MessageEvent} event
  */
 const receiveMessage =(event:MessageEvent)=> {
     if (event.data.type && event.origin === window.location.origin) {
-        if(event.data.type.includes('deny')){
-            _callback && _callback(event.data.res,null);
-            _reject && _reject(event.data.res);
-        }else{
-            const rectifiedResponse = util.convertIfArray(event.data.res);
-            _callback && _callback(null, rectifiedResponse);
-            _resolve && _resolve(event.data.res);
-        }
+        handleResponse(event.data)
     }
+}
+
+const checkPrerequisites = () =>{
+    if(!util.getStoreData('provider')){
+        throw 'Please set your provider (i.e hardware,composer or software)';
+    }else if(util.getStoreData('provider')!=='composer'){
+        if(!util.getStoreData('HashAccount')){
+            throw 'Please set your account details (network, private key and account id)'
+        }else if(!util.getStoreData('HashAccount').network){
+            throw 'Please set your network (i.e mainnet or testnet)'
+        }else if(!util.getStoreData('HashAccount').accountId){
+            throw 'Please set your accountId (0.0.1234)'
+        }else if(!util.getStoreData('HashAccount').keys){
+            if(!util.getStoreData('HashAccount').keys.privateKey){
+                throw 'Please set your private key'
+            }else{
+                return true;
+            }
+        }else{
+            return true;
+        }
+    }else{
+        return true;
+    }
+    
 }
 
 /**
  * 'message' event listener to catch messages from composer or software responses
  */
-window.addEventListener("message", receiveMessage, false);
+if(util.checkEnvironment()==='client'){
+    window.addEventListener("message", receiveMessage, false);
+}

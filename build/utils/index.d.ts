@@ -7,7 +7,6 @@ export declare const util: {
     getAccountObjToIdLike: (id: Object) => string;
     getFriendlyErrorObject: (e: any) => Object;
     sumFromRecipientList: (recipientList: any) => number;
-    isProviderSet: () => any;
     normalizeArrayValues: (arr: string[]) => any[];
     convertIfArray: (value: any) => any;
     getBool: (val: any) => boolean;
@@ -24,4 +23,7 @@ export declare const util: {
     getMimetype: (signature: any) => "image/png" | "image/gif" | "application/pdf" | "image/jpeg" | "application/zip" | "Unknown filetype";
     detectFileType: (buffer: Uint8Array) => "image/png" | "image/gif" | "application/pdf" | "image/jpeg" | "application/zip" | "Unknown filetype";
     svgToUrlGenerator: (svg: string) => string;
+    checkEnvironment: () => "client" | "server";
+    setStoreData: (value: any, type: string) => void;
+    getStoreData: (key: string) => any;
 };

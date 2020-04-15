@@ -1,5 +1,5 @@
 import { common } from '../validators/common';
-import BigNumber from "bignumber.js"
+import BigNumber from "bignumber.js";
 
 
 /**
@@ -133,14 +133,6 @@ const sumFromRecipientList = (recipientList:any) => {
         requestedPayment += parseInt(recipientList[k].tinybars)
     }
     return requestedPayment
-}
-
-/**
- * Checks if provider is set globally
- * @returns {any} returns boolean
- */
-const isProviderSet = () =>{
-    return ((window)as any).provider ? ((window)as any).provider :false;
 }
 
 /**
@@ -343,14 +335,90 @@ const detectFileType =(buffer:Uint8Array)=>{
     return getMimetype(hex);
 }
 
+
 /**
  * Creates URL from SVG string
  * @param {string} svg refers to value passed by function caller
  * @returns {string} returns image url
 */
 const svgToUrlGenerator = (svg:string) =>{
-    let blob = new Blob([svg], {type: 'image/svg+xml'});
-    return URL.createObjectURL(blob);
+    try{
+        let blob = new Blob([svg], {type: 'image/svg+xml'});
+        return URL.createObjectURL(blob);
+    }catch(e){
+        // mostly falls here when its an server env
+        return 'false';
+    }
+}
+
+/**
+ * Checks the running environment
+ * @returns {string} returns environment
+*/
+const checkEnvironment = () =>{
+    try{
+        if(window){
+            return 'client';
+        }else{
+            return 'server';
+        }
+    }catch(e){
+        // mostly falls here when its an server env
+        return 'server';
+    }
+}
+
+/**
+ * Stores your key value pair globally based on the environment
+*/
+const storeGlobally = (key:string,value:any) =>{
+    if(checkEnvironment()==='client'){
+        ((window)as any)[key] = value;
+    }else{
+        ((global)as any)[key] = value;
+    }
+}
+
+/**
+ * Gets data from global varaibles based on the environment
+ * @returns {string} returns data of the requested store variable
+*/
+const getStoreData = (key:string) =>{
+    if(checkEnvironment()==='client'){
+        return ((window)as any)[key] ? ((window)as any)[key] : null ;
+    }else{
+        return ((global)as any)[key] ? ((global)as any)[key] : null;
+    }
+}
+
+/**
+ * Checks the value and type of store request and stores accordingly
+*/
+const setStoreData =(value:any,type:string) =>{
+    if(type === 'provider'){
+        value = value ? value.toLowerCase().trim() : '';
+        if(value && (value === 'composer' || value === 'hardware' || value === 'software')){
+            storeGlobally(type,value);
+        } else{
+            throw 'Not a vaid provider (should be hardware, composer or software)';
+        }
+    }else if(type === 'network'){
+        value = value ? value.toLowerCase().trim() : '';
+        if(value && (value === 'composer' || value === 'hardware' || value === 'software')){
+            storeGlobally(type,value);
+        } else{
+            throw 'Not a vaid network (should be mainnet or testnet)';
+        }
+    }else if(type === 'HashAccount'){
+        if(value && (value.network && value.accountId)){
+            storeGlobally(type,value);
+        } else{
+            throw 'Not a vaid accountData Object';
+        }
+    }else{
+        throw 'Invalid store variable !';
+    }
+    
 }
 
 export const util = {
@@ -361,7 +429,6 @@ export const util = {
     getAccountObjToIdLike,
     getFriendlyErrorObject,
     sumFromRecipientList,
-    isProviderSet,
     normalizeArrayValues,
     convertIfArray,
     getBool,
@@ -377,5 +444,8 @@ export const util = {
     copyBytes,
     getMimetype,
     detectFileType,
-    svgToUrlGenerator
+    svgToUrlGenerator,
+    checkEnvironment,
+    setStoreData,
+    getStoreData
 }

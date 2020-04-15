@@ -1,14 +1,15 @@
 import {util} from '../utils';
 import {common} from '../validators/common';
 import { 
-    Client,Ed25519PrivateKey,
+    Client,
+    Mnemonic,
+    Ed25519PrivateKey,
     ContractFunctionParams,
     FileCreateTransaction,
     FileAppendTransaction,
     ContractCreateTransaction
 } from '@hashgraph/sdk'
 import {IAccountIdLike,IOperator} from '../interface';
-
 
 /**
  * Merges abi and params to return hedera compatible data
@@ -187,19 +188,13 @@ const getContractFunctionParams = (abi:any, params:any)=> {
 
 const createHederaClient = (operator:IOperator,network:string) => {
     const currentNetwork = network;
-    let client
+    let client;
     if (currentNetwork == 'testnet') {
-        client = new Client({
-            operator: operator
-        })
+        client = Client.forTestnet();
     } else {
-        client = new Client({
-            network: {
-                "https://proxy.hashingsystems.com": { shard: 0, realm: 0,  account: 3 }
-            },
-            operator: operator
-        });
+        client = Client.forMainnet();
     }
+    client.setOperator(operator.account, operator.privateKey);
     return client;
 }
 
@@ -288,11 +283,37 @@ const createContractTx = async(client:any,fileId:any, constructorParams:any, amo
     }
 }
 
+/**
+ * Creates key pairs out of menmonics or phrase
+ * @param {string} menmonics
+ * @param {Boolean} supportsDerivation (optional)
+ * @returns {any} returns receipt
+ */
+const generateKeysFromMnemonics = async(mnemonics:string, supportsDerivation = true) => {
+    const mnemonicsResult = Mnemonic.fromString(mnemonics);
+    let rootKey = await Ed25519PrivateKey.fromMnemonic(mnemonicsResult, "");
+    let privateKey, publicKey;
+    if (rootKey.supportsDerivation == true && supportsDerivation == true) {
+        privateKey = rootKey.derive(0).toString().substring(32)
+        publicKey = rootKey.derive(0).publicKey.toString().substring(24)
+    } else {
+        privateKey = rootKey.toString().substring(32)
+        publicKey = rootKey.publicKey.toString().substring(24)
+    }
+    privateKey += publicKey
+    return {
+        mnemonic: mnemonics,
+        privateKey,
+        publicKey
+    }
+}
+
 export const helper ={
     createClientOperator,
     createHederaClient,
     getContractFunctionParams,
     createFile,
     appendFile,
-    createContractTx
+    createContractTx,
+    generateKeysFromMnemonics
 }

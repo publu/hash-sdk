@@ -377,13 +377,6 @@ var sumFromRecipientList = function (recipientList) {
     return requestedPayment;
 };
 /**
- * Checks if provider is set globally
- * @returns {any} returns boolean
- */
-var isProviderSet = function () {
-    return (window).provider ? (window).provider : false;
-};
-/**
  * Checks string is Array
  * @returns {any} returns string[] or string
  */
@@ -580,8 +573,89 @@ var detectFileType = function (buffer) {
  * @returns {string} returns image url
 */
 var svgToUrlGenerator = function (svg) {
-    var blob = new Blob([svg], { type: 'image/svg+xml' });
-    return URL.createObjectURL(blob);
+    try {
+        var blob = new Blob([svg], { type: 'image/svg+xml' });
+        return URL.createObjectURL(blob);
+    }
+    catch (e) {
+        // mostly falls here when its an server env
+        return 'false';
+    }
+};
+/**
+ * Checks the running environment
+ * @returns {string} returns environment
+*/
+var checkEnvironment = function () {
+    try {
+        if (window) {
+            return 'client';
+        }
+        else {
+            return 'server';
+        }
+    }
+    catch (e) {
+        // mostly falls here when its an server env
+        return 'server';
+    }
+};
+/**
+ * Stores your key value pair globally based on the environment
+*/
+var storeGlobally = function (key, value) {
+    if (checkEnvironment() === 'client') {
+        (window)[key] = value;
+    }
+    else {
+        (global)[key] = value;
+    }
+};
+/**
+ * Gets data from global varaibles based on the environment
+ * @returns {string} returns data of the requested store variable
+*/
+var getStoreData = function (key) {
+    if (checkEnvironment() === 'client') {
+        return (window)[key] ? (window)[key] : null;
+    }
+    else {
+        return (global)[key] ? (global)[key] : null;
+    }
+};
+/**
+ * Checks the value and type of store request and stores accordingly
+*/
+var setStoreData = function (value, type) {
+    if (type === 'provider') {
+        value = value ? value.toLowerCase().trim() : '';
+        if (value && (value === 'composer' || value === 'hardware' || value === 'software')) {
+            storeGlobally(type, value);
+        }
+        else {
+            throw 'Not a vaid provider (should be hardware, composer or software)';
+        }
+    }
+    else if (type === 'network') {
+        value = value ? value.toLowerCase().trim() : '';
+        if (value && (value === 'composer' || value === 'hardware' || value === 'software')) {
+            storeGlobally(type, value);
+        }
+        else {
+            throw 'Not a vaid network (should be mainnet or testnet)';
+        }
+    }
+    else if (type === 'HashAccount') {
+        if (value && (value.network && value.accountId)) {
+            storeGlobally(type, value);
+        }
+        else {
+            throw 'Not a vaid accountData Object';
+        }
+    }
+    else {
+        throw 'Invalid store variable !';
+    }
 };
 var util = {
     stringToBytes: stringToBytes,
@@ -591,7 +665,6 @@ var util = {
     getAccountObjToIdLike: getAccountObjToIdLike,
     getFriendlyErrorObject: getFriendlyErrorObject,
     sumFromRecipientList: sumFromRecipientList,
-    isProviderSet: isProviderSet,
     normalizeArrayValues: normalizeArrayValues,
     convertIfArray: convertIfArray,
     getBool: getBool,
@@ -607,7 +680,10 @@ var util = {
     copyBytes: copyBytes,
     getMimetype: getMimetype,
     detectFileType: detectFileType,
-    svgToUrlGenerator: svgToUrlGenerator
+    svgToUrlGenerator: svgToUrlGenerator,
+    checkEnvironment: checkEnvironment,
+    setStoreData: setStoreData,
+    getStoreData: getStoreData
 };
 
 var hardwareWallet = "<?xml version=\"1.0\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" id=\"Capa_1\" enable-background=\"new 0 0 512 512\" height=\"512px\" viewBox=\"0 0 512 512\" width=\"512px\" class=\"\"><g><g><path d=\"m361 7.5v210h-135l105-210z\" fill=\"#acd2f6\" data-original=\"#ACD2F6\" class=\"\" style=\"fill:#ACD2F6\"/><path d=\"m331 7.5v60l-30 15 30 15v120h-180v-210z\" fill=\"#c4f3ff\" data-original=\"#C4F3FF\" style=\"fill:#C4F3FF\" class=\"\"/><path d=\"m211 67.5-15 15 15 15h30v-30z\" fill=\"#4e4cd3\" data-original=\"#4E4CD3\" class=\"\" style=\"fill:#18B1D0\" data-old_color=\"#4e4cd3\"/><path d=\"m181 67.5h30v30h-30z\" fill=\"#666ddc\" data-original=\"#666DDC\" style=\"fill:#66C3DC\" class=\"\" data-old_color=\"#666ddc\"/><path d=\"m301 67.5-15 15 15 15h30v-30z\" fill=\"#4e4cd3\" data-original=\"#4E4CD3\" class=\"\" style=\"fill:#18B1D0\" data-old_color=\"#4e4cd3\"/><path d=\"m271 67.5h30v30h-30z\" fill=\"#666ddc\" data-original=\"#666DDC\" style=\"fill:#66C3DC\" class=\"\" data-old_color=\"#666ddc\"/><path d=\"m361 157.5-180 75h210v-75z\" fill=\"#ff545a\" data-original=\"#FF545A\" style=\"fill:#548AFF\" class=\"active-path\" data-old_color=\"#ff545a\"/><path d=\"m121 157.5h240v75h-240z\" fill=\"#ff7647\" data-original=\"#FF7647\" style=\"fill:#4793FF\" class=\"\" data-old_color=\"#ff7647\"/><path d=\"m391 187.5-30 30v287h30c16.569 0 30-13.431 30-30v-287z\" fill=\"#5c2bc8\" data-original=\"#5C2BC8\" class=\"\" style=\"fill:#2B89C8\" data-old_color=\"#5c2bc8\"/><path d=\"m91 187.5v287c0 16.569 13.431 30 30 30h240c16.569 0 30-13.431 30-30v-287z\" fill=\"#4e4cd3\" data-original=\"#4E4CD3\" class=\"\" style=\"fill:#18B1D0\" data-old_color=\"#4e4cd3\"/><circle cx=\"256\" cy=\"429.5\" fill=\"#05ff77\" r=\"15\" data-original=\"#05FF77\" style=\"fill:#05FF77\"/><path d=\"m241 60h-60c-4.142 0-7.5 3.358-7.5 7.5v30c0 4.142 3.358 7.5 7.5 7.5h60c4.142 0 7.5-3.358 7.5-7.5v-30c0-4.142-3.358-7.5-7.5-7.5zm-7.5 30h-45v-15h45z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/><path d=\"m331 60h-60c-4.142 0-7.5 3.358-7.5 7.5v30c0 4.142 3.358 7.5 7.5 7.5h60c4.142 0 7.5-3.358 7.5-7.5v-30c0-4.142-3.358-7.5-7.5-7.5zm-7.5 30h-45v-15h45z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/><path d=\"m421 180h-22.5v-22.5c0-4.142-3.358-7.5-7.5-7.5h-22.5v-142.5c0-4.142-3.358-7.5-7.5-7.5h-210c-4.142 0-7.5 3.358-7.5 7.5v142.5h-22.5c-4.142 0-7.5 3.358-7.5 7.5v22.5h-22.5c-4.142 0-7.5 3.358-7.5 7.5v128.5c0 4.142 3.358 7.5 7.5 7.5s7.5-3.358 7.5-7.5v-121h315v279.5c0 12.407-10.093 22.5-22.5 22.5h-270c-12.407 0-22.5-10.093-22.5-22.5v-128.5c0-4.142-3.358-7.5-7.5-7.5s-7.5 3.358-7.5 7.5v128.5c0 20.678 16.822 37.5 37.5 37.5h270c20.678 0 37.5-16.822 37.5-37.5v-287c0-4.142-3.358-7.5-7.5-7.5zm-262.5-165h195v135h-195zm-30 150h255v15h-255z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/><path d=\"m278.5 429.5c0-12.407-10.093-22.5-22.5-22.5s-22.5 10.093-22.5 22.5 10.093 22.5 22.5 22.5 22.5-10.093 22.5-22.5zm-30 0c0-4.136 3.364-7.5 7.5-7.5s7.5 3.364 7.5 7.5-3.364 7.5-7.5 7.5-7.5-3.364-7.5-7.5z\" data-original=\"#000000\" class=\"\" style=\"fill:#000000\" data-old_color=\"#000000\"/></g></g> \n</svg>";
@@ -783,176 +859,7 @@ var removeMiddlewareUI = function () {
 };
 
 var t$2 = theme['default'];
-var accountStyle = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$2.modalZindex + ";\n        background:" + t$2.modalOverlayColor + ";\n    }\n\n    account-setter .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$2.white + ";\n        border-radius:" + t$2.modalRadius + ";\n    }\n\n    account-setter .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$2.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$2.modalRadius + ";\n        border-top-right-radius: " + t$2.modalRadius + ";\n        color: " + t$2.white + ";\n    }\n\n    account-setter .close-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    account-setter .modal-body{\n        display: flex;\n        justify-content: center;\n    }\n\n    account-setter .modal-body-wrapper{\n        display: flex;\n        flex-direction: column;\n        align-items: center;\n        flex-wrap:wrap;\n        flex: 1;\n        margin: 15px 20px;\n    }\n\n    account-setter .input-wrapper{\n        width: 100%;\n        margin:10px 0px;\n    }\n\n    account-setter .input-ele{\n        width: calc(100% - 20px);\n        padding:0px 10px;\n        height: 36px;\n        border-radius: 4px;\n        font-size: 14px;\n        background: rgba(255,255,255,1);\n        border: 1px solid rgba(0,0,0,0.2);\n    }\n\n    select.input-ele{\n        width: 100%;\n    }\n\n    account-setter .label-input{\n        font-size: 14px;\n        opacity:0.8;\n    }\n\n    account-setter .modal-title{\n        font-size:20px;\n    }\n\n    account-setter .close-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n\n    account-setter button{\n        border-radius: 5px;\n        border: none;\n        font-size: 15px;\n        padding: 10px 20px;\n        margin:10px;\n        cursor:pointer;\n        opacity:0.8;\n        transition:all 0.2s ease;\n    }\n\n    account-setter button:hover{\n        opacity:1;\n        transform:scale(1.02);\n    }\n\n    account-setter .modal-footer{\n        display:flex;\n        justify-content:center;\n    }\n\n    .cancel-btn{\n        background: rgba(0,0,0,0.05);\n    }\n\n    .confirm-btn{\n        background: " + t$2.secondaryColor + ";\n    }\n";
-
-var myCustomElement$1 = 'account-setter';
-var customElementModalTitle$1 = 'Set account';
-var networks = [
-    {
-        id: "n1",
-        title: 'Test Network',
-        value: 'testnet'
-    },
-    {
-        id: "n2",
-        title: 'Main Network',
-        value: 'mainnet'
-    }
-];
-var renderAccountSetterUI = function (cb) {
-    try {
-        // Element creation.
-        var parentDiv = document.createElement(myCustomElement$1);
-        var modalContainer = document.createElement('div');
-        var modalHeader = document.createElement('div');
-        var modalBody = document.createElement('div');
-        var modalBodyWrapper = document.createElement('div');
-        var modalFooter = document.createElement('div');
-        var closeButton = document.createElement('span');
-        var modalTitle = document.createElement('span');
-        var networkInput_1 = document.createElement('select');
-        var accountIdInput_1 = document.createElement('input');
-        var privateInput_1 = document.createElement('input');
-        var confirmButton = document.createElement('button');
-        var cancelButton = document.createElement('button');
-        // Element Styles
-        if (!document.querySelector("#" + myCustomElement$1 + "-style")) {
-            var styleTag = document.createElement("style");
-            styleTag.id = 'hash-sdk-style';
-            styleTag.innerHTML = accountStyle;
-            document.getElementsByTagName("head")[0].appendChild(styleTag);
-        }
-        // Element Identification
-        parentDiv.setAttribute('class', 'modal-parent');
-        modalContainer.setAttribute('class', 'modal-container');
-        modalHeader.setAttribute('class', 'modal-header');
-        modalFooter.setAttribute('class', 'modal-footer');
-        modalBody.setAttribute('class', 'modal-body');
-        modalBodyWrapper.setAttribute('class', 'modal-body-wrapper');
-        modalTitle.setAttribute('class', 'modal-title');
-        closeButton.setAttribute('class', 'close-btn');
-        cancelButton.setAttribute('class', 'cancel-btn');
-        confirmButton.setAttribute('class', 'confirm-btn');
-        networkInput_1.setAttribute('class', 'network-input');
-        accountIdInput_1.setAttribute('class', 'account-input');
-        privateInput_1.setAttribute('class', 'account-input');
-        // Fetching dynamic variables
-        closeButton.innerHTML = "&#x2715";
-        accountIdInput_1.placeholder = ' 0.0.1234(Account Id)';
-        privateInput_1.placeholder = ' Private Key';
-        modalTitle.innerHTML = "" + customElementModalTitle$1;
-        cancelButton.innerHTML = 'CANCEL';
-        confirmButton.innerHTML = 'VALIDATE & SET';
-        networks.forEach(function (n, i) {
-            if (i === 0) {
-                var option_1 = document.createElement('option');
-                option_1.setAttribute('key', i.toString());
-                option_1.innerHTML = 'Choose Network';
-                option_1.selected = true;
-                option_1.disabled = true;
-                networkInput_1.appendChild(option_1);
-            }
-            var option = document.createElement('option');
-            option.setAttribute('key', (i + 1).toString());
-            option.innerHTML = n.title;
-            option.value = n.value;
-            networkInput_1.appendChild(option);
-        });
-        renderLabeledWrappedUI('Network', networkInput_1, modalBodyWrapper);
-        renderLabeledWrappedUI('Account Id', accountIdInput_1, modalBodyWrapper);
-        renderLabeledWrappedUI('Private Key', privateInput_1, modalBodyWrapper);
-        parentDiv.onclick = function (event) {
-            if (event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement$1) {
-                removeAccountSetterUI();
-            }
-        };
-        closeButton.onclick = function () {
-            removeAccountSetterUI();
-        };
-        cancelButton.onclick = function () {
-            removeAccountSetterUI();
-        };
-        confirmButton.onclick = function () {
-            var accountData = {
-                accountId: accountIdInput_1.value,
-                network: networkInput_1.value,
-                keys: {
-                    privateKey: privateInput_1.value
-                },
-                mnemonics: ''
-            };
-            handleSetAccount(accountData);
-        };
-        // Element Merging and Finalization
-        modalHeader.appendChild(modalTitle);
-        modalHeader.appendChild(closeButton);
-        modalContainer.appendChild(modalHeader);
-        modalBody.appendChild(modalBodyWrapper);
-        modalContainer.appendChild(modalBody);
-        modalFooter.appendChild(cancelButton);
-        modalFooter.appendChild(confirmButton);
-        modalContainer.appendChild(modalFooter);
-        parentDiv.appendChild(modalContainer);
-        customElementInjector(parentDiv);
-    }
-    catch (e) {
-        console.error('Error in renderMiddlewareSelectorUI:::', e);
-        cb && cb(e);
-    }
-};
-var renderLabeledWrappedUI = function (labelText, inputElement, targetElement) {
-    var inputWrapper = document.createElement('div');
-    var label = document.createElement('div');
-    inputWrapper.setAttribute('class', 'input-wrapper');
-    label.setAttribute('class', 'label-input');
-    label.innerHTML = labelText;
-    inputElement.setAttribute('class', 'input-ele');
-    inputWrapper.appendChild(label);
-    inputWrapper.appendChild(inputElement);
-    targetElement.appendChild(inputWrapper);
-};
-var removeAccountSetterUI = function () {
-    internalStyleDestructor('hash-sdk-style');
-    elementDestructor(myCustomElement$1);
-};
-var handleSetAccount = function (accountData) {
-    window.HashAccount = accountData;
-    removeAccountSetterUI();
-};
-
-// interface IKeys{
-//     privateKey:string,
-//     publicKey?:string,
-//     mnemonics?:string
-// }
-var setAccount = function (cb) {
-    return new Promise(function (resolve, reject) {
-        renderAccountSetterUI(function (err, res) {
-            // setMiddleware(res.provider);
-            cb && cb(err, res);
-            err ? reject(err) : resolve(res);
-        });
-    });
-};
-
-var selectProvider = function (cb) {
-    return new Promise(function (resolve, reject) {
-        renderMiddlewareSelectorUI(function (err, res) {
-            setProvider(res.provider);
-            if ((window).provider === 'software') {
-                //@TODO handle below
-                setAccount();
-            }
-            else {
-                cb && cb(err, res);
-                err ? reject(err) : resolve(res);
-            }
-        });
-    });
-};
-var setProvider = function (provider) {
-    (window).provider = provider;
-};
+var accountStyle = "\n    .modal-parent{\n        position:fixed;\n        display:flex;\n        font-family:inherit;\n        align-items: center;\n        justify-content:center;\n        width:100%;height:100%;\n        left:0;\n        top:0;\n        overflow:hidden;\n        z-index:" + t$2.modalZindex + ";\n        background:" + t$2.modalOverlayColor + ";\n    }\n\n    account-setter .modal-container{\n        position:relative;\n        width:100%;\n        max-width:600px;\n        max-height:800px;\n        margin:15px;\n        background:" + t$2.white + ";\n        border-radius:" + t$2.modalRadius + ";\n    }\n\n    account-setter .modal-header{\n        display: flex;\n        justify-content: \n        space-between;\n        background:" + t$2.primaryColor + ";\n        padding: 14px 16px;\n        border-top-left-radius: " + t$2.modalRadius + ";\n        border-top-right-radius: " + t$2.modalRadius + ";\n        color: " + t$2.white + ";\n    }\n\n    account-setter .close-btn{\n        cursor:pointer;\n        font-size:20px;\n    }\n\n    account-setter .modal-body{\n        display: flex;\n        justify-content: center;\n        flex-direction: column;\n    }\n\n    account-setter .modal-tab-row{\n        display: flex;\n        background: #ececec;\n    }\n\n    .modal-tab-row .tab-item{\n        padding: 10px 20px;\n        background: #d0cece;\n        cursor:pointer;\n    }\n\n    .modal-tab-row .tab-item.active{\n        background: #fff;\n        cursor:default;\n    }\n\n    account-setter .modal-body-wrapper{\n        display: flex;\n        flex-direction: column;\n        align-items: center;\n        flex-wrap:wrap;\n        flex: 1;\n        margin: 15px 20px;\n    }\n\n    .modal-body-wrapper .phrase-input .input-ele{\n        height: 68px;\n    }\n\n\n    account-setter .input-wrapper{\n        width: 100%;\n        margin:10px 0px;\n    }\n\n    account-setter .input-ele{\n        width: calc(100% - 20px);\n        padding:0px 10px;\n        height: 36px;\n        border-radius: 4px;\n        font-size: 14px;\n        background: rgba(255,255,255,1);\n        border: 1px solid rgba(0,0,0,0.2);\n    }\n\n    select.input-ele{\n        width: 100%;\n    }\n\n    account-setter .label-input{\n        font-size: 14px;\n        opacity:0.8;\n    }\n\n    account-setter .modal-title{\n        font-size:20px;\n    }\n\n    account-setter .close-button{\n        font-size:20px;\n        cursor:pointer;\n    }\n\n    account-setter button{\n        border-radius: 5px;\n        border: none;\n        font-size: 15px;\n        padding: 10px 20px;\n        margin:10px;\n        cursor:pointer;\n        opacity:0.8;\n        transition:all 0.2s ease;\n    }\n\n    account-setter button:hover{\n        opacity:1;\n        transform:scale(1.02);\n    }\n\n    account-setter .modal-footer{\n        display:flex;\n        justify-content:center;\n    }\n\n    .cancel-btn{\n        background: rgba(0,0,0,0.05);\n    }\n\n    .confirm-btn{\n        background: " + t$2.secondaryColor + ";\n    }\n";
 
 /**
  * Merges abi and params to return hedera compatible data
@@ -1189,18 +1096,12 @@ var createHederaClient = function (operator, network) {
     var currentNetwork = network;
     var client;
     if (currentNetwork == 'testnet') {
-        client = new sdk.Client({
-            operator: operator
-        });
+        client = sdk.Client.forTestnet();
     }
     else {
-        client = new sdk.Client({
-            network: {
-                "https://proxy.hashingsystems.com": { shard: 0, realm: 0, account: 3 }
-            },
-            operator: operator
-        });
+        client = sdk.Client.forMainnet();
     }
+    client.setOperator(operator.account, operator.privateKey);
     return client;
 };
 /**
@@ -1312,13 +1213,363 @@ var createContractTx = function (client, fileId, constructorParams, amount, gasF
         });
     });
 };
+/**
+ * Creates key pairs out of menmonics or phrase
+ * @param {string} menmonics
+ * @param {Boolean} supportsDerivation (optional)
+ * @returns {any} returns receipt
+ */
+var generateKeysFromMnemonics = function (mnemonics, supportsDerivation) {
+    if (supportsDerivation === void 0) { supportsDerivation = true; }
+    return __awaiter(void 0, void 0, void 0, function () {
+        var mnemonicsResult, rootKey, privateKey, publicKey;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    mnemonicsResult = sdk.Mnemonic.fromString(mnemonics);
+                    return [4 /*yield*/, sdk.Ed25519PrivateKey.fromMnemonic(mnemonicsResult, "")];
+                case 1:
+                    rootKey = _a.sent();
+                    if (rootKey.supportsDerivation == true && supportsDerivation == true) {
+                        privateKey = rootKey.derive(0).toString().substring(32);
+                        publicKey = rootKey.derive(0).publicKey.toString().substring(24);
+                    }
+                    else {
+                        privateKey = rootKey.toString().substring(32);
+                        publicKey = rootKey.publicKey.toString().substring(24);
+                    }
+                    privateKey += publicKey;
+                    return [2 /*return*/, {
+                            mnemonic: mnemonics,
+                            privateKey: privateKey,
+                            publicKey: publicKey
+                        }];
+            }
+        });
+    });
+};
 var helper = {
     createClientOperator: createClientOperator,
     createHederaClient: createHederaClient,
     getContractFunctionParams: getContractFunctionParams,
     createFile: createFile,
     appendFile: appendFile,
-    createContractTx: createContractTx
+    createContractTx: createContractTx,
+    generateKeysFromMnemonics: generateKeysFromMnemonics
+};
+
+var myCustomElement$1 = 'account-setter';
+var customElementModalTitle$1 = 'Set account';
+var tabs = [
+    {
+        id: "t1",
+        title: 'Private Key'
+    },
+];
+var networks = [
+    {
+        id: "n1",
+        title: 'Test Network',
+        value: 'testnet'
+    },
+    {
+        id: "n2",
+        title: 'Main Network',
+        value: 'mainnet'
+    }
+];
+var selectedTab = 't1';
+var renderAccountSetterUI = function (cb) {
+    try {
+        // Element creation.
+        var parentDiv = document.createElement(myCustomElement$1);
+        var modalContainer = document.createElement('div');
+        var modalHeader = document.createElement('div');
+        var modalBody = document.createElement('div');
+        var modalBodyTabRow = document.createElement('div');
+        var modalBodyWrapper = document.createElement('div');
+        var modalFooter = document.createElement('div');
+        var closeButton = document.createElement('span');
+        var modalTitle = document.createElement('span');
+        var confirmButton = document.createElement('button');
+        var cancelButton = document.createElement('button');
+        // Element Styles
+        if (!document.querySelector("#" + myCustomElement$1 + "-style")) {
+            var styleTag = document.createElement("style");
+            styleTag.id = 'hash-sdk-style';
+            styleTag.innerHTML = accountStyle;
+            document.getElementsByTagName("head")[0].appendChild(styleTag);
+        }
+        // Element Identification
+        parentDiv.setAttribute('class', 'modal-parent');
+        modalContainer.setAttribute('class', 'modal-container');
+        modalHeader.setAttribute('class', 'modal-header');
+        modalFooter.setAttribute('class', 'modal-footer');
+        modalBody.setAttribute('class', 'modal-body');
+        modalBodyTabRow.setAttribute('class', 'modal-tab-row');
+        modalBodyWrapper.setAttribute('class', 'modal-body-wrapper');
+        modalTitle.setAttribute('class', 'modal-title');
+        closeButton.setAttribute('class', 'close-btn');
+        cancelButton.setAttribute('class', 'cancel-btn');
+        confirmButton.setAttribute('class', 'confirm-btn');
+        // Fetching dynamic variables
+        closeButton.innerHTML = "&#x2715";
+        modalTitle.innerHTML = "" + customElementModalTitle$1;
+        cancelButton.innerHTML = 'CANCEL';
+        confirmButton.innerHTML = 'VALIDATE & SET';
+        parentDiv.onclick = function (event) {
+            if (event && event.target && event.target.tagName && event.target.tagName.toLowerCase() === myCustomElement$1) {
+                removeAccountSetterUI();
+            }
+        };
+        closeButton.onclick = function () {
+            removeAccountSetterUI();
+        };
+        cancelButton.onclick = function () {
+            removeAccountSetterUI();
+        };
+        confirmButton.onclick = function () {
+            // @TODO Based on tab do the required operation
+            handleConfirmButtonClick();
+        };
+        // Element Merging and Finalization
+        modalHeader.appendChild(modalTitle);
+        modalHeader.appendChild(closeButton);
+        modalContainer.appendChild(modalHeader);
+        modalBody.appendChild(modalBodyTabRow);
+        modalBody.appendChild(modalBodyWrapper);
+        modalContainer.appendChild(modalBody);
+        modalFooter.appendChild(cancelButton);
+        modalFooter.appendChild(confirmButton);
+        modalContainer.appendChild(modalFooter);
+        parentDiv.appendChild(modalContainer);
+        customElementInjector(parentDiv);
+        renderTabRow();
+        renderTabContent();
+    }
+    catch (e) {
+        console.error('Error in renderMiddlewareSelectorUI:::', e);
+        cb && cb(e);
+    }
+};
+var handleConfirmButtonClick = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var network, accountId, accountData, _a, mnemonics, _b;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
+            case 0:
+                network = document.querySelector('.network-input').value;
+                accountId = document.querySelector('.account-input').value;
+                accountData = {
+                    accountId: accountId,
+                    network: network,
+                    keys: {
+                        privateKey: ''
+                    }
+                };
+                _a = selectedTab;
+                switch (_a) {
+                    case 't1': return [3 /*break*/, 1];
+                    case 't2': return [3 /*break*/, 2];
+                    case 't3': return [3 /*break*/, 5];
+                }
+                return [3 /*break*/, 6];
+            case 1:
+                accountData.keys.privateKey = document.querySelector('.privatekey-input').value;
+                return [3 /*break*/, 6];
+            case 2:
+                mnemonics = document.querySelector('.phrase-input').value;
+                if (!mnemonics) return [3 /*break*/, 4];
+                _b = accountData;
+                return [4 /*yield*/, helper.generateKeysFromMnemonics(mnemonics)];
+            case 3:
+                _b.keys = _c.sent();
+                _c.label = 4;
+            case 4: return [3 /*break*/, 6];
+            case 5: 
+            // @TODO handle keystore
+            return [3 /*break*/, 6];
+            case 6:
+                handleSetAccount(accountData);
+                return [2 /*return*/];
+        }
+    });
+}); };
+var renderTabRow = function () {
+    var tabRow = document.querySelector('.modal-tab-row');
+    tabRow.innerHTML = "";
+    tabs.forEach(function (t, i) {
+        var tabItem = document.createElement('div');
+        tabItem.setAttribute('id', "tab-" + i);
+        tabItem.setAttribute('class', "tab-item " + (t.id === selectedTab ? 'active' : ''));
+        tabItem.innerHTML = t.title;
+        tabItem.onclick = function () {
+            selectedTab = t.id;
+            renderTabRow();
+            renderTabContent();
+        };
+        tabRow.appendChild(tabItem);
+    });
+};
+var renderTabContent = function () {
+    var parent = document.querySelector('.modal-body-wrapper');
+    parent.innerHTML = "";
+    var networkInput = document.createElement('select');
+    var accountIdInput = document.createElement('input');
+    networkInput.setAttribute('class', 'network-input');
+    accountIdInput.setAttribute('class', 'account-input');
+    accountIdInput.placeholder = ' 0.0.1234(Account Id)';
+    networks.forEach(function (n, i) {
+        if (i === 0) {
+            var option_1 = document.createElement('option');
+            option_1.setAttribute('key', i.toString());
+            option_1.innerHTML = 'Choose Network';
+            option_1.selected = true;
+            option_1.disabled = true;
+            networkInput.appendChild(option_1);
+        }
+        var option = document.createElement('option');
+        option.setAttribute('key', (i + 1).toString());
+        option.innerHTML = n.title;
+        option.value = n.value;
+        networkInput.appendChild(option);
+    });
+    renderLabeledWrappedUI('Network', networkInput, parent);
+    renderLabeledWrappedUI('Account Id', accountIdInput, parent);
+    if (selectedTab === 't1') {
+        var privateInput = document.createElement('input');
+        privateInput.setAttribute('class', 'privatekey-input');
+        privateInput.placeholder = ' Private Key';
+        renderLabeledWrappedUI('Private Key', privateInput, parent);
+    }
+    else if (selectedTab === 't2') {
+        var phraseInput = document.createElement('textarea');
+        phraseInput.setAttribute('class', 'phrase-input');
+        phraseInput.rows = 4;
+        phraseInput.placeholder = ' Private Key';
+        renderLabeledWrappedUI('Mnemonics', phraseInput, parent);
+    }
+};
+var renderLabeledWrappedUI = function (labelText, inputElement, targetElement) {
+    var inputWrapper = document.createElement('div');
+    var label = document.createElement('div');
+    inputWrapper.setAttribute('class', 'input-wrapper');
+    label.setAttribute('class', 'label-input');
+    label.innerHTML = labelText;
+    inputElement.classList.add('input-ele');
+    inputWrapper.appendChild(label);
+    inputWrapper.appendChild(inputElement);
+    targetElement.appendChild(inputWrapper);
+};
+var removeAccountSetterUI = function () {
+    internalStyleDestructor('hash-sdk-style');
+    elementDestructor(myCustomElement$1);
+};
+var handleSetAccount = function (accountData) {
+    window.HashAccount = accountData;
+    removeAccountSetterUI();
+};
+
+var setAccountUI = function (cb) {
+    return new Promise(function (resolve, reject) {
+        if (util.checkEnvironment() === 'client') {
+            renderAccountSetterUI(function (err, res) {
+                // setMiddleware(res.provider);
+                cb && cb(err, res);
+                err ? reject(err) : resolve(res);
+            });
+        }
+        else {
+            var errorString = 'This function not available in this environment, please try setAccount()';
+            cb && cb(errorString);
+            reject(errorString);
+        }
+    });
+};
+var setAccount = function (accountData, cb) {
+    return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
+        var mnemonics, _a, message, e_1, error;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 6, , 7]);
+                    accountData.network = accountData.network ? accountData.network.toLowerCase().trim() : '';
+                    if (accountData.network !== 'mainnet' && accountData.network !== 'testnet') {
+                        throw 'Please provide a valid network (testnet or mainnet)';
+                    }
+                    if (accountData.accountId && !common.isAccountIdLike(accountData.accountId)) {
+                        throw 'Please provide a valid accountId (0.0.1234)';
+                    }
+                    if (!((accountData.keys && accountData.keys.privateKey) || accountData.mnemonics)) return [3 /*break*/, 4];
+                    if (!(accountData.keys && accountData.keys.privateKey)) return [3 /*break*/, 1];
+                    return [3 /*break*/, 3];
+                case 1:
+                    mnemonics = accountData.mnemonics;
+                    if (!mnemonics) return [3 /*break*/, 3];
+                    _a = accountData;
+                    return [4 /*yield*/, helper.generateKeysFromMnemonics(mnemonics)];
+                case 2:
+                    _a.keys = _b.sent();
+                    _b.label = 3;
+                case 3:
+                    util.setStoreData(accountData, 'HashAccount');
+                    message = 'Account is successfully set';
+                    cb && cb(null, message);
+                    resolve(message);
+                    return [3 /*break*/, 5];
+                case 4: throw "Either privateKey or mnemonics should be provided";
+                case 5: return [3 /*break*/, 7];
+                case 6:
+                    e_1 = _b.sent();
+                    error = util.getFriendlyErrorObject(e_1);
+                    cb && cb(error);
+                    reject(error);
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
+            }
+        });
+    }); });
+};
+
+var setProviderUI = function (cb) {
+    return new Promise(function (resolve, reject) {
+        if (util.checkEnvironment() === 'client') {
+            renderMiddlewareSelectorUI(function (err, res) {
+                var response = setProvider(res.provider);
+                cb && cb(err, response);
+                err ? reject(err) : resolve(response);
+            });
+        }
+        else {
+            var errorString = 'This function not available in this environment, please try setProvider()';
+            cb && cb(errorString);
+            reject(errorString);
+        }
+    });
+};
+var setProvider = function (provider, cb) {
+    return new Promise(function (resolve, reject) {
+        try {
+            var env = util.checkEnvironment();
+            if (provider === 'hardware') {
+                throw 'Hardware provider is not available (Coming Soon!)';
+            }
+            if (env === 'server' && provider === 'composer') {
+                throw 'Cannot set composer as a provider for this environment';
+            }
+            util.setStoreData(provider, 'provider');
+            if (env === 'client' && provider !== 'composer') {
+                setAccountUI();
+            }
+            var message = "Provider is set to " + provider + ", Please also set account details if not done already";
+            cb && cb(null, message);
+            resolve(message);
+        }
+        catch (e) {
+            var error = util.getFriendlyErrorObject(e);
+            cb && cb(error);
+            reject(error);
+        }
+    });
 };
 
 /**
@@ -1328,25 +1579,28 @@ var helper = {
  */
 var accountInfoController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, accountId, _a, accountData, account, operator, client, updatedData, response, message, domBody, hederaTag, e_1, message;
+        var env, provider, accountId, _a, accountData, account, operator, client, updatedData, response, message, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    env = util.checkEnvironment();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 7, , 8]);
+                    provider = util.getStoreData('provider');
                     accountId = data.accountId;
                     _a = provider;
                     switch (_a) {
-                        case 'hardware': return [3 /*break*/, 1];
-                        case 'software': return [3 /*break*/, 2];
-                        case 'composer': return [3 /*break*/, 4];
+                        case 'hardware': return [3 /*break*/, 2];
+                        case 'software': return [3 /*break*/, 3];
+                        case 'composer': return [3 /*break*/, 5];
                     }
-                    return [3 /*break*/, 5];
-                case 1: 
+                    return [3 /*break*/, 6];
+                case 2: 
                 //@TODO flow comming soon
                 throw "Hardware option for account info comming soon!";
-                case 2:
-                    accountData = (window.HashAccount);
+                case 3:
+                    accountData = util.getStoreData('HashAccount');
                     account = accountId ? util.getAccountIdObjectFull(accountId) : util.getAccountIdObjectFull(accountData.accountId);
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
                     client = helper.createHederaClient(operator, accountData.network);
@@ -1356,27 +1610,31 @@ var accountInfoController = function (data) {
                         client: client,
                     };
                     return [4 /*yield*/, accountInfo(updatedData)];
-                case 3:
+                case 4:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
-                    return [3 /*break*/, 5];
-                case 4:
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
+                    return [3 /*break*/, 6];
+                case 5:
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-balance");
                     hederaTag.setAttribute("data-accountID", data.accountId || '');
                     domBody.appendChild(hederaTag);
                     resolve(data);
-                    return [3 /*break*/, 5];
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 6];
+                case 6: return [3 /*break*/, 8];
+                case 7:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
+                    return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
             }
         });
     }); });
@@ -1387,14 +1645,16 @@ var accountInfo = function (data) { return __awaiter(void 0, void 0, void 0, fun
         switch (_a.label) {
             case 0:
                 client = data.client, account = data.account, accountData = data.accountData;
-                return [4 /*yield*/, client.getAccountBalance(client._getOperatorAccountId())];
+                return [4 /*yield*/, new sdk.AccountBalanceQuery()
+                        .setAccountId(account.accountIdLike)
+                        .execute(client)];
             case 1:
-                balance = (_a.sent()).asTinybar().toString();
+                balance = _a.sent();
                 network = accountData.network || 'Not Set';
                 return [2 /*return*/, {
                         accountId: account.accountIdLike,
                         currentNetwork: network,
-                        balance: balance
+                        balance: balance.asTinybar().toString()
                     }];
         }
     });
@@ -1407,25 +1667,28 @@ var accountInfo = function (data) { return __awaiter(void 0, void 0, void 0, fun
  */
 var cryptoTransferController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, recipientList, memo, _a, accountData, account, fromAccount, amount, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        var env, provider, recipientList, memo, _a, accountData, account, fromAccount, amount, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    env = util.checkEnvironment();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 7, , 8]);
+                    provider = util.getStoreData('provider');
                     recipientList = data.recipientList, memo = data.memo;
                     _a = provider;
                     switch (_a) {
-                        case 'hardware': return [3 /*break*/, 1];
-                        case 'software': return [3 /*break*/, 2];
-                        case 'composer': return [3 /*break*/, 4];
+                        case 'hardware': return [3 /*break*/, 2];
+                        case 'software': return [3 /*break*/, 3];
+                        case 'composer': return [3 /*break*/, 5];
                     }
-                    return [3 /*break*/, 5];
-                case 1: 
+                    return [3 /*break*/, 6];
+                case 2: 
                 //@TODO flow comming soon
                 throw "Hardware option for crypto comming soon!";
-                case 2:
-                    accountData = (window.HashAccount);
+                case 3:
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     fromAccount = {};
                     fromAccount.acc = accountData.accountId.split('.')[2];
@@ -1441,14 +1704,16 @@ var cryptoTransferController = function (data) {
                         toAccount: util.getAccountIdLikeToObj(recipientList[0].to),
                     };
                     return [4 /*yield*/, cryptoTransfer(updatedData)];
-                case 3:
+                case 4:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
-                    return [3 /*break*/, 5];
-                case 4:
-                    extensionid = window.extensionId;
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
+                    return [3 /*break*/, 6];
+                case 5:
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-micropayment");
                     hederaTag.setAttribute("data-time", '');
@@ -1460,15 +1725,17 @@ var cryptoTransferController = function (data) {
                     hederaTag.setAttribute("data-recipientlist", JSON.stringify(recipientList) || '');
                     domBody.appendChild(hederaTag);
                     resolve(data);
-                    return [3 /*break*/, 5];
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 6];
+                case 6: return [3 /*break*/, 8];
+                case 7:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
+                    return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
             }
         });
     }); });
@@ -1477,17 +1744,20 @@ var cryptoTransfer = function (data) { return __awaiter(void 0, void 0, void 0, 
     var transactionId, receipt;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, new sdk.CryptoTransferTransaction()
-                    .addSender(data.account.accountIdObject, data.amount)
-                    .addRecipient(data.toAccount, data.amount)
-                    .setTransactionMemo(data.memo)
-                    //.setTransactionFee(1000000)
-                    .execute(data.client)];
+            case 0:
+                console.log('datat:::', data);
+                return [4 /*yield*/, new sdk.CryptoTransferTransaction()
+                        .addSender(data.account.accountIdObject, data.amount)
+                        .addRecipient(data.toAccount, data.amount)
+                        .setTransactionMemo(data.memo)
+                        //.setTransactionFee(1000000)
+                        .execute(data.client)];
             case 1:
                 transactionId = _a.sent();
                 return [4 /*yield*/, transactionId.getReceipt(data.client)];
             case 2:
                 receipt = _a.sent();
+                console.log('reciept:::', receipt, data);
                 return [2 /*return*/, ({
                         nodePrecheckcode: receipt.status.code,
                         receiptStatus: receipt.status.code,
@@ -1504,25 +1774,28 @@ var cryptoTransfer = function (data) { return __awaiter(void 0, void 0, void 0, 
  */
 var contractCallController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, memo, transactionfee, amount, gasfee, contractId, functionParams, abi, _a, accountData, account, contractIdLike, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        var env, provider, memo, transactionfee, amount, gasfee, contractId, functionParams, abi, _a, accountData, account, contractIdLike, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    env = util.checkEnvironment();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 7, , 8]);
+                    provider = util.getStoreData('provider');
                     memo = data.memo, transactionfee = data.transactionfee, amount = data.amount, gasfee = data.gasfee, contractId = data.contractId, functionParams = data.functionParams, abi = data.abi;
                     _a = provider;
                     switch (_a) {
-                        case 'hardware': return [3 /*break*/, 1];
-                        case 'software': return [3 /*break*/, 2];
-                        case 'composer': return [3 /*break*/, 4];
+                        case 'hardware': return [3 /*break*/, 2];
+                        case 'software': return [3 /*break*/, 3];
+                        case 'composer': return [3 /*break*/, 5];
                     }
-                    return [3 /*break*/, 5];
-                case 1: 
+                    return [3 /*break*/, 6];
+                case 2: 
                 //@TODO flow comming soon
                 throw "Hardware option for contract call comming soon!";
-                case 2:
-                    accountData = (window.HashAccount);
+                case 3:
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     contractIdLike = util.getAccountIdLikeToObj(contractId, 'contract');
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
@@ -1539,14 +1812,16 @@ var contractCallController = function (data) {
                         gasfee: gasfee
                     };
                     return [4 /*yield*/, contractCall(updatedData)];
-                case 3:
+                case 4:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
-                    return [3 /*break*/, 5];
-                case 4:
-                    extensionid = window.extensionId;
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
+                    return [3 /*break*/, 6];
+                case 5:
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-contract");
                     hederaTag.setAttribute("data-contractid", data.contractId || '');
@@ -1559,15 +1834,17 @@ var contractCallController = function (data) {
                     hederaTag.setAttribute("data-amount", data.amount || '');
                     domBody.appendChild(hederaTag);
                     resolve(data);
-                    return [3 /*break*/, 5];
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 6];
+                case 6: return [3 /*break*/, 8];
+                case 7:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
+                    return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
             }
         });
     }); });
@@ -1705,25 +1982,28 @@ var defaults = {
  */
 var contractDeployController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, memo, transactionfee, amount, gasfee, fileId, expirationTime, bytecode, abi, params, functionParams, _a, accountData, account, fileIdLike, expirationtime, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        var env, provider, memo, transactionfee, amount, gasfee, fileId, expirationTime, bytecode, abi, params, functionParams, _a, accountData, account, fileIdLike, expirationtime, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    env = util.checkEnvironment();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 7, , 8]);
+                    provider = util.getStoreData('provider');
                     memo = data.memo, transactionfee = data.transactionfee, amount = data.amount, gasfee = data.gasfee, fileId = data.fileId, expirationTime = data.expirationTime, bytecode = data.bytecode, abi = data.abi, params = data.params, functionParams = data.functionParams;
                     _a = provider;
                     switch (_a) {
-                        case 'hardware': return [3 /*break*/, 1];
-                        case 'software': return [3 /*break*/, 2];
-                        case 'composer': return [3 /*break*/, 4];
+                        case 'hardware': return [3 /*break*/, 2];
+                        case 'software': return [3 /*break*/, 3];
+                        case 'composer': return [3 /*break*/, 5];
                     }
-                    return [3 /*break*/, 5];
-                case 1: 
+                    return [3 /*break*/, 6];
+                case 2: 
                 //@TODO flow comming soon
                 throw "Hardware option for contract deploy comming soon!";
-                case 2:
-                    accountData = (window.HashAccount);
+                case 3:
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     fileIdLike = fileId ? util.getAccountIdLikeToObj(fileId, 'file') : null;
                     expirationtime = Date.now() + expirationTime;
@@ -1744,14 +2024,16 @@ var contractDeployController = function (data) {
                         params: params
                     };
                     return [4 /*yield*/, contractDeploy(updatedData)];
-                case 3:
+                case 4:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
-                    return [3 /*break*/, 5];
-                case 4:
-                    extensionid = window.extensionId;
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
+                    return [3 /*break*/, 6];
+                case 5:
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-deploy-contract");
                     hederaTag.setAttribute("data-fileid", data.fileId || '');
@@ -1767,15 +2049,17 @@ var contractDeployController = function (data) {
                     hederaTag.setAttribute("data-expirationTime", data.expirationTime || '');
                     domBody.appendChild(hederaTag);
                     resolve(data);
-                    return [3 /*break*/, 5];
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 6];
+                case 6: return [3 /*break*/, 8];
+                case 7:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
+                    return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
             }
         });
     }); });
@@ -1882,25 +2166,28 @@ var fileCreateDeploy = function (client, bytecode, memo, txFee, expirationTime) 
  */
 var fileCreateController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, memo, contents, transactionfee, gasfee, expirationTime, _a, accountData, account, expirationtime, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        var env, provider, memo, contents, transactionfee, gasfee, expirationTime, _a, accountData, account, expirationtime, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    env = util.checkEnvironment();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 7, , 8]);
+                    provider = util.getStoreData('provider');
                     memo = data.memo, contents = data.contents, transactionfee = data.transactionfee, gasfee = data.gasfee, expirationTime = data.expirationTime;
                     _a = provider;
                     switch (_a) {
-                        case 'hardware': return [3 /*break*/, 1];
-                        case 'software': return [3 /*break*/, 2];
-                        case 'composer': return [3 /*break*/, 4];
+                        case 'hardware': return [3 /*break*/, 2];
+                        case 'software': return [3 /*break*/, 3];
+                        case 'composer': return [3 /*break*/, 5];
                     }
-                    return [3 /*break*/, 5];
-                case 1: 
+                    return [3 /*break*/, 6];
+                case 2: 
                 //@TODO flow comming soon
                 throw "Hardware option for file create comming soon!";
-                case 2:
-                    accountData = (window.HashAccount);
+                case 3:
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     expirationtime = Date.now() + expirationTime;
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
@@ -1915,14 +2202,16 @@ var fileCreateController = function (data) {
                         expirationtime: expirationtime,
                     };
                     return [4 /*yield*/, fileCreate(updatedData)];
-                case 3:
+                case 4:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
-                    return [3 /*break*/, 5];
-                case 4:
-                    extensionid = window.extensionId;
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
+                    return [3 /*break*/, 6];
+                case 5:
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-file-create");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -1934,15 +2223,17 @@ var fileCreateController = function (data) {
                     hederaTag.setAttribute("data-expirationTime", data.expirationTime || '');
                     domBody.appendChild(hederaTag);
                     resolve(data);
-                    return [3 /*break*/, 5];
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 6];
+                case 6: return [3 /*break*/, 8];
+                case 7:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
+                    return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
             }
         });
     }); });
@@ -2019,25 +2310,28 @@ var fileType = require('file-type/browser');
  */
 var fileRetrieveController = function (data) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var provider, memo, fileId, transactionfee, gasfee, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
+        var env, provider, memo, fileId, transactionfee, gasfee, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    env = util.checkEnvironment();
+                    _b.label = 1;
+                case 1:
+                    _b.trys.push([1, 7, , 8]);
+                    provider = util.getStoreData('provider');
                     memo = data.memo, fileId = data.fileId, transactionfee = data.transactionfee, gasfee = data.gasfee;
                     _a = provider;
                     switch (_a) {
-                        case 'hardware': return [3 /*break*/, 1];
-                        case 'software': return [3 /*break*/, 2];
-                        case 'composer': return [3 /*break*/, 4];
+                        case 'hardware': return [3 /*break*/, 2];
+                        case 'software': return [3 /*break*/, 3];
+                        case 'composer': return [3 /*break*/, 5];
                     }
-                    return [3 /*break*/, 5];
-                case 1: 
+                    return [3 /*break*/, 6];
+                case 2: 
                 //@TODO flow comming soon
                 throw "Hardware option for file retrieve comming soon!";
-                case 2:
-                    accountData = (window.HashAccount);
+                case 3:
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
                     client = helper.createHederaClient(operator, accountData.network);
@@ -2050,14 +2344,16 @@ var fileRetrieveController = function (data) {
                         gasfee: gasfee,
                     };
                     return [4 /*yield*/, fileRetrieve(updatedData)];
-                case 3:
+                case 4:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
-                    return [3 /*break*/, 5];
-                case 4:
-                    extensionid = window.extensionId;
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
+                    return [3 /*break*/, 6];
+                case 5:
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-file-retrieve");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -2067,15 +2363,17 @@ var fileRetrieveController = function (data) {
                     hederaTag.setAttribute("data-transactionfee", '');
                     domBody.appendChild(hederaTag);
                     resolve(data);
-                    return [3 /*break*/, 5];
-                case 5: return [3 /*break*/, 7];
-                case 6:
+                    return [3 /*break*/, 6];
+                case 6: return [3 /*break*/, 8];
+                case 7:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
+                    return [3 /*break*/, 8];
+                case 8: return [2 /*return*/];
             }
         });
     }); });
@@ -2096,12 +2394,13 @@ var fileRetrieve = function (data) { return __awaiter(void 0, void 0, void 0, fu
                 return [4 /*yield*/, fileType.fromBuffer(fileQueryResp)];
             case 2:
                 type = _a.sent();
-                console.log('Type recvd', fileType, type, fileQueryResp);
                 response = {
-                    fileType: type,
                     contents: Array.from(fileQueryResp),
                     contentAsString: contentAsString
                 };
+                if (type) {
+                    response.fileType = type;
+                }
                 return [2 /*return*/, response];
         }
     });
@@ -2113,13 +2412,14 @@ var fileRetrieve = function (data) { return __awaiter(void 0, void 0, void 0, fu
  * @returns {any} returns response of txs success if success or throws error
  */
 var topicCreateController = function (data) {
+    var env = util.checkEnvironment();
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
         var provider, memo, submitKeyList, autoRenewAccount, autoRenewPeriod, transactionfee, gasfee, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    provider = util.getStoreData('provider');
                     memo = data.memo, submitKeyList = data.submitKeyList, autoRenewAccount = data.autoRenewAccount, autoRenewPeriod = data.autoRenewPeriod, transactionfee = data.transactionfee, gasfee = data.gasfee;
                     _a = provider;
                     switch (_a) {
@@ -2132,7 +2432,7 @@ var topicCreateController = function (data) {
                 //@TODO flow comming soon
                 throw "Hardware option for topic create comming soon!";
                 case 2:
-                    accountData = (window.HashAccount);
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
                     client = helper.createHederaClient(operator, accountData.network);
@@ -2150,11 +2450,13 @@ var topicCreateController = function (data) {
                 case 3:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
                     return [3 /*break*/, 5];
                 case 4:
-                    extensionid = window.extensionId;
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-create");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -2171,8 +2473,10 @@ var topicCreateController = function (data) {
                 case 6:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
                     return [3 /*break*/, 7];
                 case 7: return [2 /*return*/];
             }
@@ -2244,13 +2548,14 @@ var topicCreate = function (data) { return __awaiter(void 0, void 0, void 0, fun
  * @returns {any} returns response of txs success if success or throws error
  */
 var topicUpdateController = function (data) {
+    var env = util.checkEnvironment();
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
         var provider, memo, submitKeyList, autoRenewPeriod, transactionfee, gasfee, topicId, autoRenewAccount, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    provider = util.getStoreData('provider');
                     memo = data.memo, submitKeyList = data.submitKeyList, autoRenewPeriod = data.autoRenewPeriod, transactionfee = data.transactionfee, gasfee = data.gasfee;
                     topicId = data.topicId, autoRenewAccount = data.autoRenewAccount;
                     _a = provider;
@@ -2264,7 +2569,7 @@ var topicUpdateController = function (data) {
                 //@TODO flow comming soon
                 throw "Hardware option for topic update comming soon!";
                 case 2:
-                    accountData = (window.HashAccount);
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
                     client = helper.createHederaClient(operator, accountData.network);
@@ -2286,11 +2591,13 @@ var topicUpdateController = function (data) {
                 case 3:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
                     return [3 /*break*/, 5];
                 case 4:
-                    extensionid = window.extensionId;
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-update");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -2308,8 +2615,10 @@ var topicUpdateController = function (data) {
                 case 6:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
                     return [3 /*break*/, 7];
                 case 7: return [2 /*return*/];
             }
@@ -2381,13 +2690,14 @@ var topicUpdate = function (data) { return __awaiter(void 0, void 0, void 0, fun
  * @returns {any} returns response of txs success if success or throws error
  */
 var topicInfoController = function (data) {
+    var env = util.checkEnvironment();
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
         var provider, memo, transactionfee, gasfee, topicId, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    provider = util.getStoreData('provider');
                     memo = data.memo, transactionfee = data.transactionfee, gasfee = data.gasfee;
                     topicId = data.topicId;
                     _a = provider;
@@ -2401,7 +2711,7 @@ var topicInfoController = function (data) {
                 //@TODO flow comming soon
                 throw "Hardware option for topic info comming soon!";
                 case 2:
-                    accountData = (window.HashAccount);
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
                     client = helper.createHederaClient(operator, accountData.network);
@@ -2419,11 +2729,13 @@ var topicInfoController = function (data) {
                 case 3:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
                     return [3 /*break*/, 5];
                 case 4:
-                    extensionid = window.extensionId;
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-info");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -2437,8 +2749,10 @@ var topicInfoController = function (data) {
                 case 6:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
                     return [3 /*break*/, 7];
                 case 7: return [2 /*return*/];
             }
@@ -2471,13 +2785,14 @@ var topicInfo = function (data) { return __awaiter(void 0, void 0, void 0, funct
  * @returns {any} returns response of txs success if success or throws error
  */
 var topicDeleteController = function (data) {
+    var env = util.checkEnvironment();
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
         var provider, memo, transactionfee, gasfee, topicId, _a, accountData, account, operator, client, updatedData, response, message, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    provider = util.getStoreData('provider');
                     memo = data.memo, transactionfee = data.transactionfee, gasfee = data.gasfee;
                     topicId = data.topicId;
                     _a = provider;
@@ -2491,7 +2806,7 @@ var topicDeleteController = function (data) {
                 //@TODO flow comming soon
                 throw "Hardware option for topic delete comming soon!";
                 case 2:
-                    accountData = (window.HashAccount);
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
                     client = helper.createHederaClient(operator, accountData.network);
@@ -2509,11 +2824,13 @@ var topicDeleteController = function (data) {
                 case 3:
                     response = _b.sent();
                     message = { res: response, type: 'success' };
-                    window.postMessage(message, window.location.origin);
-                    resolve(response);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    resolve(message);
                     return [3 /*break*/, 5];
                 case 4:
-                    extensionid = window.extensionId;
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
                     hederaTag = document.createElement("hedera-topic-delete");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
@@ -2527,8 +2844,10 @@ var topicDeleteController = function (data) {
                 case 6:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
                     return [3 /*break*/, 7];
                 case 7: return [2 /*return*/];
             }
@@ -2568,13 +2887,14 @@ var topicDelete = function (data) { return __awaiter(void 0, void 0, void 0, fun
  * @returns {any} returns response of txs success if success or throws error
  */
 var submitMessageController = function (data) {
+    var env = util.checkEnvironment();
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
         var provider, memo, transactionfee, gasfee, message, topicId, _a, accountData, account, operator, client, updatedData, response, messageI, extensionid, domBody, hederaTag, e_1, message;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
-                    provider = (window).provider;
+                    provider = util.getStoreData('provider');
                     memo = data.memo, transactionfee = data.transactionfee, gasfee = data.gasfee, message = data.message;
                     topicId = data.topicId;
                     _a = provider;
@@ -2588,7 +2908,7 @@ var submitMessageController = function (data) {
                 //@TODO flow comming soon
                 throw "Hardware option for submit message comming soon!";
                 case 2:
-                    accountData = (window.HashAccount);
+                    accountData = util.getStoreData('HashAccount');
                     account = util.getAccountIdObjectFull(accountData.accountId);
                     operator = helper.createClientOperator(account.accountIdObject, accountData.keys.privateKey);
                     client = helper.createHederaClient(operator, accountData.network);
@@ -2608,12 +2928,12 @@ var submitMessageController = function (data) {
                     response = _b.sent();
                     messageI = { res: response, type: 'success' };
                     window.postMessage(messageI, window.location.origin);
-                    resolve(response);
+                    resolve(message);
                     return [3 /*break*/, 5];
                 case 4:
-                    extensionid = window.extensionId;
+                    extensionid = util.getStoreData('extensionId');
                     domBody = document.getElementsByTagName('body')[0];
-                    hederaTag = document.createElement("hedera-topic-delete");
+                    hederaTag = document.createElement("hedera-message-submit");
                     hederaTag.setAttribute("data-memo", data.memo || ' ');
                     hederaTag.setAttribute("data-extensionid", extensionid);
                     hederaTag.setAttribute("data-transactionfee", data.transactionfee || '');
@@ -2626,8 +2946,10 @@ var submitMessageController = function (data) {
                 case 6:
                     e_1 = _b.sent();
                     message = { res: e_1, type: 'deny' };
-                    window.postMessage(message, window.location.origin);
-                    reject(e_1);
+                    if (env === 'client') {
+                        window.postMessage(message, window.location.origin);
+                    }
+                    reject(message);
                     return [3 /*break*/, 7];
                 case 7: return [2 /*return*/];
             }
@@ -3291,21 +3613,22 @@ var _reject = null;
  */
 var triggerCheckBalance = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_1, err;
+        var updatedData, res, error_1, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'account-info')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, accountInfoController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_1 = _a.sent();
@@ -3325,21 +3648,22 @@ var triggerCheckBalance = function (data, callback) {
  */
 var triggerCryptoTransfer = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_2, err;
+        var updatedData, res, error_2, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'crypto-transfer')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, cryptoTransferController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_2 = _a.sent();
@@ -3359,21 +3683,22 @@ var triggerCryptoTransfer = function (data, callback) {
  */
 var triggerSmartContract = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_3, err;
+        var updatedData, res, error_3, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'contract-call')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, contractCallController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_3 = _a.sent();
@@ -3393,21 +3718,22 @@ var triggerSmartContract = function (data, callback) {
  */
 var deploySmartContract = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_4, err;
+        var updatedData, res, error_4, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'contract-deploy')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, contractDeployController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_4 = _a.sent();
@@ -3427,21 +3753,22 @@ var deploySmartContract = function (data, callback) {
  */
 var triggerFileCreate = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_5, err;
+        var updatedData, res, error_5, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'file-create')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, fileCreateController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_5 = _a.sent();
@@ -3461,21 +3788,22 @@ var triggerFileCreate = function (data, callback) {
  */
 var triggerFileRetrieve = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_6, err;
+        var updatedData, res, error_6, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'file-retrieve')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, fileRetrieveController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_6 = _a.sent();
@@ -3495,21 +3823,22 @@ var triggerFileRetrieve = function (data, callback) {
  */
 var triggerTopicCreate = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_7, err;
+        var updatedData, res, error_7, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'topic-create')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, topicCreateController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_7 = _a.sent();
@@ -3529,21 +3858,22 @@ var triggerTopicCreate = function (data, callback) {
  */
 var triggerTopicUpdate = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_8, err;
+        var updatedData, res, error_8, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'topic-update')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, topicUpdateController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_8 = _a.sent();
@@ -3563,21 +3893,22 @@ var triggerTopicUpdate = function (data, callback) {
  */
 var triggerTopicInfo = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_9, err;
+        var updatedData, res, error_9, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'topic-info')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, topicInfoController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_9 = _a.sent();
@@ -3597,21 +3928,22 @@ var triggerTopicInfo = function (data, callback) {
  */
 var triggerTopicDelete = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_10, err;
+        var updatedData, res, error_10, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
+                    checkPrerequisites();
                     return [4 /*yield*/, validateService(data, 'topic-delete')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, topicDeleteController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_10 = _a.sent();
@@ -3631,21 +3963,21 @@ var triggerTopicDelete = function (data, callback) {
  */
 var triggerSubmitMessage = function (data, callback) {
     return new Promise(function (resolve, reject) { return __awaiter(void 0, void 0, void 0, function () {
-        var updatedData, error_11, err;
+        var updatedData, res, error_11, err;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    util.isProviderSet();
+                    _callback = callback;
+                    _resolve = resolve;
+                    _reject = reject;
                     return [4 /*yield*/, validateService(data, 'submit-message')];
                 case 1:
                     updatedData = _a.sent();
                     return [4 /*yield*/, submitMessageController(updatedData)];
                 case 2:
-                    _a.sent();
-                    _callback = callback;
-                    _resolve = resolve;
-                    _reject = reject;
+                    res = _a.sent();
+                    handleResponse(res);
                     return [3 /*break*/, 4];
                 case 3:
                     error_11 = _a.sent();
@@ -3658,33 +3990,70 @@ var triggerSubmitMessage = function (data, callback) {
         });
     }); });
 };
+var handleResponse = function (data) {
+    if (data.type.includes('deny')) {
+        _callback && _callback(data.res, null);
+        _reject && _reject(data.res);
+    }
+    else {
+        var rectifiedResponse = util.convertIfArray(data.res);
+        _callback && _callback(null, rectifiedResponse);
+        _resolve && _resolve(data.res);
+    }
+};
 /**
  * Accepts message event and returns to promise and callback
  * @param {MessageEvent} event
  */
 var receiveMessage = function (event) {
     if (event.data.type && event.origin === window.location.origin) {
-        if (event.data.type.includes('deny')) {
-            _callback && _callback(event.data.res, null);
-            _reject && _reject(event.data.res);
+        handleResponse(event.data);
+    }
+};
+var checkPrerequisites = function () {
+    if (!util.getStoreData('provider')) {
+        throw 'Please set your provider (i.e hardware,composer or software)';
+    }
+    else if (util.getStoreData('provider') !== 'composer') {
+        if (!util.getStoreData('HashAccount')) {
+            throw 'Please set your account details (network, private key and account id)';
+        }
+        else if (!util.getStoreData('HashAccount').network) {
+            throw 'Please set your network (i.e mainnet or testnet)';
+        }
+        else if (!util.getStoreData('HashAccount').accountId) {
+            throw 'Please set your accountId (0.0.1234)';
+        }
+        else if (!util.getStoreData('HashAccount').keys) {
+            if (!util.getStoreData('HashAccount').keys.privateKey) {
+                throw 'Please set your private key';
+            }
+            else {
+                return true;
+            }
         }
         else {
-            var rectifiedResponse = util.convertIfArray(event.data.res);
-            _callback && _callback(null, rectifiedResponse);
-            _resolve && _resolve(event.data.res);
+            return true;
         }
+    }
+    else {
+        return true;
     }
 };
 /**
  * 'message' event listener to catch messages from composer or software responses
  */
-window.addEventListener("message", receiveMessage, false);
+if (util.checkEnvironment() === 'client') {
+    window.addEventListener("message", receiveMessage, false);
+}
 
 // Exposed Functions
 var exports$1 = {
     sum: sum,
-    selectProvider: selectProvider,
+    setProvider: setProvider,
+    setProviderUI: setProviderUI,
     setAccount: setAccount,
+    setAccountUI: setAccountUI,
     triggerCheckBalance: triggerCheckBalance,
     triggerCryptoTransfer: triggerCryptoTransfer,
     triggerSmartContract: triggerSmartContract,
@@ -3698,8 +4067,16 @@ var exports$1 = {
     triggerSubmitMessage: triggerSubmitMessage,
 };
 // Exposing inject to window object
-window.hash = __assign({}, exports$1);
+if (util.checkEnvironment() === 'server') {
+    global.hash = __assign({}, exports$1);
+}
+else {
+    window.hash = __assign({}, exports$1);
+}
 // Exposing function using default
+if (util.checkEnvironment() === 'server') {
+    module.exports = __assign({}, exports$1);
+}
 var index = __assign({}, exports$1);
 
 exports.default = index;

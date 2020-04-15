@@ -11,3 +11,12 @@ export interface IAccountIdLike {
     realm: number;
     account: number;
 }
+export interface IAccountDataLike {
+    accountId: string;
+    network: string;
+    keys?: {
+        privateKey: string;
+        publicKey?: string;
+    };
+    mnemonics?: string;
+}

@@ -47,6 +47,23 @@ export const accountStyle = `
     account-setter .modal-body{
         display: flex;
         justify-content: center;
+        flex-direction: column;
+    }
+
+    account-setter .modal-tab-row{
+        display: flex;
+        background: #ececec;
+    }
+
+    .modal-tab-row .tab-item{
+        padding: 10px 20px;
+        background: #d0cece;
+        cursor:pointer;
+    }
+
+    .modal-tab-row .tab-item.active{
+        background: #fff;
+        cursor:default;
     }
 
     account-setter .modal-body-wrapper{
@@ -57,6 +74,11 @@ export const accountStyle = `
         flex: 1;
         margin: 15px 20px;
     }
+
+    .modal-body-wrapper .phrase-input .input-ele{
+        height: 68px;
+    }
+
 
     account-setter .input-wrapper{
         width: 100%;

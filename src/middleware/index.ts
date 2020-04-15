@@ -1,35 +1,45 @@
 import {renderMiddlewareSelectorUI} from '../ui-modules/middlewareSelector';
-import {setAccount} from '../account'
+import {setAccountUI} from '../account';
+import {util} from '../utils';
 
-export const selectProvider = (cb?:Function) => {
+export const setProviderUI = (cb?:Function) => {
     return new Promise((resolve,reject)=>{
-        renderMiddlewareSelectorUI((err:any,res:any):any=>{
-            setProvider(res.provider);
-            if(((window)as any).provider === 'software'){
-                //@TODO handle below
-              setAccount();
-            }else{
-                cb && cb(err,res);
-                err ? reject(err) : resolve(res);
-            }
-        });
+        if(util.checkEnvironment()==='client'){
+            renderMiddlewareSelectorUI((err:any,res:any):any=>{
+                const response = setProvider(res.provider);
+                cb && cb(err,response);
+                err ? reject(err) : resolve(response);
+            });
+        }else{
+            const errorString = 'This function not available in this environment, please try setProvider()';
+            cb && cb(errorString);
+            reject(errorString);
+        }
     })
 }
 
-const setProvider = (provider:string) => {
-
-    ((window)as any).provider = provider;
-
-    switch(provider){
-        case 'hardware':
-            //@TODO include when hardware comes in
-            break;
-        
-        case 'composer':
-           
-            break;
-        
-        case 'software':
-            break;
-    }
+export const setProvider = (provider:string,cb?:Function) => {
+    return new Promise((resolve,reject)=>{
+        try{
+            const env = util.checkEnvironment();
+            if(provider==='hardware'){
+                throw 'Hardware provider is not available (Coming Soon!)';
+            }
+            if(env==='server' && provider==='composer'){
+                throw 'Cannot set composer as a provider for this environment';
+            }
+            util.setStoreData(provider,'provider');
+            if(env==='client' && provider!=='composer'){
+                setAccountUI();
+            }
+            const message = `Provider is set to ${provider}, Please also set account details if not done already`;
+            cb && cb(null,message);
+            resolve(message);
+        }catch(e){
+            const error = util.getFriendlyErrorObject(e);
+            cb && cb(error);
+            reject(error);
+        }
+    })
 }
+

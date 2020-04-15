@@ -19,4 +19,9 @@ export declare const helper: {
         };
         transactionId: import("@hashgraph/sdk").TransactionId;
     }>;
+    generateKeysFromMnemonics: (mnemonics: string, supportsDerivation?: boolean) => Promise<{
+        mnemonic: string;
+        privateKey: string;
+        publicKey: string;
+    }>;
 };

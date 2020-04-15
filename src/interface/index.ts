@@ -13,4 +13,12 @@ export interface IAccountIdLike {
     account:number
 }
 
-
+export interface IAccountDataLike {
+    accountId:string,
+    network:string,
+    keys?:{
+        privateKey:string
+        publicKey?:string
+    },
+    mnemonics?:string
+}

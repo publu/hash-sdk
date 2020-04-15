@@ -1,7 +1,7 @@
 
 import {sum} from './sum';
-import {selectProvider} from './middleware';
-import {setAccount} from './account';
+import {setProvider,setProviderUI} from './middleware';
+import {setAccount,setAccountUI} from './account';
 import {
   triggerCheckBalance,
   triggerCryptoTransfer,
@@ -15,12 +15,15 @@ import {
   triggerTopicDelete,
   triggerSubmitMessage
 } from './controller';
+import {util} from './utils';
 
 // Exposed Functions
 const exports = {
   sum,
-  selectProvider,
+  setProvider,
+  setProviderUI,
   setAccount,
+  setAccountUI,
   triggerCheckBalance,
   triggerCryptoTransfer,
   triggerSmartContract,
@@ -35,9 +38,20 @@ const exports = {
 };
 
 // Exposing inject to window object
-(window as any).hash={...exports};
+if(util.checkEnvironment()==='server'){
+  (global as any).hash={...exports}
+}else{
+  (window as any).hash={...exports}
+}
 
 // Exposing function using default
+if(util.checkEnvironment()==='server'){
+  module.exports= {
+    ...exports
+  };  
+}
+
 export default {
   ...exports
-};
+};  
+
