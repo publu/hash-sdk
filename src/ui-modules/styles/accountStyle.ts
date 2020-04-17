@@ -95,6 +95,10 @@ export const accountStyle = `
         border: 1px solid rgba(0,0,0,0.2);
     }
 
+    account-setter .phrase-input.input-ele{
+        height: 80px;
+    }
+
     select.input-ele{
         width: 100%;
     }

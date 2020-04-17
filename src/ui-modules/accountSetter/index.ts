@@ -24,10 +24,10 @@ const tabs:Array<ITabDetails> = [
         id:"t1",
         title:'Private Key'
     },
-    // {
-    //     id:"t2",
-    //     title:'Mnemonics'
-    // }
+    {
+        id:"t2",
+        title:'Mnemonics'
+    }
 ];
 const networks:Array<INetwork> = [
     {
@@ -224,7 +224,7 @@ const renderTabContent = () =>{
         const phraseInput = document.createElement('textarea');
         phraseInput.setAttribute('class','phrase-input');
         phraseInput.rows = 4;
-        phraseInput.placeholder = ' Private Key';
+        phraseInput.placeholder = 'Enter your words here with spaces in between';
         renderLabeledWrappedUI('Mnemonics',phraseInput,parent);
     }
 
