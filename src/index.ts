@@ -40,7 +40,7 @@ const exportFunctions = {
   triggerTopicUpdate : triggerTopicUpdateFn,
   triggerTopicInfo : triggerTopicInfoFn,
   triggerTopicDelete : triggerTopicDeleteFn,
-  triggerSubmitMessage : triggerSubmitMessageFn,
+  triggerMessageSubmit : triggerSubmitMessageFn,
 };
 
 // Exposing inject to window object
@@ -69,4 +69,4 @@ export const triggerTopicCreate = exportFunctions.triggerTopicCreate;
 export const triggerTopicUpdate = exportFunctions.triggerTopicUpdate;
 export const triggerTopicInfo = exportFunctions.triggerTopicInfo;
 export const triggerTopicDelete = exportFunctions.triggerTopicDelete;
-export const triggerSubmitMessage = exportFunctions.triggerSubmitMessage;
+export const triggerMessageSubmit = exportFunctions.triggerMessageSubmit;
