@@ -36,9 +36,8 @@ export default {
       include: ['node_modules/**']
     }),
     json(),
-    sourceMaps(),
-    // svgResolverPlugin()
-  ],
+    sourceMaps()
+    ],
   globals: {
 
   },
@@ -47,24 +46,3 @@ export default {
    ]
 }
 
-
-// plugin
-export function svgResolverPlugin () {
-  return ({
-    resolveId(source, importer) {
-      if (source.endsWith('.svg')) {
-        return path.resolve(path.dirname(importer), source);
-      }
-    },
-    load(id) {
-      if (id.endsWith('.svg')) {
-      	const referenceId = this.emitFile({
-          type: 'asset',
-          name: path.basename(id),
-          source: fs.readFileSync(id)
-        });
-        return `export default import.meta.ROLLUP_FILE_URL_${referenceId};`;
-      }
-    }
-  });
-}
