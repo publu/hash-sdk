@@ -19,7 +19,7 @@ import {
   triggerTopicUpdate as triggerTopicUpdateFn,
   triggerTopicInfo as triggerTopicInfoFn,
   triggerTopicDelete as triggerTopicDeleteFn,
-  triggerSubmitMessage as triggerSubmitMessageFn
+  triggerSubmitMessage as triggerMessageSubmitFn
 } from './controller';
 import {util} from './utils';
 
@@ -40,7 +40,7 @@ const exportFunctions = {
   triggerTopicUpdate : triggerTopicUpdateFn,
   triggerTopicInfo : triggerTopicInfoFn,
   triggerTopicDelete : triggerTopicDeleteFn,
-  triggerMessageSubmit : triggerSubmitMessageFn,
+  triggerMessageSubmit : triggerMessageSubmitFn,
 };
 
 // Exposing inject to window object
