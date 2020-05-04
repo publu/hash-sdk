@@ -6,7 +6,7 @@ module.exports = {
     entry: "./src/index.ts",
     output: {
         filename: "hash-sdk.js",
-        path: path.resolve(__dirname, 'web-script')
+        path: path.resolve(__dirname, 'web-script/')
     },
     resolve: {
         extensions: [".webpack.js", ".web.js", ".ts", ".js"]
