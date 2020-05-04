@@ -1,6 +1,6 @@
 import { common } from '../validators/common';
 import BigNumber from "bignumber.js";
-
+import {Account} from "../storage";
 
 /**
  * Converts any string to bytes[]
@@ -372,22 +372,31 @@ const checkEnvironment = () =>{
  * Stores your key value pair globally based on the environment
 */
 const storeGlobally = (key:string,value:any) =>{
-    if(checkEnvironment()==='client'){
-        ((window)as any)[key] = value;
+    if(key === 'HashAccount'){
+        Account.setAccount(value);
     }else{
-        ((global)as any)[key] = value;
+        if(checkEnvironment()==='client'){
+            ((window)as any)[key] = value;
+        }else{
+            ((global)as any)[key] = value;
+        }
     }
 }
+
 
 /**
  * Gets data from global varaibles based on the environment
  * @returns {string} returns data of the requested store variable
 */
 const getStoreData = (key:string) =>{
-    if(checkEnvironment()==='client'){
-        return ((window)as any)[key] ? ((window)as any)[key] : null ;
+    if(key === 'HashAccount'){
+        return Account.getInstance().accountData;
     }else{
-        return ((global)as any)[key] ? ((global)as any)[key] : null;
+        if(checkEnvironment()==='client'){
+            return ((window)as any)[key] ? ((window)as any)[key] : null ;
+        }else{
+            return ((global)as any)[key] ? ((global)as any)[key] : null;
+        }
     }
 }
 

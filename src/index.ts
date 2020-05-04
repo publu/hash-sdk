@@ -23,6 +23,7 @@ import {
 } from './controller';
 import {util} from './utils';
 
+
 // Exposed Functions
 const exportFunctions = {
   // sum,
@@ -50,10 +51,6 @@ if(util.checkEnvironment()==='server'){
   (window as any).hash={...exportFunctions}
 }
 
-// Exposing function using default
-// if(util.checkEnvironment()==='server'){
-//   module.exports= exportFunctions
-// }
 
 export const setProvider = exportFunctions.setProvider;
 export const setProviderUI = exportFunctions.setProviderUI;

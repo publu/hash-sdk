@@ -5,6 +5,7 @@ import {
 } from '../../ui-utils/index';
 import { accountStyle } from '../styles/accountStyle';
 import {helper} from '../../helper';
+import { util } from '../../utils';
 
 interface INetwork{
     id:string,
@@ -110,7 +111,7 @@ export const renderAccountSetterUI =(cb?:Function)=> {
 
         confirmButton.onclick = function(){
             // @TODO Based on tab do the required operation
-            handleConfirmButtonClick();
+            handleConfirmButtonClick(cb);
         }
  
         // Element Merging and Finalization
@@ -136,7 +137,7 @@ export const renderAccountSetterUI =(cb?:Function)=> {
 
 }
 
-const handleConfirmButtonClick = async() =>{
+const handleConfirmButtonClick = async(cb?:Function) =>{
     const network = (document.querySelector('.network-input') as HTMLInputElement).value;
     const accountId = (document.querySelector('.account-input') as HTMLInputElement).value;
     let accountData = {
@@ -163,7 +164,7 @@ const handleConfirmButtonClick = async() =>{
             break;
     }
     
-    handleSetAccount(accountData);
+    handleSetAccount(accountData,cb);
 }
 
 const renderTabRow =()=>{
@@ -251,7 +252,9 @@ const removeAccountSetterUI =()=> {
     elementDestructor(myCustomElement);
 }
 
-const handleSetAccount = (accountData:Object) =>{
-    (window as any).HashAccount = accountData;
+const handleSetAccount = (accountData:Object,cb?:Function) =>{
+    // (window as any).HashAccount = accountData;
+    util.setStoreData(accountData,'HashAccount');
+    cb && cb(null,'Account is Set');
     removeAccountSetterUI();
 }

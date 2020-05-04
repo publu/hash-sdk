@@ -8,8 +8,11 @@ import {IAccountDataLike} from '../interface';
 export const setAccountUI = (cb?:Function) => {
     return new Promise((resolve,reject)=>{
         if(util.checkEnvironment()==='client'){
+            console.log('STAGE 1')
             renderAccountSetterUI((err:any,res:any):any=>{
                 // setMiddleware(res.provider);
+                console.log('STAGE 2',err,res)
+
                 cb && cb(err,res);
                 err ? reject(err) : resolve(res);
             });
