@@ -278,14 +278,17 @@ export const triggerSubmitMessage = (data:any,callback?:Function) =>{
 }
 
 const handleResponse =(data:any)=>{
-    if(data.type.includes('deny')){
-        _callback && _callback(data.res,null);
-        _reject && _reject(data.res);
-    }else{
-        const rectifiedResponse = util.convertIfArray(data.res);
-        _callback && _callback(null, rectifiedResponse);
-        _resolve && _resolve(data.res);
+    if(data && data.type){
+        if(data.type.includes('deny')){
+            _callback && _callback(data.res,null);
+            _reject && _reject(data.res);
+        }else{
+            const rectifiedResponse = util.convertIfArray(data.res);
+            _callback && _callback(null, rectifiedResponse);
+            _resolve && _resolve(data.res);
+        }
     }
+   
 }
 
 /**

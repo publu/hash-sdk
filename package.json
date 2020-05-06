@@ -8,6 +8,7 @@
   "jsnext:main": "build/index.es.js",
   "scripts": {
     "build": "rollup -c && webpack",
+    "build-raw":"rollup -c",
     "lint": "standard",
     "test": "jest --coverage"
   },
