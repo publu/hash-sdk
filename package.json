@@ -1,6 +1,6 @@
 {
   "name": "hash-sdk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "A javascript based library that makes life easy, integrating and using Hedera services.",
   "main": "build/index.js",
   "author": "Hashing Systems, Inc",
@@ -8,7 +8,7 @@
   "jsnext:main": "build/index.es.js",
   "scripts": {
     "build": "rollup -c && webpack",
-    "build-raw":"rollup -c",
+    "build-raw": "rollup -c",
     "lint": "standard",
     "test": "jest --coverage"
   },

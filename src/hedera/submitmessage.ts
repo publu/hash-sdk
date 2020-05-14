@@ -49,8 +49,9 @@ export const submitMessageController =(data:any)=> {
 
                     // Message Interaction
                     const messageI = {res:response,type:'success'};
-                    window.postMessage(messageI, window.location.origin);
-
+                    if(env==='client'){
+                        window.postMessage(messageI, window.location.origin);
+                    }
                     resolve(message);
                     break;
                 
