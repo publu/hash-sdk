@@ -1,4 +1,4 @@
-import { ConsensusSubmitMessageTransaction,ConsensusTopicId } from '@hashgraph/sdk';
+import { ConsensusMessageSubmitTransaction,ConsensusTopicId } from '@hashgraph/sdk';
 import {util} from '../utils';
 import {helper} from '../helper';
 
@@ -88,7 +88,7 @@ const submitMessage = async(data:any) =>{
     const id = new ConsensusTopicId(topicId);
 
     // Execution to submit Messsage
-    const transactionId = await new ConsensusSubmitMessageTransaction()
+    const transactionId = await new ConsensusMessageSubmitTransaction()
     .setTopicId(id)
     .setMessage(message)
     // .sign(operatorPrivateKey) // Must sign by the topic's submitKey
