@@ -1,6 +1,6 @@
 {
   "name": "hash-sdk",
-  "version": "2.1.0",
+  "version": "2.1.6",
   "description": "A javascript based library that makes life easy, integrating and using Hedera services.",
   "main": "build/index.js",
   "author": "Hashing Systems, Inc",
@@ -57,7 +57,7 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "@hashgraph/sdk": "1.1.8",
+    "@hashgraph/sdk": "1.1.12",
     "@types/node-forge": "0.9.2",
     "bignumber.js": "9.0.0",
     "browserify": "^16.5.1",
