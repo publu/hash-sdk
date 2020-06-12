@@ -25,7 +25,7 @@ const getContractFunctionParams = (abi:any, params:any)=> {
     if (abi && abi.inputs && abi.inputs.length > 0) {
         try {
             abi.inputs.forEach((data:any, index:number) => {
-                if (common.isString(data.type)) {
+                if (data.type == 'string') {
                     const value = params[index].toString();
                     if (value) {
                         if (common.isString(value)) {
