@@ -92,9 +92,10 @@ const getContractFunctionParams = (abi:any, params:any)=> {
                         throw Error('Input is not a valid uint256 number')
                     };
                 } else if (data.type === "address") {
-                    const value = util.accountIdToHexAddress(params[index].toString());
+                    let inputAddress = params[index].toString();
+                    const value =  inputAddress.split('.').length===3 ? util.accountIdToHexAddress(inputAddress) : inputAddress;
                     if (common.isAccountIdAddress(value)) {
-                        functionParams.addAddress(value)
+                        functionParams.addAddress(value) 
                     } else {
                         throw Error('Input is not a valid address(string)')
                     };

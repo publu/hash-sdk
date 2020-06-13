@@ -102,7 +102,7 @@ const isAddressArray =(addArr:any)=> {
     let newArray :Array<string>= [];
     if (Array.isArray(addArr) && addArr.length > 0) {
         addArr.forEach((a:string):any => {
-            a = util.accountIdToHexAddress(a);
+            a = a.split('.').length===3 ? util.accountIdToHexAddress(a) : a;
             if (!isAccountIdAddress(a)) {
                 return false
             }
